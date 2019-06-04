@@ -37,6 +37,10 @@ public class Colormatic implements ClientModInitializer {
         new ColormapResource(new Identifier(MODID, "colormap/sky0.png"));
     public static final ColormapResource FOG_COLORS =
         new ColormapResource(new Identifier(MODID, "colormap/fog0.png"));
+    public static final ColormapResource BIRCH_COLORS =
+        new ColormapResource(new Identifier(MODID, "colormap/birch.png"));
+    public static final ColormapResource SPRUCE_COLORS =
+        new ColormapResource(new Identifier(MODID, "colormap/pine.png"));
 
     @Override
     public void onInitializeClient() {
@@ -45,5 +49,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(UNDERWATER_COLORS);
         client.registerReloadListener(SKY_COLORS);
         client.registerReloadListener(FOG_COLORS);
+        client.registerReloadListener(BIRCH_COLORS);
+        client.registerReloadListener(SPRUCE_COLORS);
     }
 }

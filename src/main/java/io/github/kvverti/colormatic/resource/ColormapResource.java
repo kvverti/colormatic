@@ -75,6 +75,19 @@ public class ColormapResource implements SimpleResourceReloadListener<int[]> {
         return idx > colormap.length ? 0xffff00ff : colormap[idx];
     }
 
+    /**
+     * Returns the default color given by the custom colormap.
+     *
+     * @throws IllegalStateException if no resource pack defines a custom colormap
+     *     for this resource.
+     */
+    public int getDefaultColor() {
+        if(colormap == null) {
+            throw new IllegalStateException("No custom colormap present: " + id);
+        }
+        return colormap[(128 << 8) | 128];
+    }
+
     @Override
     public CompletableFuture<int[]> load(ResourceManager manager, Profiler profiler, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {

@@ -5,6 +5,7 @@
   "client": [
       "BiomeColorsMixin",
       "BiomeMixin",
+      "BlockColorsMixin",
       "BackgroundRendererMixin"
   ],
   "injectors": {
