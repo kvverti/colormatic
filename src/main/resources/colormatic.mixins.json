@@ -6,7 +6,10 @@
       "BiomeColorsMixin",
       "BiomeMixin",
       "BlockColorsMixin",
-      "BackgroundRendererMixin"
+      "BackgroundRendererMixin",
+      "RedstoneWireBlockMixin",
+      "DustParticleEffectMixin",
+      "LeverBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

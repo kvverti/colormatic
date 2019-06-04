@@ -18,6 +18,7 @@
 package io.github.kvverti.colormatic;
 
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
+import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -41,6 +42,8 @@ public class Colormatic implements ClientModInitializer {
         new BiomeColormapResource(new Identifier(MODID, "colormap/birch.png"));
     public static final BiomeColormapResource SPRUCE_COLORS =
         new BiomeColormapResource(new Identifier(MODID, "colormap/pine.png"));
+    public static final LinearColormapResource REDSTONE_COLORS =
+        new LinearColormapResource(new Identifier(MODID, "colormap/redstone.png"));
 
     @Override
     public void onInitializeClient() {
@@ -51,5 +54,6 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(FOG_COLORS);
         client.registerReloadListener(BIRCH_COLORS);
         client.registerReloadListener(SPRUCE_COLORS);
+        client.registerReloadListener(REDSTONE_COLORS);
     }
 }
