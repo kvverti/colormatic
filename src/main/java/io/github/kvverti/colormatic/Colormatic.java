@@ -17,7 +17,7 @@
  */
 package io.github.kvverti.colormatic;
 
-import io.github.kvverti.colormatic.resource.ColormapResource;
+import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -29,18 +29,18 @@ public class Colormatic implements ClientModInitializer {
 
     public static final String MODID = "colormatic";
 
-    public static final ColormapResource WATER_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/water.png"));
-    public static final ColormapResource UNDERWATER_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/underwater.png"));
-    public static final ColormapResource SKY_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/sky0.png"));
-    public static final ColormapResource FOG_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/fog0.png"));
-    public static final ColormapResource BIRCH_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/birch.png"));
-    public static final ColormapResource SPRUCE_COLORS =
-        new ColormapResource(new Identifier(MODID, "colormap/pine.png"));
+    public static final BiomeColormapResource WATER_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/water.png"));
+    public static final BiomeColormapResource UNDERWATER_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/underwater.png"));
+    public static final BiomeColormapResource SKY_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/sky0.png"));
+    public static final BiomeColormapResource FOG_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/fog0.png"));
+    public static final BiomeColormapResource BIRCH_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/birch.png"));
+    public static final BiomeColormapResource SPRUCE_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/pine.png"));
 
     @Override
     public void onInitializeClient() {

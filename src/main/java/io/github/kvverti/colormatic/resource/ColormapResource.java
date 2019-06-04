@@ -37,7 +37,7 @@ public class ColormapResource implements SimpleResourceReloadListener<int[]> {
 
     private final Identifier id;
     private final Identifier optifineId;
-    private int[] colormap = null;
+    protected int[] colormap = null;
 
     public ColormapResource(Identifier id) {
         this.id = id;
@@ -55,37 +55,6 @@ public class ColormapResource implements SimpleResourceReloadListener<int[]> {
      */
     public boolean hasCustomColormap() {
         return colormap != null;
-    }
-
-    /**
-     * Returns a color given by the custom colormap for the given biome
-     * temperature and humidity.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
-     */
-    public int getColor(double temp, double rain) {
-        if(colormap == null) {
-            throw new IllegalStateException("No custom colormap present: " + id);
-        }
-        rain *= temp;
-        int x = (int)((1.0D - temp) * 255.0D);
-        int y = (int)((1.0D - rain) * 255.0D);
-        int idx = y << 8 | x;
-        return idx > colormap.length ? 0xffff00ff : colormap[idx];
-    }
-
-    /**
-     * Returns the default color given by the custom colormap.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource.
-     */
-    public int getDefaultColor() {
-        if(colormap == null) {
-            throw new IllegalStateException("No custom colormap present: " + id);
-        }
-        return colormap[(128 << 8) | 128];
     }
 
     @Override
