@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "colormatic",
+  "version": "${version}",
+
+  "name": "Colormatic",
+  "description": "Adds the ability to customize colors hardcoded in vanilla.",
+  "authors": [
+    "kwerti"
+  ],
+  "contact": {
+    "homepage": "https://github.com/kvverti/colormatic",
+    "sources": "https://github.com/kvverti/colormatic"
+  },
+
+  "license": "LGPL-3",
+  "icon": "assets/colormatic/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.github.kvverti.colormatic.Colormatic"
+    ]
+  },
+  "mixins": [
+    "colormatic.mixins.json"
+  ],
+
+  "requires": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}

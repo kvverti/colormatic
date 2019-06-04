@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "io.github.kvverti.colormatic.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+      "BiomeColorsMixin",
+      "BiomeMixin",
+      "BackgroundRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
