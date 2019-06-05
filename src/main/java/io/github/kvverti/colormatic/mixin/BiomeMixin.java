@@ -19,7 +19,6 @@ package io.github.kvverti.colormatic.mixin;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.biome.Biome;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,20 +35,14 @@ public abstract class BiomeMixin {
     @Inject(method = "getSkyColor", at = @At("HEAD"), cancellable = true)
     private void onSkyColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.SKY_COLORS.hasCustomColormap()) {
-            Biome self = (Biome)(Object)this;
-            double double_1 = (double)MathHelper.clamp(self.getTemperature(), 0.0F, 1.0F);
-            double double_2 = (double)MathHelper.clamp(self.getRainfall(), 0.0F, 1.0F);
-            info.setReturnValue(Colormatic.SKY_COLORS.getColor(double_1, double_2));
+            info.setReturnValue(Colormatic.SKY_COLORS.getColor((Biome)(Object)this));
         }
     }
 
     @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
     private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            Biome self = (Biome)(Object)this;
-            double double_1 = (double)MathHelper.clamp(self.getTemperature(), 0.0F, 1.0F);
-            double double_2 = (double)MathHelper.clamp(self.getRainfall(), 0.0F, 1.0F);
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor(double_1, double_2));
+            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor((Biome)(Object)this));
         }
     }
 }

@@ -47,9 +47,7 @@ public abstract class BackgroundRendererMixin {
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
         if(Colormatic.FOG_COLORS.hasCustomColormap() && self.getDimension().getType() == DimensionType.OVERWORLD) {
             Biome biome = self.getBiome(camera.getBlockPos());
-            double double_1 = (double)MathHelper.clamp(biome.getTemperature(), 0.0F, 1.0F);
-            double double_2 = (double)MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
-            int color = Colormatic.FOG_COLORS.getColor(double_1, double_2);
+            int color = Colormatic.FOG_COLORS.getColor(biome, camera.getBlockPos());
             double r = ((color >> 16) & 0xff) / 255.0;
             double g = ((color >>  8) & 0xff) / 255.0;
             double b = ((color >>  0) & 0xff) / 255.0;
