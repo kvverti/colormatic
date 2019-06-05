@@ -57,7 +57,8 @@ public abstract class RedstoneWireBlockMixin extends Block {
      *  15: iload         5
      *  17: ifne          21    <--- if (int_1 != 0)
      *  20: return
-     *  21: aload_3             <--- injection point
+     *  <injection point>
+     *  21: aload_3
      *  22: invokevirtual #513                // Method net/minecraft/util/math/BlockPos.getX:()I
      *  25: i2d
      *  26: ldc2_w        #514                // double 0.5d

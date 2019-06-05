@@ -34,6 +34,8 @@ public class Colormatic implements ClientModInitializer {
         new BiomeColormapResource(new Identifier(MODID, "colormap/water.png"));
     public static final BiomeColormapResource UNDERWATER_COLORS =
         new BiomeColormapResource(new Identifier(MODID, "colormap/underwater.png"));
+    public static final BiomeColormapResource UNDERLAVA_COLORS =
+        new BiomeColormapResource(new Identifier(MODID, "colormap/underlava.png"));
     public static final BiomeColormapResource SKY_COLORS =
         new BiomeColormapResource(new Identifier(MODID, "colormap/sky0.png"));
     public static final BiomeColormapResource FOG_COLORS =
@@ -56,6 +58,7 @@ public class Colormatic implements ClientModInitializer {
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);
+        client.registerReloadListener(UNDERLAVA_COLORS);
         client.registerReloadListener(SKY_COLORS);
         client.registerReloadListener(FOG_COLORS);
         client.registerReloadListener(BIRCH_COLORS);
