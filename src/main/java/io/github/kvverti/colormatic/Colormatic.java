@@ -18,6 +18,7 @@
 package io.github.kvverti.colormatic;
 
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
+import io.github.kvverti.colormatic.resource.LightmapResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -55,6 +56,9 @@ public class Colormatic implements ClientModInitializer {
     public static final LinearColormapResource LAVA_DROP_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/lavadrop.png"));
 
+    public static final LightmapResource OVERWORLD_LIGHTMAP =
+        new LightmapResource(new Identifier(MODID, "lightmap/overworld.png"), "lightmap/world0.png");
+
     @Override
     public void onInitializeClient() {
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
@@ -70,5 +74,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(MELON_STEM_COLORS);
         client.registerReloadListener(MYCELIUM_PARTICLE_COLORS);
         client.registerReloadListener(LAVA_DROP_COLORS);
+
+        client.registerReloadListener(OVERWORLD_LIGHTMAP);
     }
 }
