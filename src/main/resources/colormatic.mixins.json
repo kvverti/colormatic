@@ -10,7 +10,9 @@
       "RedstoneWireBlockMixin",
       "DustParticleEffectMixin",
       "LeverBlockMixin",
-      "MyceliumParticleFactoryMixin"
+      "MyceliumParticleFactoryMixin",
+      "DrippingLavaParticleMixin",
+      "LandingLavaParticleFactoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1

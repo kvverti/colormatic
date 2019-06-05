@@ -19,8 +19,8 @@ package io.github.kvverti.colormatic.mixin;
 
 import io.github.kvverti.colormatic.Colormatic;
 
+import net.minecraft.client.particle.BlockLeakParticle;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.particle.SuspendParticle;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,16 +28,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Provides mycelium particle color customization capability.
+ * Provides (falling) lava drop particle color customization capability.
  */
-@Mixin(SuspendParticle.MyceliumFactory.class)
-public abstract class MyceliumParticleFactoryMixin {
+@Mixin(BlockLeakParticle.FallingLavaFactory.class)
+public abstract class FallingLavaParticleFactoryMixin {
 
-    @Inject(method = "method_3112", at = @At("RETURN"))
+    @Inject(method = "method_18823", at = @At("RETURN"))
     private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
-        if(Colormatic.MYCELIUM_PARTICLE_COLORS.hasCustomColormap()) {
+        if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
             Particle particle = info.getReturnValue();
-            int color = Colormatic.MYCELIUM_PARTICLE_COLORS.getRandomColor();
+            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(Integer.MAX_VALUE);
             float r = ((color >> 16) & 0xff) / 255.0f;
             float g = ((color >>  8) & 0xff) / 255.0f;
             float b = ((color >>  0) & 0xff) / 255.0f;
