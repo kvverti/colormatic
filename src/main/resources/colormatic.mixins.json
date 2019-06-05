@@ -3,16 +3,17 @@
   "package": "io.github.kvverti.colormatic.mixin",
   "compatibilityLevel": "JAVA_8",
   "client": [
-      "BiomeColorsMixin",
-      "BiomeMixin",
-      "BlockColorsMixin",
-      "BackgroundRendererMixin",
-      "RedstoneWireBlockMixin",
-      "DustParticleEffectMixin",
-      "LeverBlockMixin",
-      "MyceliumParticleFactoryMixin",
-      "DrippingLavaParticleMixin",
-      "LandingLavaParticleFactoryMixin"
+      "block.RedstoneWireBlockMixin",
+      "block.LeverBlockMixin",
+      "color.BiomeColorsMixin",
+      "color.BlockColorsMixin",
+      "particle.DustParticleEffectMixin",
+      "particle.MyceliumParticleFactoryMixin",
+      "particle.DrippingLavaParticleMixin",
+      "particle.FallingLavaParticleFactoryMixin",
+      "particle.LandingLavaParticleFactoryMixin",
+      "render.BackgroundRendererMixin",
+      "world.BiomeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin;
+package io.github.kvverti.colormatic.mixin.particle;
 
 import io.github.kvverti.colormatic.Colormatic;
 

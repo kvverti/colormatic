@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin;
+package io.github.kvverti.colormatic.mixin.particle;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.world.biome.Biome;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.SuspendParticle;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,22 +28,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Provides sky color and underwater color customization capability.
+ * Provides mycelium particle color customization capability.
  */
-@Mixin(Biome.class)
-public abstract class BiomeMixin {
+@Mixin(SuspendParticle.MyceliumFactory.class)
+public abstract class MyceliumParticleFactoryMixin {
 
-    @Inject(method = "getSkyColor", at = @At("HEAD"), cancellable = true)
-    private void onSkyColor(CallbackInfoReturnable<Integer> info) {
-        if(Colormatic.SKY_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.SKY_COLORS.getColor((Biome)(Object)this));
-        }
-    }
-
-    @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
-    private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
-        if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor((Biome)(Object)this));
+    @Inject(method = "method_3112", at = @At("RETURN"))
+    private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
+        if(Colormatic.MYCELIUM_PARTICLE_COLORS.hasCustomColormap()) {
+            Particle particle = info.getReturnValue();
+            int color = Colormatic.MYCELIUM_PARTICLE_COLORS.getRandomColor();
+            float r = ((color >> 16) & 0xff) / 255.0f;
+            float g = ((color >>  8) & 0xff) / 255.0f;
+            float b = ((color >>  0) & 0xff) / 255.0f;
+            particle.setColor(r, g, b);
         }
     }
 }

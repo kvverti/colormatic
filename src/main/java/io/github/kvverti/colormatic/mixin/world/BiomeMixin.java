@@ -15,40 +15,34 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin;
+package io.github.kvverti.colormatic.mixin.world;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.biome.Biome;
 
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Provides water color customization capability.
+ * Provides sky color and underwater color customization capability.
  */
-@Mixin(BiomeColors.class)
-public abstract class BiomeColorsMixin {
+@Mixin(Biome.class)
+public abstract class BiomeMixin {
 
-    @Dynamic("water color lambda method")
-    @Inject(method = "method_4963", at = @At("HEAD"), cancellable = true)
-    private static void onWaterColor(Biome biome, BlockPos pos, CallbackInfoReturnable<Integer> info) {
-        if(Colormatic.WATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.WATER_COLORS.getColor(biome, pos));
+    @Inject(method = "getSkyColor", at = @At("HEAD"), cancellable = true)
+    private void onSkyColor(CallbackInfoReturnable<Integer> info) {
+        if(Colormatic.SKY_COLORS.hasCustomColormap()) {
+            info.setReturnValue(Colormatic.SKY_COLORS.getColor((Biome)(Object)this));
         }
     }
 
-    // currently unused in vanilla
-    @Dynamic("underwater color lambda method")
-    @Inject(method = "method_4964", at = @At("HEAD"), cancellable = true)
-    private static void onUnderwaterColor(Biome biome, BlockPos pos, CallbackInfoReturnable<Integer> info) {
+    @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
+    private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor(biome, pos));
+            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor((Biome)(Object)this));
         }
     }
 }
