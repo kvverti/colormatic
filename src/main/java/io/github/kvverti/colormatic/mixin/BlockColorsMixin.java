@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin;
 
+import net.minecraft.block.StemBlock;
 import net.minecraft.block.Blocks;
 import io.github.kvverti.colormatic.Colormatic;
 
@@ -43,7 +44,7 @@ public abstract class BlockColorsMixin {
     private static void onBirchColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.BIRCH_COLORS.hasCustomColormap()) {
             int color;
-            if(state != null && world != null) {
+            if(world != null && pos != null) {
                 Biome biome = world.getBiome(pos);
                 color = Colormatic.BIRCH_COLORS.getColor(biome, pos);
             } else {
@@ -58,7 +59,7 @@ public abstract class BlockColorsMixin {
     private static void onSpruceColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.SPRUCE_COLORS.hasCustomColormap()) {
             int color;
-            if(state != null && world != null) {
+            if(world != null && pos != null) {
                 Biome biome = world.getBiome(pos);
                 color = Colormatic.SPRUCE_COLORS.getColor(biome, pos);
             } else {
@@ -71,12 +72,13 @@ public abstract class BlockColorsMixin {
     @Dynamic("stem foliage lambda method")
     @Inject(method = "method_1698", at = @At("HEAD"), cancellable = true)
     private static void onStemColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
-        if(state.getBlock() == Blocks.PUMPKIN_STEM && Colormatic.PUMPKIN_STEM_COLORS.hasCustomColormap()) {
-            Biome biome = world.getBiome(pos);
-            info.setReturnValue(Colormatic.PUMPKIN_STEM_COLORS.getColor(biome, pos));
-        } else if(state.getBlock() == Blocks.MELON_STEM && Colormatic.MELON_STEM_COLORS.hasCustomColormap()) {
-            Biome biome = world.getBiome(pos);
-            info.setReturnValue(Colormatic.MELON_STEM_COLORS.getColor(biome, pos));
+        StemBlock block = (StemBlock)state.getBlock();
+        if(block.getGourdBlock() == Blocks.PUMPKIN && Colormatic.PUMPKIN_STEM_COLORS.hasCustomColormap()) {
+            int age = state.get(StemBlock.AGE);
+            info.setReturnValue(Colormatic.PUMPKIN_STEM_COLORS.getColorBounded(age));
+        } else if(block.getGourdBlock() == Blocks.MELON && Colormatic.MELON_STEM_COLORS.hasCustomColormap()) {
+            int age = state.get(StemBlock.AGE);
+            info.setReturnValue(Colormatic.MELON_STEM_COLORS.getColorBounded(age));
         }
     }
 }

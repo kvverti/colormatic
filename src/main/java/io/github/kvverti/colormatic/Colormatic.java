@@ -42,10 +42,10 @@ public class Colormatic implements ClientModInitializer {
         new BiomeColormapResource(new Identifier(MODID, "colormap/birch.png"));
     public static final BiomeColormapResource SPRUCE_COLORS =
         new BiomeColormapResource(new Identifier(MODID, "colormap/pine.png"));
-    public static final BiomeColormapResource PUMPKIN_STEM_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/pumpkinstem.png"));
-    public static final BiomeColormapResource MELON_STEM_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/melonstem.png"));
+    public static final LinearColormapResource PUMPKIN_STEM_COLORS =
+        new LinearColormapResource(new Identifier(MODID, "colormap/pumpkinstem.png"));
+    public static final LinearColormapResource MELON_STEM_COLORS =
+        new LinearColormapResource(new Identifier(MODID, "colormap/melonstem.png"));
     public static final LinearColormapResource REDSTONE_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/redstone.png"));
 
@@ -59,5 +59,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(BIRCH_COLORS);
         client.registerReloadListener(SPRUCE_COLORS);
         client.registerReloadListener(REDSTONE_COLORS);
+        client.registerReloadListener(PUMPKIN_STEM_COLORS);
+        client.registerReloadListener(MELON_STEM_COLORS);
     }
 }
