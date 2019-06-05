@@ -48,6 +48,8 @@ public class Colormatic implements ClientModInitializer {
         new LinearColormapResource(new Identifier(MODID, "colormap/melonstem.png"));
     public static final LinearColormapResource REDSTONE_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/redstone.png"));
+    public static final LinearColormapResource MYCELIUM_PARTICLE_COLORS =
+        new LinearColormapResource(new Identifier(MODID, "colormap/myceliumparticle.png"));
 
     @Override
     public void onInitializeClient() {
@@ -61,5 +63,6 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(REDSTONE_COLORS);
         client.registerReloadListener(PUMPKIN_STEM_COLORS);
         client.registerReloadListener(MELON_STEM_COLORS);
+        client.registerReloadListener(MYCELIUM_PARTICLE_COLORS);
     }
 }

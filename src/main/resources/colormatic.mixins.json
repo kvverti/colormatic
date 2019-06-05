@@ -9,7 +9,8 @@
       "BackgroundRendererMixin",
       "RedstoneWireBlockMixin",
       "DustParticleEffectMixin",
-      "LeverBlockMixin"
+      "LeverBlockMixin",
+      "MyceliumParticleFactoryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
