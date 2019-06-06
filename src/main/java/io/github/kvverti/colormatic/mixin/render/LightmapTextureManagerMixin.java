@@ -21,25 +21,18 @@ import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.resource.LightmapResource;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -80,6 +73,8 @@ public abstract class LightmapTextureManagerMixin {
         // TODO: take dimension into account
         if(world != null && Colormatic.OVERWORLD_LIGHTMAP.hasCustomColormap()) {
             LightmapResource map = Colormatic.OVERWORLD_LIGHTMAP;
+            // TODO: handle night vision flicker
+            boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION);
             float ambience;
             if(world.getTicksSinceLightning() > 0) {
                 ambience = -1.0f;
@@ -88,8 +83,8 @@ public abstract class LightmapTextureManagerMixin {
             }
             for(int skyLight = 0; skyLight < 16; skyLight++) {
                 for(int blockLight = 0; blockLight < 16; blockLight++) {
-                    int skyColor = map.getSkyLight(skyLight, ambience, false);
-                    int blockColor = map.getBlockLight(blockLight, world.getRandom(), false);
+                    int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
+                    int blockColor = map.getBlockLight(blockLight, world.getRandom(), nightVision);
                     // color will take the brightest of block and sky
                     int blockBright = ((blockColor >> 16) & 0xff)
                                     + ((blockColor >>  8) & 0xff)

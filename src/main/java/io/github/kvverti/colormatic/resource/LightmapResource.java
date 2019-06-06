@@ -31,10 +31,15 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 /**
  * A lightmap texture.
  */
 public class LightmapResource implements SimpleResourceReloadListener<NativeImage> {
+
+    private static final Logger log = LogManager.getLogger();
 
     private final Identifier id;
     private final Identifier optifineId;
@@ -65,51 +70,76 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
         if(lightmap == null) {
             throw new IllegalStateException("No custom lightmap present: " + id);
         }
-        int width = lightmap.getWidth();
-        int offset = nightVision ? 48 : 16;
-        return lightmap.getPixelRGBA(rand.nextInt(width), offset + level);
+        int posX = rand.nextInt(lightmap.getWidth());
+        return getPixel(posX, level + 16, nightVision);
     }
 
     /**
      * Returns the color for the given sky light level. The ambience controls
      * the position of the skylight spectrum, from night to day to lightning.
-     * Non-lightning ambiences perform a weighted average of adjacent colors
-     * in order to provide a smooth transition between ambience levels.
+     * Non-lightning ambiences perform a weighted average of the color to the
+     * right in order to provide a smooth transition between ambience levels.
      */
     public int getSkyLight(int level, float ambience, boolean nightVision) {
         if(lightmap == null) {
             throw new IllegalStateException("No custom lightmap present: " + id);
         }
-        int posY = level + (nightVision ? 32 : 0);
         if(ambience < 0) {
             // lightning
             int posX = lightmap.getWidth() - 1;
-            return lightmap.getPixelRGBA(posX, posY);
+            return getPixel(posX, level, nightVision);
         } else {
             float scaledAmbience = ambience * (lightmap.getWidth() - 2);
             float scaledAmbienceRemainder = scaledAmbience % 1.0f;
             int posX = (int)scaledAmbience;
-            int light = lightmap.getPixelRGBA(posX, posY);
+            int light = getPixel(posX, level, nightVision);
             if(posX < lightmap.getWidth() - 2) {
-                int rightLight = lightmap.getPixelRGBA(posX + 1, posY);
+                int rightLight = getPixel(posX + 1, level, nightVision);
                 light = mergeColors(rightLight, light, scaledAmbienceRemainder);
             }
             return light;
         }
     }
 
+    /**
+     * Returns the pixel at (x, y) with or without night vision.
+     */
+    private int getPixel(int x, int y, boolean nightVision) {
+        if(nightVision) {
+            if(lightmap.getHeight() != 64) {
+                // night vision is calculated as
+                // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
+                int color = lightmap.getPixelRGBA(x, y);
+                int r = (color >> 16) & 0xff;
+                int g = (color >>  8) & 0xff;
+                int b = (color >>  0) & 0xff;
+                int scale = Math.max(Math.max(r, g), b);
+                int ret = 0xff000000;
+                ret |= (255 * r / scale) << 16;
+                ret |= (255 * g / scale) <<  8;
+                ret |= (255 * b / scale) <<  0;
+                return ret;
+            } else {
+                return lightmap.getPixelRGBA(x, y + 32);
+            }
+        } else {
+            return lightmap.getPixelRGBA(x, y);
+        }
+    }
+
     private int mergeColors(int a, int b, float aweight) {
+        float oneMinusAweight = 1 - aweight;
         int cha, chb;
         int res = 0xff000000;
         cha = ((a >> 16) & 0xff);
         chb = ((b >> 16) & 0xff);
-        res |= (int)(cha * aweight + chb * (1 - aweight)) << 16;
+        res |= (int)(cha * aweight + chb * oneMinusAweight) << 16;
         cha = ((a >> 8) & 0xff);
         chb = ((b >> 8) & 0xff);
-        res |= (int)(cha * aweight + chb * (1 - aweight)) << 8;
+        res |= (int)(cha * aweight + chb * oneMinusAweight) << 8;
         cha = a & 0xff;
         chb = b & 0xff;
-        res |= (int)(cha * aweight + chb * (1 - aweight));
+        res |= (int)(cha * aweight + chb * oneMinusAweight);
         return res;
     }
 
@@ -132,6 +162,13 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
 
     @Override
     public CompletableFuture<Void> apply(NativeImage data, ResourceManager manager, Profiler profiler, Executor executor) {
-        return CompletableFuture.runAsync(() -> lightmap = data, executor);
+        return CompletableFuture.runAsync(() -> {
+            if(data.getWidth() < 2 || (data.getHeight() != 32 && data.getHeight() != 64)) {
+                log.warn("Lightmap image dimensions must be nX32 or nX64: " + id);
+                lightmap = null;
+            } else {
+                lightmap = data;
+            }
+        }, executor);
     }
 }
