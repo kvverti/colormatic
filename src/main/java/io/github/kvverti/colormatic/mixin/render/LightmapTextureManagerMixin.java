@@ -36,6 +36,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
+/**
+ * Provides custom lightmap update capability.
+ */
 @Mixin(LightmapTextureManager.class)
 public abstract class LightmapTextureManagerMixin {
 
@@ -68,9 +71,8 @@ public abstract class LightmapTextureManagerMixin {
         cancellable = true
     )
     private void onUpdate(float partialTicks, CallbackInfo info, World world) {
-        // TODO: take dimension into account
-        if(world != null && Colormatic.OVERWORLD_LIGHTMAP.hasCustomColormap()) {
-            LightmapResource map = Colormatic.OVERWORLD_LIGHTMAP;
+        LightmapResource map = Colormatic.LIGHTMAPS.get(world.getDimension().getType());
+        if(world != null && map.hasCustomColormap()) {
             // TODO: handle night vision flicker
             boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION);
             float ambience;

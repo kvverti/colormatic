@@ -17,6 +17,8 @@
  */
 package io.github.kvverti.colormatic;
 
+import com.google.common.collect.ImmutableMap;
+
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 import io.github.kvverti.colormatic.resource.LightmapResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
@@ -26,6 +28,8 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.dimension.DimensionType;
 
 public class Colormatic implements ClientModInitializer {
 
@@ -56,8 +60,7 @@ public class Colormatic implements ClientModInitializer {
     public static final LinearColormapResource LAVA_DROP_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/lavadrop.png"));
 
-    public static final LightmapResource OVERWORLD_LIGHTMAP =
-        new LightmapResource(new Identifier(MODID, "lightmap/overworld.png"), "lightmap/world0.png");
+    public static final ImmutableMap<DimensionType, LightmapResource> LIGHTMAPS;
 
     @Override
     public void onInitializeClient() {
@@ -75,6 +78,28 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(MYCELIUM_PARTICLE_COLORS);
         client.registerReloadListener(LAVA_DROP_COLORS);
 
-        client.registerReloadListener(OVERWORLD_LIGHTMAP);
+        for(LightmapResource rsc : LIGHTMAPS.values()) {
+            client.registerReloadListener(rsc);
+        }
+    }
+
+    static {
+        // TODO: support mod-added dimensions
+        ImmutableMap.Builder<DimensionType, LightmapResource> builder = ImmutableMap.builder();
+        for(DimensionType type : Registry.DIMENSION) {
+            Identifier id = DimensionType.getId(type);
+            String filepart;
+            if(id.getNamespace().equals("minecraft")) {
+                filepart = id.getPath();
+            } else {
+                filepart = id.toString().replace(':', '/');
+            }
+            String filename = String.format("lightmap/%s.png", filepart);
+            String optifine = String.format("lightmap/world%d.png", type.getRawId());
+            LightmapResource rsc =
+                new LightmapResource(new Identifier(MODID, filename), optifine);
+            builder.put(type, rsc);
+        }
+        LIGHTMAPS = builder.build();
     }
 }
