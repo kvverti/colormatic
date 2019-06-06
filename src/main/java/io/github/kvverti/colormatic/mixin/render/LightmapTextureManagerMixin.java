@@ -60,11 +60,9 @@ public abstract class LightmapTextureManagerMixin {
     @Inject(
         method = "update",
         at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/MinecraftClient;world:Lnet/minecraft/client/world/ClientWorld;",
-            ordinal = 0,
-            shift = At.Shift.BY,
-            by = 2
+            value = "JUMP",
+            ordinal = 1,
+            shift = At.Shift.BEFORE
         ),
         locals = LocalCapture.CAPTURE_FAILEXCEPTION,
         cancellable = true
@@ -85,14 +83,11 @@ public abstract class LightmapTextureManagerMixin {
                 for(int blockLight = 0; blockLight < 16; blockLight++) {
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
                     int blockColor = map.getBlockLight(blockLight, world.getRandom(), nightVision);
-                    // color will take the brightest of block and sky
-                    int blockBright = ((blockColor >> 16) & 0xff)
-                                    + ((blockColor >>  8) & 0xff)
-                                    + ((blockColor >>  0) & 0xff);
-                    int skyBright = ((skyColor >> 16) & 0xff)
-                                  + ((skyColor >>  8) & 0xff)
-                                  + ((skyColor >>  0) & 0xff);
-                    int color = blockBright > skyBright ? blockColor : skyColor;
+                    // color will merge the brightest channels
+                    int color = 0xff000000;
+                    color |= Math.max(skyColor & 0xff0000, blockColor & 0xff0000);
+                    color |= Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00);
+                    color |= Math.max(skyColor & 0x0000ff, blockColor & 0x0000ff);
                     this.image.setPixelRGBA(blockLight, skyLight, color);
                 }
             }
