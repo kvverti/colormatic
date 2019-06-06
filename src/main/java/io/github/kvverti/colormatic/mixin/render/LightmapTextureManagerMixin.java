@@ -84,10 +84,29 @@ public abstract class LightmapTextureManagerMixin {
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
                     int blockColor = map.getBlockLight(blockLight, world.getRandom(), nightVision);
                     // color will merge the brightest channels
+                    float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
+                    float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
+                    float b = (Math.max(skyColor & 0x0000ff, blockColor & 0x0000ff) >>  0) / 255.0f;
+                    float rbright = 1.0f - r;
+                    float gbright = 1.0f - g;
+                    float bbright = 1.0f - b;
+                    rbright *= rbright;
+                    gbright *= gbright;
+                    bbright *= bbright;
+                    rbright *= rbright;
+                    gbright *= gbright;
+                    bbright *= bbright;
+                    rbright = 1.0f - rbright;
+                    gbright = 1.0f - gbright;
+                    bbright = 1.0f - bbright;
+                    float brightness = (float)this.client.options.gamma;
+                    r = r * (1.0f - brightness) + rbright * brightness;
+                    g = g * (1.0f - brightness) + gbright * brightness;
+                    b = b * (1.0f - brightness) + bbright * brightness;
                     int color = 0xff000000;
-                    color |= Math.max(skyColor & 0xff0000, blockColor & 0xff0000);
-                    color |= Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00);
-                    color |= Math.max(skyColor & 0x0000ff, blockColor & 0x0000ff);
+                    color |= (int)(r * 255.0f) << 16;
+                    color |= (int)(g * 255.0f) <<  8;
+                    color |= (int)(b * 255.0f) <<  0;
                     this.image.setPixelRGBA(blockLight, skyLight, color);
                 }
             }
