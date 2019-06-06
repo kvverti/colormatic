@@ -163,7 +163,9 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
     @Override
     public CompletableFuture<Void> apply(NativeImage data, ResourceManager manager, Profiler profiler, Executor executor) {
         return CompletableFuture.runAsync(() -> {
-            if(data.getWidth() < 2 || (data.getHeight() != 32 && data.getHeight() != 64)) {
+            if(data != null &&
+                    (data.getWidth() < 2 ||
+                    (data.getHeight() != 32 && data.getHeight() != 64))) {
                 log.warn("Lightmap image dimensions must be nX32 or nX64: " + id);
                 lightmap = null;
             } else {
