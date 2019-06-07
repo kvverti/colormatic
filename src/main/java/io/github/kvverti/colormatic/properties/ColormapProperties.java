@@ -150,29 +150,18 @@ public class ColormapProperties {
      * identifier name.
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id) {
-        Properties data = new Properties();
+        Properties data = new Properties(computeDefaults(id));
         Settings settings = new Settings();
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
             data.load(in);
         } catch(IOException e) {
-            settings.format = Format.VANILLA;
-            settings.color = -1;
-            settings.yVariance = 0;
-            settings.yOffset = 0;
-            String path = id.getPath();
-            path = path.substring(0, path.lastIndexOf('.')) + ".png";
-            settings.source = new Identifier(id.getNamespace(), path);
-            settings.blocks = new ArrayList<>();
-            String blockId = id.getPath();
-            blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
-            settings.blocks.add(PropertyUtil.createBlockPredicate(blockId));
-            return new ColormapProperties(settings);
+            // ignored
         }
-        settings.format = Format.byName(data.getProperty("format", "vanilla"));
-        settings.color = 0xff000000 | parseOrDefault(data.getProperty("color", "ffffff"), 16, 0xffffff);
-        settings.yVariance = parseOrDefault(data.getProperty("yVariance", "0"), 10, 0);
-        settings.yOffset = parseOrDefault(data.getProperty("yOffset", "0"), 10, 0);
-        String srcPath = data.getProperty("source", id.toString().replace(".properties", ".png"));
+        settings.format = Format.byName(data.getProperty("format"));
+        settings.color = 0xff000000 | parseOrDefault(data.getProperty("color"), 16, 0xffffff);
+        settings.yVariance = parseOrDefault(data.getProperty("yVariance"), 10, 0);
+        settings.yOffset = parseOrDefault(data.getProperty("yOffset"), 10, 0);
+        String srcPath = data.getProperty("source");
         if(srcPath.startsWith("./")) {
             // relative path
             String thisPath = id.toString();
@@ -183,13 +172,35 @@ public class ColormapProperties {
         }
         settings.source = new Identifier(srcPath);
         settings.blocks = new ArrayList<>();
-        String filename = id.getPath();
-        filename = filename.substring(filename.lastIndexOf('/') + 1, filename.lastIndexOf('.'));
-        String[] blockPreds = data.getProperty("blocks", filename).split("\\s+");
+        String[] blockPreds = data.getProperty("blocks").split("\\s+");
         for(String s : blockPreds) {
             settings.blocks.add(PropertyUtil.createBlockPredicate(s));
         }
         return new ColormapProperties(settings);
+    }
+
+    /**
+     * Default properties for all biome colormaps.
+     */
+    private static final Properties baseProperties;
+
+    static {
+        baseProperties = new Properties();
+        baseProperties.setProperty("format", "vanilla");
+        baseProperties.setProperty("color", "ffffff");
+        baseProperties.setProperty("yVariance", "0");
+        baseProperties.setProperty("yOffset", "0");
+    }
+
+    private static Properties computeDefaults(Identifier id) {
+        String path = id.toString();
+        path = path.substring(0, path.lastIndexOf('.')) + ".png";
+        String blockId = id.getPath();
+        blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
+        Properties res = new Properties(baseProperties);
+        res.setProperty("source", path);
+        res.setProperty("blocks", blockId);
+        return res;
     }
 
     private static int parseOrDefault(String s, int base, int fallback) {
