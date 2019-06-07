@@ -39,7 +39,7 @@ public abstract class BiomeColorsMixin {
     @Inject(method = "method_4963", at = @At("HEAD"), cancellable = true)
     private static void onWaterColor(Biome biome, BlockPos pos, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.WATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.WATER_COLORS.getColor(biome, pos));
+            info.setReturnValue(Colormatic.WATER_COLORS.getColormap().getColor(biome, pos));
         }
     }
 
@@ -48,7 +48,7 @@ public abstract class BiomeColorsMixin {
     @Inject(method = "method_4964", at = @At("HEAD"), cancellable = true)
     private static void onUnderwaterColor(Biome biome, BlockPos pos, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor(biome, pos));
+            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColormap().getColor(biome, pos));
         }
     }
 }

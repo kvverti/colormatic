@@ -17,70 +17,81 @@
  */
 package io.github.kvverti.colormatic.resource;
 
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.biome.Biome;
+import io.github.kvverti.colormatic.properties.ColormapProperties;
+import io.github.kvverti.colormatic.colormap.BiomeColormap;
 
-public class BiomeColormapResource extends ColormapResource {
+import java.io.InputStream;
+import java.io.IOException;
+
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
+
+/**
+ * An optional biome colormap in the vanilla format. The colormap is expected
+ * to be found at the path given by an instance's ID, or at the corresponding
+ * Optifine path.
+ */
+public class BiomeColormapResource implements SimpleSynchronousResourceReloadListener {
+
+    private final Identifier id;
+    private final Identifier optifineId;
+    BiomeColormap colormap;
 
     public BiomeColormapResource(Identifier id) {
-        super(id);
+        this.id = id;
+        this.optifineId = new Identifier("minecraft", "optifine/" + id.getPath());
+    }
+
+    @Override
+    public Identifier getFabricId() {
+        return id;
     }
 
     /**
-     * Returns a color given by the custom colormap for the given biome
-     * temperature and humidity.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
+     * Returns whether a resource pack has defined a custom colormap
+     * for this resource.
      */
-    private int getColor(double temp, double rain) {
-        if(this.colormap == null) {
-            throw new IllegalStateException("No custom colormap present: " + this.getFabricId());
+    public boolean hasCustomColormap() {
+        return colormap != null;
+    }
+
+    public BiomeColormap getColormap() {
+        if(colormap == null) {
+            throw new IllegalStateException("No custom colormap present: " + getFabricId());
         }
-        rain *= temp;
-        int x = (int)((1.0D - temp) * 255.0D);
-        int y = (int)((1.0D - rain) * 255.0D);
-        int idx = y << 8 | x;
-        return idx > this.colormap.length ? 0xffff00ff : this.colormap[idx];
+        return colormap;
     }
 
-    /**
-     * Returns a color given by the custom colormap for the given biome.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
-     */
-    public int getColor(Biome biome) {
-        double temp = MathHelper.clamp(biome.getTemperature(), 0.0F, 1.0F);
-        double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
-        return getColor(rain, temp);
-    }
-
-    /**
-     * Returns a color given by the custom colormap for the given biome and
-     * BlockPos.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
-     */
-    public int getColor(Biome biome, BlockPos pos) {
-        double temp = MathHelper.clamp(biome.getTemperature(pos), 0.0F, 1.0F);
-        double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
-        return getColor(rain, temp);
-    }
-
-    /**
-     * Returns the default color given by the custom colormap.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource.
-     */
-    public int getDefaultColor() {
-        if(this.colormap == null) {
-            throw new IllegalStateException("No custom colormap present: " + this.getFabricId());
+    @Override
+    public void apply(ResourceManager manager) {
+        PropertyImage pi;
+        try {
+            pi = load(manager, id);
+        } catch(IOException e) {
+            // try Optifine directory
+            try {
+                pi = load(manager, optifineId);
+            } catch(IOException e2) {
+                // no custom colormap
+                pi = null;
+            }
         }
-        return this.colormap[(128 << 8) | 128];
+        colormap = pi == null ? null : new BiomeColormap(pi.properties, pi.image);
+    }
+
+    private static PropertyImage load(ResourceManager manager, Identifier id) throws IOException {
+        ColormapProperties props = ColormapProperties.load(manager, id);
+        if(props.getFormat() == ColormapProperties.Format.FIXED) {
+            // fixed format does not have a corresponding image
+            return new PropertyImage(props, null);
+        }
+        try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
+            NativeImage image = NativeImage.fromInputStream(in);
+            return new PropertyImage(props, image);
+        }
     }
 }

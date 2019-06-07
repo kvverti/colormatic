@@ -46,9 +46,9 @@ public abstract class BlockColorsMixin {
             int color;
             if(world != null && pos != null) {
                 Biome biome = world.getBiome(pos);
-                color = Colormatic.BIRCH_COLORS.getColor(biome, pos);
+                color = Colormatic.BIRCH_COLORS.getColormap().getColor(biome, pos);
             } else {
-                color = Colormatic.BIRCH_COLORS.getDefaultColor();
+                color = Colormatic.BIRCH_COLORS.getColormap().getDefaultColor();
             }
             info.setReturnValue(color);
         }
@@ -61,9 +61,9 @@ public abstract class BlockColorsMixin {
             int color;
             if(world != null && pos != null) {
                 Biome biome = world.getBiome(pos);
-                color = Colormatic.SPRUCE_COLORS.getColor(biome, pos);
+                color = Colormatic.SPRUCE_COLORS.getColormap().getColor(biome, pos);
             } else {
-                color = Colormatic.SPRUCE_COLORS.getDefaultColor();
+                color = Colormatic.SPRUCE_COLORS.getColormap().getDefaultColor();
             }
             info.setReturnValue(color);
         }

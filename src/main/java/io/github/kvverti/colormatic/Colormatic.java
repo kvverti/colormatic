@@ -34,19 +34,19 @@ public class Colormatic implements ClientModInitializer {
     public static final String MODID = "colormatic";
 
     public static final BiomeColormapResource WATER_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/water.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/water.properties"));
     public static final BiomeColormapResource UNDERWATER_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/underwater.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/underwater.properties"));
     public static final BiomeColormapResource UNDERLAVA_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/underlava.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/underlava.properties"));
     public static final BiomeColormapResource SKY_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/sky0.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/sky0.properties"));
     public static final BiomeColormapResource FOG_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/fog0.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/fog0.properties"));
     public static final BiomeColormapResource BIRCH_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/birch.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/birch.properties"));
     public static final BiomeColormapResource SPRUCE_COLORS =
-        new BiomeColormapResource(new Identifier(MODID, "colormap/pine.png"));
+        new BiomeColormapResource(new Identifier(MODID, "colormap/pine.properties"));
     public static final LinearColormapResource PUMPKIN_STEM_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/pumpkinstem.png"));
     public static final LinearColormapResource MELON_STEM_COLORS =

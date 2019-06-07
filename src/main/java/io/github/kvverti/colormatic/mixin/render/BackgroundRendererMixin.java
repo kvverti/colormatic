@@ -60,7 +60,7 @@ public abstract class BackgroundRendererMixin {
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
         if(Colormatic.FOG_COLORS.hasCustomColormap() && self.getDimension().getType() == DimensionType.OVERWORLD) {
             Biome biome = self.getBiome(camera.getBlockPos());
-            int color = Colormatic.FOG_COLORS.getColor(biome, camera.getBlockPos());
+            int color = Colormatic.FOG_COLORS.getColormap().getColor(biome, camera.getBlockPos());
             double r = ((color >> 16) & 0xff) / 255.0;
             double g = ((color >>  8) & 0xff) / 255.0;
             double b = ((color >>  0) & 0xff) / 255.0;
@@ -109,7 +109,7 @@ public abstract class BackgroundRendererMixin {
     private void onRenderLavaFog(Camera camera, float partialTicks, CallbackInfo info) {
         if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             Biome biome = this.client.world.getBiome(camera.getBlockPos());
-            int color = Colormatic.UNDERLAVA_COLORS.getColor(biome, camera.getBlockPos());
+            int color = Colormatic.UNDERLAVA_COLORS.getColormap().getColor(biome, camera.getBlockPos());
             this.red = ((color >> 16) & 0xff) / 255.0f;
             this.green = ((color >>  8) & 0xff) / 255.0f;
             this.blue = ((color >>  0) & 0xff) / 255.0f;

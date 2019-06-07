@@ -35,14 +35,14 @@ public abstract class BiomeMixin {
     @Inject(method = "getSkyColor", at = @At("HEAD"), cancellable = true)
     private void onSkyColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.SKY_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.SKY_COLORS.getColor((Biome)(Object)this));
+            info.setReturnValue(Colormatic.SKY_COLORS.getColormap().getColor((Biome)(Object)this));
         }
     }
 
     @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
     private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColor((Biome)(Object)this));
+            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColormap().getColor((Biome)(Object)this));
         }
     }
 }
