@@ -39,7 +39,7 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
 
     private final Identifier id;
     private final Identifier optifineId;
-    BiomeColormap colormap;
+    private BiomeColormap colormap;
 
     public BiomeColormapResource(Identifier id) {
         this.id = id;
