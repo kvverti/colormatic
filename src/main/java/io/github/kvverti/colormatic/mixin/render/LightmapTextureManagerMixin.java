@@ -17,7 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
-import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.Lightmaps;
 import io.github.kvverti.colormatic.resource.LightmapResource;
 
 import net.minecraft.client.MinecraftClient;
@@ -71,7 +71,7 @@ public abstract class LightmapTextureManagerMixin {
         cancellable = true
     )
     private void onUpdate(float partialTicks, CallbackInfo info, World world) {
-        LightmapResource map = Colormatic.LIGHTMAPS.get(world.getDimension().getType());
+        LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
             // TODO: handle night vision flicker
             boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION);
