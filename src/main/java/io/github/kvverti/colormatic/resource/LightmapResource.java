@@ -147,11 +147,11 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
     public CompletableFuture<NativeImage> load(ResourceManager manager, Profiler profiler, Executor executor) {
         return CompletableFuture.supplyAsync(() -> {
             try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-                return NativeImage.fromInputStream(rsc.getInputStream());
+                return NativeImage.fromInputStream(in);
             } catch(IOException e) {
                 // try optifine ID
                 try(Resource rsc = manager.getResource(optifineId); InputStream in = rsc.getInputStream()) {
-                    return NativeImage.fromInputStream(rsc.getInputStream());
+                    return NativeImage.fromInputStream(in);
                 } catch(IOException e2) {
                     // no lightmap
                     return null;
