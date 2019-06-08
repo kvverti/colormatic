@@ -17,16 +17,14 @@
  */
 package io.github.kvverti.colormatic.resource;
 
-import io.github.kvverti.colormatic.properties.ColormapProperties;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.properties.PropertyImage;
+import io.github.kvverti.colormatic.properties.PropertyUtil;
 
-import java.io.InputStream;
 import java.io.IOException;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -70,28 +68,16 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
     public void apply(ResourceManager manager) {
         PropertyImage pi;
         try {
-            pi = load(manager, id);
+            pi = PropertyUtil.loadColormap(manager, id);
         } catch(IOException e) {
             // try Optifine directory
             try {
-                pi = load(manager, optifineId);
+                pi = PropertyUtil.loadColormap(manager, optifineId);
             } catch(IOException e2) {
                 // no custom colormap
                 pi = null;
             }
         }
         colormap = pi == null ? null : new BiomeColormap(pi.properties, pi.image);
-    }
-
-    private static PropertyImage load(ResourceManager manager, Identifier id) throws IOException {
-        ColormapProperties props = ColormapProperties.load(manager, id);
-        if(props.getFormat() == ColormapProperties.Format.FIXED) {
-            // fixed format does not have a corresponding image
-            return new PropertyImage(props, null);
-        }
-        try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
-            NativeImage image = NativeImage.fromInputStream(in);
-            return new PropertyImage(props, image);
-        }
     }
 }

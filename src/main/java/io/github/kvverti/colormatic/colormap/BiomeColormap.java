@@ -20,6 +20,7 @@ package io.github.kvverti.colormatic.colormap;
 import net.minecraft.util.registry.Registry;
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -33,6 +34,13 @@ public class BiomeColormap {
     public BiomeColormap(ColormapProperties props, NativeImage image) {
         properties = props;
         colormap = image;
+    }
+
+    /**
+     * Returns whether this colormap applies to the given block state.
+     */
+    public boolean appliesTo(BlockState state) {
+        return properties.isForBlock(state);
     }
 
     /**

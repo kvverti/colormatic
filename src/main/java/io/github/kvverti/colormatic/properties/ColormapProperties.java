@@ -17,6 +17,8 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import io.github.kvverti.colormatic.properties.predicate.InvalidPredicateException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,10 +32,15 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 /**
  * A colormap properties structure, specified by a `.properties` file.
  */
 public class ColormapProperties {
+
+    private static final Logger log = LogManager.getLogger();
 
     /**
      * The format of the corresponding colormap.
@@ -174,7 +181,11 @@ public class ColormapProperties {
         settings.blocks = new ArrayList<>();
         String[] blockPreds = data.getProperty("blocks").split("\\s+");
         for(String s : blockPreds) {
-            settings.blocks.add(PropertyUtil.createBlockPredicate(s));
+            try {
+                settings.blocks.add(PropertyUtil.createBlockPredicate(s));
+            } catch(InvalidPredicateException e) {
+                log.warn("Error parsing {}: {}", id, e);
+            }
         }
         return new ColormapProperties(settings);
     }
@@ -192,6 +203,10 @@ public class ColormapProperties {
         baseProperties.setProperty("yOffset", "0");
     }
 
+    /**
+     * Computes default properties based on the name of the properties file.
+     * This is used for the `source` and `blocks` attributes.
+     */
     private static Properties computeDefaults(Identifier id) {
         String path = id.toString();
         path = path.substring(0, path.lastIndexOf('.')) + ".png";

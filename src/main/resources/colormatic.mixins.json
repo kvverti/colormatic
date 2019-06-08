@@ -7,6 +7,7 @@
       "block.LeverBlockMixin",
       "color.BiomeColorsMixin",
       "color.BlockColorsMixin",
+      "color.ItemColorsMixin",
       "particle.DustParticleEffectMixin",
       "particle.MyceliumParticleFactoryMixin",
       "particle.DrippingLavaParticleMixin",

@@ -19,16 +19,25 @@ package io.github.kvverti.colormatic.properties;
 
 import io.github.kvverti.colormatic.properties.predicate.InvalidPredicateException;
 
+import java.io.InputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.texture.NativeImage;
 import net.minecraft.predicate.block.BlockStatePredicate;
+import net.minecraft.resource.Resource;
+import net.minecraft.resource.ResourceManager;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
 
+/**
+ * Utility class for dealing with properties files.
+ */
 public class PropertyUtil {
 
     /**
@@ -39,14 +48,18 @@ public class PropertyUtil {
         Block b;
         String[] parts = blockDesc.split(":");
         int bgnIdx;
-        if(parts.length > 1 && parts[1].indexOf('=') < 0) {
-            // a qualified name like `minecraft:grass_block:snowy=false`
-            b = Registry.BLOCK.get(new Identifier(parts[0], parts[1]));
-            bgnIdx = 2;
-        } else {
-            // an unqualified name like `grass_block:snowy=false`
-            b = Registry.BLOCK.get(new Identifier(parts[0]));
-            bgnIdx = 1;
+        try {
+            if(parts.length > 1 && parts[1].indexOf('=') < 0) {
+                // a qualified name like `minecraft:grass_block:snowy=false`
+                b = Registry.BLOCK.get(new Identifier(parts[0], parts[1]));
+                bgnIdx = 2;
+            } else {
+                // an unqualified name like `grass_block:snowy=false`
+                b = Registry.BLOCK.get(new Identifier(parts[0]));
+                bgnIdx = 1;
+            }
+        } catch(InvalidIdentifierException e) {
+            throw new InvalidPredicateException("Invalid block identifier: " + blockDesc, e);
         }
         if(b == null) {
             throw new InvalidPredicateException("Block not found: " + blockDesc);
@@ -84,6 +97,24 @@ public class PropertyUtil {
             values.add(value.get());
         } else {
             throw new InvalidPredicateException("Invalid property value: " + s);
+        }
+    }
+
+    /**
+     * Loads the given colormap properties and the image (if any) associated with
+     * them.
+     *
+     * @throws IOException if no colormap properties exist for the given id.
+     */
+    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) throws IOException {
+        ColormapProperties props = ColormapProperties.load(manager, id);
+        if(props.getFormat() == ColormapProperties.Format.FIXED) {
+            // fixed format does not have a corresponding image
+            return new PropertyImage(props, null);
+        }
+        try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
+            NativeImage image = NativeImage.fromInputStream(in);
+            return new PropertyImage(props, image);
         }
     }
 }

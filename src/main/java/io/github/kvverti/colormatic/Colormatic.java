@@ -18,6 +18,7 @@
 package io.github.kvverti.colormatic;
 
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
+import io.github.kvverti.colormatic.resource.CustomBiomeColormapsResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
 import net.fabricmc.api.ClientModInitializer;
@@ -57,6 +58,8 @@ public class Colormatic implements ClientModInitializer {
         new LinearColormapResource(new Identifier(MODID, "colormap/myceliumparticle.png"));
     public static final LinearColormapResource LAVA_DROP_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/lavadrop.png"));
+    public static final CustomBiomeColormapsResource CUSTOM_BLOCK_COLORS =
+        new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
 
     @Override
     public void onInitializeClient() {
@@ -73,6 +76,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(MELON_STEM_COLORS);
         client.registerReloadListener(MYCELIUM_PARTICLE_COLORS);
         client.registerReloadListener(LAVA_DROP_COLORS);
+        client.registerReloadListener(CUSTOM_BLOCK_COLORS);
 
         RegistryEntryAddedCallback.event(Registry.DIMENSION)
             .register(Lightmaps::registerLightmapReload);

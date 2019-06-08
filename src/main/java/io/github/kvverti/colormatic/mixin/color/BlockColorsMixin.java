@@ -17,11 +17,12 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
-import net.minecraft.block.StemBlock;
-import net.minecraft.block.Blocks;
 import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.colormap.BiomeColormap;
 
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.StemBlock;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ExtendedBlockView;
@@ -79,6 +80,18 @@ public abstract class BlockColorsMixin {
         } else if(block.getGourdBlock() == Blocks.MELON && Colormatic.MELON_STEM_COLORS.hasCustomColormap()) {
             int age = state.get(StemBlock.AGE);
             info.setReturnValue(Colormatic.MELON_STEM_COLORS.getColorBounded(age));
+        }
+    }
+
+    @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
+    private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state);
+        if(colormap != null) {
+            if(world != null && pos != null) {
+                info.setReturnValue(colormap.getColor(world.getBiome(pos), pos));
+            } else {
+                info.setReturnValue(colormap.getDefaultColor());
+            }
         }
     }
 }

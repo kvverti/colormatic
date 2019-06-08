@@ -15,12 +15,15 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.resource;
+package io.github.kvverti.colormatic.properties;
 
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 
 import net.minecraft.client.texture.NativeImage;
 
+/**
+ * Biome properties with their associated colormap image.
+ */
 public class PropertyImage {
 
     public final ColormapProperties properties;

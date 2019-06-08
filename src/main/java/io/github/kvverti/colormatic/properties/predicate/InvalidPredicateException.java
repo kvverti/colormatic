@@ -22,7 +22,19 @@ package io.github.kvverti.colormatic.properties.predicate;
  */
 public class InvalidPredicateException extends RuntimeException {
 
+    public InvalidPredicateException() {
+        super();
+    }
+
     public InvalidPredicateException(String message) {
         super(message);
+    }
+
+    public InvalidPredicateException(Throwable cause) {
+        super(cause);
+    }
+
+    public InvalidPredicateException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
