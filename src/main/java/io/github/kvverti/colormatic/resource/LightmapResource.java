@@ -21,7 +21,6 @@ import io.github.kvverti.colormatic.Colormatic;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.CompletableFuture;
 
@@ -68,11 +67,15 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
      * Returns the color for the given block light level. The Random parameter
      * controls block light flicker.
      */
-    public int getBlockLight(int level, Random rand, boolean nightVision) {
+    public int getBlockLight(int level, float flicker, boolean nightVision) {
         if(lightmap == null) {
             throw new IllegalStateException("No custom lightmap present: " + id);
         }
-        int posX = rand.nextInt(lightmap.getWidth());
+        int width = lightmap.getWidth();
+        int posX = (int)(flicker * width) % width;
+        if(posX < 0) {
+            posX += width;
+        }
         return getPixel(posX, level + 16, nightVision);
     }
 

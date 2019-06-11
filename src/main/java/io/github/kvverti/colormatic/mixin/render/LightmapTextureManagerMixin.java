@@ -46,6 +46,7 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
     @Shadow private boolean isDirty;
+    @Shadow private float prevFlicker;
     @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
 
@@ -94,7 +95,7 @@ public abstract class LightmapTextureManagerMixin {
                         }
                     }
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(trueBlockLight, world.getRandom(), nightVision);
+                    int blockColor = map.getBlockLight(trueBlockLight, this.prevFlicker, nightVision);
                     // color will merge the brightest channels
                     float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
                     float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
