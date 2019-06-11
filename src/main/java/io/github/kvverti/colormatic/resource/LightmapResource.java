@@ -17,6 +17,8 @@
  */
 package io.github.kvverti.colormatic.resource;
 
+import io.github.kvverti.colormatic.Colormatic;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
@@ -93,7 +95,8 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
             float scaledAmbienceRemainder = scaledAmbience % 1.0f;
             int posX = (int)scaledAmbience;
             int light = getPixel(posX, level, nightVision);
-            if(posX < lightmap.getWidth() - 2) {
+            boolean blend = Colormatic.LIGHTMAP_PROPS.getProperties().shouldBlendAmbience();
+            if(blend && posX < lightmap.getWidth() - 2) {
                 int rightLight = getPixel(posX + 1, level, nightVision);
                 light = mergeColors(rightLight, light, scaledAmbienceRemainder);
             }

@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
+import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.Lightmaps;
 import io.github.kvverti.colormatic.resource.LightmapResource;
 
@@ -73,6 +74,7 @@ public abstract class LightmapTextureManagerMixin {
     private void onUpdate(float partialTicks, CallbackInfo info, World world) {
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
+            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
             // TODO: handle night vision flicker
             boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION);
             float ambience;
@@ -83,8 +85,16 @@ public abstract class LightmapTextureManagerMixin {
             }
             for(int skyLight = 0; skyLight < 16; skyLight++) {
                 for(int blockLight = 0; blockLight < 16; blockLight++) {
+                    int trueBlockLight = blockLight;
+                    if(wane < 15 && ambience >= 0) {
+                        // adjust block light levels
+                        int trueSkyLight = (int)(skyLight * ambience);
+                        if(trueSkyLight > wane) {
+                            trueBlockLight = Math.max(0, blockLight - (trueSkyLight - wane));
+                        }
+                    }
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(blockLight, world.getRandom(), nightVision);
+                    int blockColor = map.getBlockLight(trueBlockLight, world.getRandom(), nightVision);
                     // color will merge the brightest channels
                     float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
                     float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
