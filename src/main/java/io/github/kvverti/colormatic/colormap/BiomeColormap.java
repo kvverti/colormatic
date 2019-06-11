@@ -52,9 +52,6 @@ public class BiomeColormap {
     /**
      * Returns a color given by the custom colormap for the given biome
      * temperature and humidity.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
      */
     private int getColor(double temp, double rain) {
         rain *= temp;
@@ -68,9 +65,6 @@ public class BiomeColormap {
 
     /**
      * Returns a color given by the custom colormap for the given biome.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
      */
     public int getColor(Biome biome) {
         return getColor(biome, null);
@@ -79,9 +73,6 @@ public class BiomeColormap {
     /**
      * Returns a color given by the custom colormap for the given biome and
      * BlockPos.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource
      */
     public int getColor(Biome biome, BlockPos pos) {
         switch(properties.getFormat()) {
@@ -108,9 +99,6 @@ public class BiomeColormap {
 
     /**
      * Returns the default color given by the custom colormap.
-     *
-     * @throws IllegalStateException if no resource pack defines a custom colormap
-     *     for this resource.
      */
     public int getDefaultColor() {
         return properties.getColor();

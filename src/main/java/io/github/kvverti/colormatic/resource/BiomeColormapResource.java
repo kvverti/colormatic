@@ -22,8 +22,6 @@ import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
 
-import java.io.IOException;
-
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 
 import net.minecraft.resource.ResourceManager;
@@ -58,6 +56,12 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
         return colormap != null;
     }
 
+    /**
+     * Returns the custom colormap specified by this resource.
+     *
+     * @throws IllegalStateException if no resource pack defines a custom
+     *     colormap for this resource.
+     */
     public BiomeColormap getColormap() {
         if(colormap == null) {
             throw new IllegalStateException("No custom colormap present: " + getFabricId());
