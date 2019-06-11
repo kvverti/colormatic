@@ -26,7 +26,6 @@ import net.minecraft.block.StemBlock;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ExtendedBlockView;
-import net.minecraft.world.biome.Biome;
 
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
@@ -44,13 +43,7 @@ public abstract class BlockColorsMixin {
     @Inject(method = "method_1687", at = @At("HEAD"), cancellable = true)
     private static void onBirchColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.BIRCH_COLORS.hasCustomColormap()) {
-            int color;
-            if(world != null && pos != null) {
-                Biome biome = world.getBiome(pos);
-                color = Colormatic.BIRCH_COLORS.getColormap().getColor(biome, pos);
-            } else {
-                color = Colormatic.BIRCH_COLORS.getColormap().getDefaultColor();
-            }
+            int color = BiomeColormap.getBiomeColor(world, pos, Colormatic.BIRCH_COLORS.getColormap());
             info.setReturnValue(color);
         }
     }
@@ -59,13 +52,7 @@ public abstract class BlockColorsMixin {
     @Inject(method = "method_1695", at = @At("HEAD"), cancellable = true)
     private static void onSpruceColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.SPRUCE_COLORS.hasCustomColormap()) {
-            int color;
-            if(world != null && pos != null) {
-                Biome biome = world.getBiome(pos);
-                color = Colormatic.SPRUCE_COLORS.getColormap().getColor(biome, pos);
-            } else {
-                color = Colormatic.SPRUCE_COLORS.getColormap().getDefaultColor();
-            }
+            int color = BiomeColormap.getBiomeColor(world, pos, Colormatic.SPRUCE_COLORS.getColormap());
             info.setReturnValue(color);
         }
     }
@@ -87,11 +74,7 @@ public abstract class BlockColorsMixin {
     private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state);
         if(colormap != null) {
-            if(world != null && pos != null) {
-                info.setReturnValue(colormap.getColor(world.getBiome(pos), pos));
-            } else {
-                info.setReturnValue(colormap.getDefaultColor());
-            }
+            info.setReturnValue(BiomeColormap.getBiomeColor(world, pos, colormap));
         }
     }
 }

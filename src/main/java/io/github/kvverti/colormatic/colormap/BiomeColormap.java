@@ -22,10 +22,12 @@ import io.github.kvverti.colormatic.properties.ColormapProperties;
 import java.util.Random;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.ExtendedBlockView;
 import net.minecraft.world.biome.Biome;
 
 public class BiomeColormap {
@@ -112,5 +114,31 @@ public class BiomeColormap {
      */
     public int getDefaultColor() {
         return properties.getColor();
+    }
+
+    /**
+     * Retrieves the biome coloring for the given block position, taking into
+     * account the client's biome blend options If either `world` or `pos` is
+     * null, this returns the colormap's default color.
+     */
+    public static int getBiomeColor(ExtendedBlockView world, BlockPos pos, BiomeColormap colormap) {
+        if(world == null || pos == null) {
+            return colormap.getDefaultColor();
+        }
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
+        Iterable<BlockPos> coll = BlockPos.iterate(
+            pos.getX() - radius, pos.getY(), pos.getZ() - radius,
+            pos.getX() + radius, pos.getY(), pos.getZ() + radius);
+        for(BlockPos curpos : coll) {
+            int color = colormap.getColor(world.getBiome(curpos), curpos);
+            r += (color & 0xff0000) >> 16;
+            g += (color & 0x00ff00) >> 8;
+            b += (color & 0x0000ff);
+        }
+        int posCount = (radius * 2 + 1) * (radius * 2 + 1);
+        return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
     }
 }
