@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.resource;
 
+import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
@@ -69,11 +70,11 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
         PropertyImage pi;
         try {
             pi = PropertyUtil.loadColormap(manager, id);
-        } catch(IOException e) {
+        } catch(InvalidColormapException e) {
             // try Optifine directory
             try {
                 pi = PropertyUtil.loadColormap(manager, optifineId);
-            } catch(IOException e2) {
+            } catch(InvalidColormapException e2) {
                 // no custom colormap
                 pi = null;
             }

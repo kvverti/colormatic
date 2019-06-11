@@ -18,10 +18,10 @@
 package io.github.kvverti.colormatic.resource;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -90,7 +90,7 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
             try {
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id);
                 colormaps.add(new BiomeColormap(pi.properties, pi.image));
-            } catch(IOException e) {
+            } catch(InvalidColormapException e) {
                 log.warn("Error parsing {}: {}", id, e);
             }
         }

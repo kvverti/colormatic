@@ -17,16 +17,20 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
-import net.minecraft.util.registry.Registry;
 import io.github.kvverti.colormatic.properties.ColormapProperties;
+
+import java.util.Random;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
 public class BiomeColormap {
+
+    private static final Random GRID_RANDOM = new Random(47L);
 
     private final ColormapProperties properties;
     private final NativeImage colormap;
@@ -86,8 +90,13 @@ public class BiomeColormap {
                 return getColor(rain, temp);
             case GRID:
                 int x = Registry.BIOME.getRawId(biome) % colormap.getWidth();
-                int y = pos.getY() + properties.getOffset();
-                y = MathHelper.clamp(y, 0, colormap.getHeight());
+                int y = pos.getY() - properties.getOffset();
+                if(pos != null) {
+                    int variance = properties.getVariance();
+                    GRID_RANDOM.setSeed(pos.getX() * 31L + pos.getZ());
+                    y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
+                }
+                y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
                 return colormap.getPixelRGBA(x, y);
             case FIXED:
                 return getDefaultColor();

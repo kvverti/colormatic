@@ -17,8 +17,6 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import io.github.kvverti.colormatic.properties.predicate.InvalidPredicateException;
-
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +41,8 @@ public class PropertyUtil {
     /**
      * Tests a single element of a block state predicate list. For example,
      * these elements may be `stone`, `minecraft:grass_block`, `lever:attach=wall:facing=east,west`
+     *
+     * @throws InvalidPredicateException if the input is malformed
      */
     public static BlockStatePredicate createBlockPredicate(String blockDesc) {
         Block b;
@@ -104,9 +104,10 @@ public class PropertyUtil {
      * Loads the given colormap properties and the image (if any) associated with
      * them.
      *
-     * @throws IOException if no colormap properties exist for the given id.
+     * @throws InvalidColormapException if no colormap properties exist for the given id
+     *     or if the colormap exists, but is malformed.
      */
-    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) throws IOException {
+    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) {
         ColormapProperties props = ColormapProperties.load(manager, id);
         if(props.getFormat() == ColormapProperties.Format.FIXED) {
             // fixed format does not have a corresponding image
@@ -114,7 +115,15 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.fromInputStream(in);
+            // cross-reference image dimensions with colormap format
+            if(props.getFormat() == ColormapProperties.Format.VANILLA) {
+                if(image.getWidth() != 256 || image.getHeight() != 256) {
+                    throw new InvalidColormapException("Vanilla colormap dimensions must be 256x256");
+                }
+            }
             return new PropertyImage(props, image);
+        } catch(IOException e) {
+            throw new InvalidColormapException(e);
         }
     }
 }

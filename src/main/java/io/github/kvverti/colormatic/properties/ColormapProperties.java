@@ -17,8 +17,6 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import io.github.kvverti.colormatic.properties.predicate.InvalidPredicateException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
