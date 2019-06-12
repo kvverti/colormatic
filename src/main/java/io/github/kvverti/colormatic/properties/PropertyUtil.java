@@ -115,6 +115,18 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.fromInputStream(in);
+            // swap the red and blue channels of every pixel, because the biome
+            // colormap expects ARGB, but NativeImage is ABGR
+            for(int x = 0; x < image.getWidth(); x++) {
+                for(int y = 0; y < image.getHeight(); y++) {
+                    int pix = image.getPixelRGBA(x, y);
+                    int tmp = (pix & 0xff0000) >> 16;
+                    tmp |= (pix & 0x0000ff) << 16;
+                    pix &= ~(0xff0000 | 0x0000ff);
+                    pix |= tmp;
+                    image.setPixelRGBA(x, y, pix);
+                }
+            }
             // cross-reference image dimensions with colormap format
             if(props.getFormat() == ColormapProperties.Format.VANILLA) {
                 if(image.getWidth() != 256 || image.getHeight() != 256) {

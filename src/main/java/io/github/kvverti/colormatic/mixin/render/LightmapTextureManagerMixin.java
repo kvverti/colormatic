@@ -83,6 +83,12 @@ public abstract class LightmapTextureManagerMixin {
                 ambience = -1.0f;
             } else {
                 ambience = world.getAmbientLight(partialTicks);
+                // ambience is a value between 0.2 and 1.0, inclusive.
+                // we want it to be between 0.0 and 1.0, inclusive.
+                // Note: the overworld ambience ranges between 0.2 and 1.0
+                // depending on the time of day. The nether ambience is always
+                // 0.2, and the end ambience is always 1.0.
+                ambience = (ambience - 0.2f) * 1.25f;
             }
             for(int skyLight = 0; skyLight < 16; skyLight++) {
                 for(int blockLight = 0; blockLight < 16; blockLight++) {
