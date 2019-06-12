@@ -17,6 +17,11 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import io.github.kvverti.colormatic.properties.adapter.*;
+
 import java.io.InputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,6 +42,13 @@ import net.minecraft.util.registry.Registry;
  * Utility class for dealing with properties files.
  */
 public class PropertyUtil {
+
+    public static final Gson PROPERTY_GSON = new GsonBuilder()
+        .registerTypeAdapterFactory(new StringIdentifiableTypeAdapterFactory())
+        .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
+        .registerTypeAdapter(BlockStatePredicate.class, new BlockStatePredicateAdapter())
+        .registerTypeAdapter(HexColor.class, new HexColorAdapter())
+        .create();
 
     /**
      * Tests a single element of a block state predicate list. For example,
@@ -101,6 +113,21 @@ public class PropertyUtil {
     }
 
     /**
+     * Resolves a possibly relative identifier with the given identifier.
+     */
+    public static String resolve(String path, Identifier id) {
+        if(path.startsWith("./")) {
+            // relative path
+            String thisPath = id.toString();
+            path = thisPath.substring(0, thisPath.lastIndexOf('/')) + path.substring(1);
+        } else if(path.startsWith("~/")) {
+            // ~ is the optifine directory
+            path = "optifine" + path.substring(1);
+        }
+        return path;
+    }
+
+    /**
      * Loads the given colormap properties and the image (if any) associated with
      * them.
      *
@@ -109,6 +136,22 @@ public class PropertyUtil {
      */
     public static PropertyImage loadColormap(ResourceManager manager, Identifier id) {
         ColormapProperties props = ColormapProperties.load(manager, id);
+        return loadImage(manager, props);
+    }
+
+    /**
+     * Loads the given colormap properties and the image (if any) associated with
+     * them.
+     *
+     * @throws InvalidColormapException if no colormap properties exist for the given id
+     *     or if the colormap exists, but is malformed.
+     */
+    public static PropertyImage loadColormapProperties(ResourceManager manager, Identifier id) {
+        ColormapProperties props = ColormapProperties.loadFromProperties(manager, id);
+        return loadImage(manager, props);
+    }
+
+    private static PropertyImage loadImage(ResourceManager manager, ColormapProperties props) {
         if(props.getFormat() == ColormapProperties.Format.FIXED) {
             // fixed format does not have a corresponding image
             return new PropertyImage(props, null);

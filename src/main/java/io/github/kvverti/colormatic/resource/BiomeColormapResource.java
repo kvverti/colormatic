@@ -39,8 +39,8 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
     private BiomeColormap colormap;
 
     public BiomeColormapResource(Identifier id) {
-        this.id = id;
-        this.optifineId = new Identifier("minecraft", "optifine/" + id.getPath());
+        this.id = new Identifier(id.getNamespace(), id.getPath() + ".json");
+        this.optifineId = new Identifier("minecraft", "optifine/" + id.getPath() + ".properties");
     }
 
     @Override
@@ -77,7 +77,7 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
         } catch(InvalidColormapException e) {
             // try Optifine directory
             try {
-                pi = PropertyUtil.loadColormap(manager, optifineId);
+                pi = PropertyUtil.loadColormapProperties(manager, optifineId);
             } catch(InvalidColormapException e2) {
                 // no custom colormap
                 pi = null;

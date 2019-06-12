@@ -76,19 +76,21 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
     @Override
     public void apply(ResourceManager manager) {
         colormaps.clear();
-        addColormaps(manager, id, colormaps);
-        addColormaps(manager, optifineId, colormaps);
+        addColormaps(manager, id, colormaps, true);
+        addColormaps(manager, optifineId, colormaps, false);
     }
 
-    private static void addColormaps(ResourceManager manager, Identifier dir, List<BiomeColormap> colormaps) {
-        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(".properties"))
+    private static void addColormaps(ResourceManager manager, Identifier dir, List<BiomeColormap> colormaps, boolean json) {
+        String ext = json ? ".json" : ".properties";
+        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext))
             .stream()
             .filter(id -> id.getNamespace().equals(dir.getNamespace()))
             .distinct()
             .collect(toList());
         for(Identifier id : files) {
             try {
-                PropertyImage pi = PropertyUtil.loadColormap(manager, id);
+                PropertyImage pi = json ? PropertyUtil.loadColormap(manager, id)
+                    : PropertyUtil.loadColormapProperties(manager, id);
                 colormaps.add(new BiomeColormap(pi.properties, pi.image));
             } catch(InvalidColormapException e) {
                 log.warn("Error parsing {}: {}", id, e);

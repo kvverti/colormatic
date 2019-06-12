@@ -17,10 +17,17 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import java.io.IOException;
+import com.google.gson.JsonSyntaxException;
+
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import net.minecraft.block.BlockState;
@@ -78,8 +85,8 @@ public class ColormapProperties {
     private ColormapProperties(Settings settings) {
         this.format = settings.format;
         this.blocks = settings.blocks;
-        this.source = settings.source;
-        this.color = settings.color;
+        this.source = new Identifier(settings.source);
+        this.color = settings.color.get();
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
     }
@@ -150,87 +157,83 @@ public class ColormapProperties {
     }
 
     /**
+     * Loads the colormap properties defined by the given identifier. The properties
+     * should be in JSON format. If not present, returns a default properties taken
+     * from the identifier name.
+     */
+    public static ColormapProperties load(ResourceManager manager, Identifier id) {
+        try(Resource rsc = manager.getResource(id);
+                InputStream in = rsc.getInputStream();
+                InputStreamReader r = new InputStreamReader(in)) {
+            return loadFromJson(r, id);
+        } catch(IOException e) {
+            return loadFromJson(new StringReader("{}"), id);
+        }
+    }
+
+    /**
      * Loads the colormap properties defined by the given identifier.
      * If not present, returns a default properties taken from the
      * identifier name.
      */
-    public static ColormapProperties load(ResourceManager manager, Identifier id) {
-        Properties data = new Properties(computeDefaults(id));
-        Settings settings = new Settings();
+    public static ColormapProperties loadFromProperties(ResourceManager manager, Identifier id) {
+        Properties data = new Properties();
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
             data.load(in);
         } catch(IOException e) {
             // ignored
         }
-        settings.format = Format.byName(data.getProperty("format"));
-        settings.color = 0xff000000 | parseOrDefault(data.getProperty("color"), 16, 0xffffff);
-        settings.yVariance = parseOrDefault(data.getProperty("yVariance"), 10, 0);
-        settings.yOffset = parseOrDefault(data.getProperty("yOffset"), 10, 0);
-        String srcPath = data.getProperty("source");
-        if(srcPath.startsWith("./")) {
-            // relative path
-            String thisPath = id.toString();
-            srcPath = thisPath.substring(0, thisPath.lastIndexOf('/')) + srcPath.substring(1);
-        } else if(srcPath.startsWith("~/")) {
-            // ~ is the optifine directory
-            srcPath = "optifine" + srcPath.substring(1);
+        // split lists of data on whitespace
+        Map<String, Object> props = new HashMap<>();
+        for(String prop : data.stringPropertyNames()) {
+            String[] vals = data.getProperty(prop).split("\\s+");
+            if(vals.length == 1) {
+                props.put(prop, vals[0]);
+            } else {
+                props.put(prop, vals);
+            }
         }
-        settings.source = new Identifier(srcPath);
-        settings.blocks = new ArrayList<>();
-        String[] blockPreds = data.getProperty("blocks").split("\\s+");
-        for(String s : blockPreds) {
+        String json = PropertyUtil.PROPERTY_GSON.toJson(props);
+        return loadFromJson(new StringReader(json), id);
+    }
+
+    private static ColormapProperties loadFromJson(Reader json, Identifier id) {
+        Settings settings;
+        try {
+            settings = PropertyUtil.PROPERTY_GSON.fromJson(json, Settings.class);
+            if(settings == null) {
+                settings = new Settings();
+            }
+        } catch(JsonSyntaxException e) {
+            log.error("Error parsing {}: {}", id, e.getCause());
+            settings = new Settings();
+        }
+        if(settings.blocks == null) {
+            String blockId = id.getPath();
+            blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
+            settings.blocks = new ArrayList<>();
             try {
-                settings.blocks.add(PropertyUtil.createBlockPredicate(s));
+                settings.blocks.add(PropertyUtil.createBlockPredicate(blockId));
             } catch(InvalidPredicateException e) {
                 log.warn("Error parsing {}: {}", id, e);
             }
         }
-        return new ColormapProperties(settings);
-    }
-
-    /**
-     * Default properties for all biome colormaps.
-     */
-    private static final Properties baseProperties;
-
-    static {
-        baseProperties = new Properties();
-        baseProperties.setProperty("format", "vanilla");
-        baseProperties.setProperty("color", "ffffff");
-        baseProperties.setProperty("yVariance", "0");
-        baseProperties.setProperty("yOffset", "0");
-    }
-
-    /**
-     * Computes default properties based on the name of the properties file.
-     * This is used for the `source` and `blocks` attributes.
-     */
-    private static Properties computeDefaults(Identifier id) {
-        String path = id.toString();
-        path = path.substring(0, path.lastIndexOf('.')) + ".png";
-        String blockId = id.getPath();
-        blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
-        Properties res = new Properties(baseProperties);
-        res.setProperty("source", path);
-        res.setProperty("blocks", blockId);
-        return res;
-    }
-
-    private static int parseOrDefault(String s, int base, int fallback) {
-        try {
-            return Integer.parseInt(s, base);
-        } catch(NumberFormatException e) {
-            return fallback;
+        if(settings.source == null) {
+            String path = id.toString();
+            path = path.substring(0, path.lastIndexOf('.')) + ".png";
+            settings.source = path;
         }
+        settings.source = PropertyUtil.resolve(settings.source, id);
+        return new ColormapProperties(settings);
     }
 
     private static class Settings {
 
-        Format format;
+        Format format = Format.VANILLA;
         Collection<BlockStatePredicate> blocks;
-        Identifier source;
-        int color;
-        int yVariance;
-        int yOffset;
+        String source;
+        HexColor color = HexColor.WHITE;
+        int yVariance = 0;
+        int yOffset = 0;
     }
 }
