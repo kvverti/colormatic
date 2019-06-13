@@ -77,7 +77,7 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
         } catch(InvalidColormapException e) {
             // try Optifine directory
             try {
-                pi = PropertyUtil.loadColormapProperties(manager, optifineId);
+                pi = PropertyUtil.loadColormap(manager, optifineId);
             } catch(InvalidColormapException e2) {
                 // no custom colormap
                 pi = null;

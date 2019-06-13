@@ -17,6 +17,9 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -128,15 +131,20 @@ public class PropertyUtil {
     }
 
     /**
-     * Loads the given colormap properties and the image (if any) associated with
-     * them.
-     *
-     * @throws InvalidColormapException if no colormap properties exist for the given id
-     *     or if the colormap exists, but is malformed.
+     * Converts the argument to an equivalent JSON string.
      */
-    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) {
-        ColormapProperties props = ColormapProperties.load(manager, id);
-        return loadImage(manager, props);
+    public static String toJson(Properties properties) {
+        // split lists of data on whitespace
+        Map<String, Object> props = new HashMap<>();
+        for(String prop : properties.stringPropertyNames()) {
+            String[] vals = properties.getProperty(prop).split("\\s+");
+            if(vals.length == 1) {
+                props.put(prop, vals[0]);
+            } else {
+                props.put(prop, vals);
+            }
+        }
+        return PROPERTY_GSON.toJson(props);
     }
 
     /**
@@ -146,12 +154,8 @@ public class PropertyUtil {
      * @throws InvalidColormapException if no colormap properties exist for the given id
      *     or if the colormap exists, but is malformed.
      */
-    public static PropertyImage loadColormapProperties(ResourceManager manager, Identifier id) {
-        ColormapProperties props = ColormapProperties.loadFromProperties(manager, id);
-        return loadImage(manager, props);
-    }
-
-    private static PropertyImage loadImage(ResourceManager manager, ColormapProperties props) {
+    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) {
+        ColormapProperties props = ColormapProperties.load(manager, id);
         if(props.getFormat() == ColormapProperties.Format.FIXED) {
             // fixed format does not have a corresponding image
             return new PropertyImage(props, null);

@@ -26,8 +26,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 import net.minecraft.block.BlockState;
@@ -162,39 +160,23 @@ public class ColormapProperties {
      * from the identifier name.
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id) {
-        try(Resource rsc = manager.getResource(id);
-                InputStream in = rsc.getInputStream();
-                InputStreamReader r = new InputStreamReader(in)) {
-            return loadFromJson(r, id);
+        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+            Reader jsonInput;
+            if(id.getPath().endsWith(".properties")) {
+                // properties file
+                Properties data = new Properties();
+                data.load(in);
+                jsonInput = new StringReader(PropertyUtil.toJson(data));
+            } else {
+                // json file
+                jsonInput = new InputStreamReader(in);
+            }
+            try(Reader r = jsonInput) {
+                return loadFromJson(r, id);
+            }
         } catch(IOException e) {
             return loadFromJson(new StringReader("{}"), id);
         }
-    }
-
-    /**
-     * Loads the colormap properties defined by the given identifier.
-     * If not present, returns a default properties taken from the
-     * identifier name.
-     */
-    public static ColormapProperties loadFromProperties(ResourceManager manager, Identifier id) {
-        Properties data = new Properties();
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-            data.load(in);
-        } catch(IOException e) {
-            // ignored
-        }
-        // split lists of data on whitespace
-        Map<String, Object> props = new HashMap<>();
-        for(String prop : data.stringPropertyNames()) {
-            String[] vals = data.getProperty(prop).split("\\s+");
-            if(vals.length == 1) {
-                props.put(prop, vals[0]);
-            } else {
-                props.put(prop, vals);
-            }
-        }
-        String json = PropertyUtil.PROPERTY_GSON.toJson(props);
-        return loadFromJson(new StringReader(json), id);
     }
 
     private static ColormapProperties loadFromJson(Reader json, Identifier id) {
