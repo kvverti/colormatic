@@ -92,7 +92,7 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id);
                 colormaps.add(new BiomeColormap(pi.properties, pi.image));
             } catch(InvalidColormapException e) {
-                log.warn("Error parsing {}: {}", id, e);
+                log.warn("Error parsing {}: {}", id, e.getMessage());
             }
         }
     }

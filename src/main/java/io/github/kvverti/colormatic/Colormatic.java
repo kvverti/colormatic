@@ -62,7 +62,7 @@ public class Colormatic implements ClientModInitializer {
     public static final CustomBiomeColormapsResource CUSTOM_BLOCK_COLORS =
         new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
     public static final GlobalLightmapResource LIGHTMAP_PROPS =
-        new GlobalLightmapResource(new Identifier(MODID, "lightmap.properties"));
+        new GlobalLightmapResource(new Identifier(MODID, "lightmap.json"));
 
     @Override
     public void onInitializeClient() {

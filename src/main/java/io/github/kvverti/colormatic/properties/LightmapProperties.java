@@ -17,8 +17,10 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import com.google.gson.JsonParseException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
 import net.minecraft.resource.Resource;
@@ -70,24 +72,20 @@ public class LightmapProperties {
      * If not present, returns a default properties.
      */
     public static LightmapProperties load(ResourceManager manager, Identifier id) {
-        Properties data = new Properties(defaults);
-        Settings settings = new Settings();
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-            data.load(in);
+        Settings settings;
+        try(Resource rsc = manager.getResource(id); Reader in = new InputStreamReader(rsc.getInputStream())) {
+            settings = PropertyUtil.PROPERTY_GSON.fromJson(in, Settings.class);
+        } catch(JsonParseException e) {
+            log.error("Error parsing {}: {}", id, e.getMessage());
+            settings = new Settings();
         } catch(IOException e) {
-            // ignored
-        }
-        try {
-            settings.blendAmbience = Boolean.parseBoolean(data.getProperty("blend.ambience"));
-            settings.blockWane = Integer.parseInt(data.getProperty("block.wane"));
-        } catch(RuntimeException e) {
-            log.error("Malformed lightmap settings", e);
+            settings = new Settings();
         }
         return new LightmapProperties(settings);
     }
 
     private static class Settings {
-        boolean blendAmbience;
-        int blockWane;
+        boolean blendAmbience = true;
+        int blockWane = 15;
     }
 }

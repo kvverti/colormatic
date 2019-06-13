@@ -187,7 +187,7 @@ public class ColormapProperties {
                 settings = new Settings();
             }
         } catch(JsonSyntaxException e) {
-            log.error("Error parsing {}: {}", id, e.getCause());
+            log.error("Error parsing {}: {}", id, e.getMessage());
             settings = new Settings();
         }
         if(settings.blocks == null) {
@@ -197,7 +197,7 @@ public class ColormapProperties {
             try {
                 settings.blocks.add(PropertyUtil.createBlockPredicate(blockId));
             } catch(InvalidPredicateException e) {
-                log.warn("Error parsing {}: {}", id, e);
+                log.warn("Error parsing {}: {}", id, e.getMessage());
             }
         }
         if(settings.source == null) {
