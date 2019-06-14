@@ -70,6 +70,15 @@ public abstract class BlockColorsMixin {
         }
     }
 
+    @Dynamic("Lily pad lambda method")
+    @Inject(method = "method_1684", at = @At("HEAD"), cancellable = true)
+    private static void onLilyPadColor(CallbackInfoReturnable<Integer> info) {
+        int color = Colormatic.COLOR_PROPS.getProperties().getLilypad();
+        if(color != 0) {
+            info.setReturnValue(color);
+        }
+    }
+
     @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state);
