@@ -13,6 +13,7 @@
       "particle.DrippingLavaParticleMixin",
       "particle.FallingLavaParticleFactoryMixin",
       "particle.LandingLavaParticleFactoryMixin",
+      "particle.PortalParticleMixin",
       "render.BackgroundRendererMixin",
       "render.LightmapTextureManagerMixin",
       "world.BiomeMixin"
