@@ -58,21 +58,29 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
-        if(Colormatic.FOG_COLORS.hasCustomColormap() && self.getDimension().getType() == DimensionType.OVERWORLD) {
-            int color = BiomeColormap.getBiomeColor(
+        DimensionType dimType = self.getDimension().getType();
+        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
+        if(dimType == DimensionType.OVERWORLD && Colormatic.FOG_COLORS.hasCustomColormap()) {
+            // overworld colors fog by biome
+            color = 0xff000000 | BiomeColormap.getBiomeColor(
                 self,
                 camera.getBlockPos(),
                 Colormatic.FOG_COLORS.getColormap());
+        }
+        if(color != 0) {
             double r = ((color >> 16) & 0xff) / 255.0;
             double g = ((color >>  8) & 0xff) / 255.0;
             double b = ((color >>  0) & 0xff) / 255.0;
-            // time-of-day calculations
-            float daytimeAngle = self.getSkyAngle(partialTicks);
-            float float_3 = MathHelper.cos(daytimeAngle * 2.0f * (float)Math.PI) * 2.0F + 0.5F;
-            float_3 = MathHelper.clamp(float_3, 0.0F, 1.0F);
-            r *= float_3 * 0.94F + 0.06F;
-            g *= float_3 * 0.94F + 0.06F;
-            b *= float_3 * 0.91F + 0.09F;
+            // time-of-day calculations, assumes typical day-night cycle
+            // (i.e. time 6000 = noon and 18000 = midnight)
+            if(dimType.hasSkyLight()) {
+                float daytimeAngle = self.getSkyAngle(partialTicks);
+                float float_3 = MathHelper.cos(daytimeAngle * 2.0f * (float)Math.PI) * 2.0F + 0.5F;
+                float_3 = MathHelper.clamp(float_3, 0.0F, 1.0F);
+                r *= float_3 * 0.94F + 0.06F;
+                g *= float_3 * 0.94F + 0.06F;
+                b *= float_3 * 0.91F + 0.09F;
+            }
             return new Vec3d(r, g, b);
         } else {
             return self.getFogColor(partialTicks);
