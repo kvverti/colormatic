@@ -33,4 +33,19 @@ public final class HexColor {
     public int get() {
         return color;
     }
+
+    @Override
+    public String toString() {
+        return Integer.toHexString(color);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof HexColor && color == ((HexColor)obj).color;
+    }
+
+    @Override
+    public int hashCode() {
+        return color;
+    }
 }

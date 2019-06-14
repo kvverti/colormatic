@@ -19,6 +19,7 @@ package io.github.kvverti.colormatic;
 
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 import io.github.kvverti.colormatic.resource.CustomBiomeColormapsResource;
+import io.github.kvverti.colormatic.resource.GlobalColorResource;
 import io.github.kvverti.colormatic.resource.GlobalLightmapResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
@@ -63,6 +64,8 @@ public class Colormatic implements ClientModInitializer {
         new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
     public static final GlobalLightmapResource LIGHTMAP_PROPS =
         new GlobalLightmapResource(new Identifier(MODID, "lightmap.json"));
+    public static final GlobalColorResource COLOR_PROPS =
+        new GlobalColorResource(new Identifier(MODID, "color"));
 
     @Override
     public void onInitializeClient() {
@@ -81,6 +84,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(LAVA_DROP_COLORS);
         client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
+        client.registerReloadListener(COLOR_PROPS);
 
         RegistryEntryAddedCallback.event(Registry.DIMENSION)
             .register(Lightmaps::registerLightmapReload);

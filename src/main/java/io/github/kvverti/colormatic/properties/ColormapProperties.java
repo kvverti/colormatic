@@ -20,13 +20,11 @@ package io.github.kvverti.colormatic.properties;
 import com.google.gson.JsonSyntaxException;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Properties;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.predicate.block.BlockStatePredicate;
@@ -161,17 +159,7 @@ public class ColormapProperties {
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id) {
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-            Reader jsonInput;
-            if(id.getPath().endsWith(".properties")) {
-                // properties file
-                Properties data = new Properties();
-                data.load(in);
-                jsonInput = new StringReader(PropertyUtil.toJson(data));
-            } else {
-                // json file
-                jsonInput = new InputStreamReader(in);
-            }
-            try(Reader r = jsonInput) {
+            try(Reader r = PropertyUtil.getJsonReader(in, id)) {
                 return loadFromJson(r, id);
             }
         } catch(IOException e) {
