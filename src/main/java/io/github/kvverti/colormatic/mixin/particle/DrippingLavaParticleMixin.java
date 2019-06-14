@@ -22,6 +22,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import net.minecraft.client.particle.SpriteBillboardParticle;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -37,14 +38,15 @@ public abstract class DrippingLavaParticleMixin extends SpriteBillboardParticle 
     }
 
     // field injections
-    private int colormatic_age;
+    @Unique
+    private int age;
 
     @Inject(
         method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/fluid/Fluid;Lnet/minecraft/particle/ParticleEffect;)V",
         at = @At("RETURN")
     )
     private void onConstruct(CallbackInfo info) {
-        colormatic_age = 0;
+        age = 0;
         if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
             int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(0);
             float r = ((color >> 16) & 0xff) / 255.0f;
@@ -75,7 +77,7 @@ public abstract class DrippingLavaParticleMixin extends SpriteBillboardParticle 
     )
     private void onUpdateAge(CallbackInfo info) {
         if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
-            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(++colormatic_age);
+            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(++age);
             float r = ((color >> 16) & 0xff) / 255.0f;
             float g = ((color >>  8) & 0xff) / 255.0f;
             float b = ((color >>  0) & 0xff) / 255.0f;
