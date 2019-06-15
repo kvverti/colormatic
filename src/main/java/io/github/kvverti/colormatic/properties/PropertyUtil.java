@@ -36,7 +36,6 @@ import java.util.Optional;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -44,7 +43,6 @@ import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.dimension.DimensionType;
 
 /**
  * Utility class for dealing with properties files.
@@ -55,8 +53,6 @@ public class PropertyUtil {
         .registerTypeAdapterFactory(new StringIdentifiableTypeAdapterFactory())
         .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
         .registerTypeAdapter(BlockStatePredicate.class, new BlockStatePredicateAdapter())
-        .registerTypeAdapter(DimensionType.class, new DimensionTypeAdapter())
-        .registerTypeAdapter(StatusEffect.class, new StatusEffectAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .create();
 

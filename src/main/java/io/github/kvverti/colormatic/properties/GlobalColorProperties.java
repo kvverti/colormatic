@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.entity.effect.StatusEffect;
@@ -31,6 +33,7 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 
 import org.apache.logging.log4j.LogManager;
@@ -54,19 +57,36 @@ public class GlobalColorProperties {
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
-        this.dimensionFog = settings.fog;
-        this.dimensionSky = settings.sky;
+        this.dimensionFog = convertMap(settings.fog, Registry.DIMENSION);
+        this.dimensionSky = convertMap(settings.sky, Registry.DIMENSION);
         this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
-        this.potions = settings.potion;
+        this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;
         this.collar = settings.collar;
         this.banner = settings.map;
+        // water potions' color does not correspond to a status effect
+        // so we use `null` for the key
+        HexColor water = settings.potion.get("water");
+        if(water == null) {
+            water = settings.potion.get("minecraft:water");
+        }
+        if(water != null) {
+            this.potions.put(null, water);
+        }
+    }
+
+    private static <T> Map<T, HexColor> convertMap(Map<String, HexColor> initial, Registry<T> registry) {
+        Map<T, HexColor> res = new HashMap<>();
+        for(Map.Entry<String, HexColor> entry : initial.entrySet()) {
+            T key = registry.get(new Identifier(entry.getKey()));
+            if(key != null) {
+                res.put(key, entry.getValue());
+            }
+        }
+        return res;
     }
 
     private static <T> int getColor(T key, Map<T, HexColor> map) {
-        if(map == null) {
-            return 0;
-        }
         HexColor col = map.get(key);
         return col != null ? col.get() : 0;
     }
@@ -144,13 +164,18 @@ public class GlobalColorProperties {
     }
 
     private static class Settings {
-        Map<ColoredParticle, HexColor> particle;
-        Map<DimensionType, HexColor> fog;
-        Map<DimensionType, HexColor> sky;
+        // Some of the maps use string keys because the keys are identifiers
+        // for registry elements. Referencing registry elements from mods not
+        // present at runtime results in a null key. Multiple null keys result
+        // in an exception from GSON, so we delay resolving identifiers until
+        // construction when we can handle missing registry elements ourselves.
+        Map<ColoredParticle, HexColor> particle = Collections.emptyMap();
+        Map<String, HexColor> fog = Collections.emptyMap();
+        Map<String, HexColor> sky = Collections.emptyMap();
         HexColor lilypad;
-        Map<StatusEffect, HexColor> potion;
-        Map<DyeColor, HexColor> sheep;
-        Map<DyeColor, HexColor> collar;
-        Map<DyeColor, HexColor> map;
+        Map<String, HexColor> potion = Collections.emptyMap();
+        Map<DyeColor, HexColor> sheep = Collections.emptyMap();
+        Map<DyeColor, HexColor> collar = Collections.emptyMap();
+        Map<DyeColor, HexColor> map = Collections.emptyMap();
     }
 }
