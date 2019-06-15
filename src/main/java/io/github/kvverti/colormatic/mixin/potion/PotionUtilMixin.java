@@ -19,25 +19,24 @@ package io.github.kvverti.colormatic.mixin.potion;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.potion.PotionUtil;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 /**
- * Provides custom potion and effect coloring.
+ * Provides custom water bottle coloring.
  */
-@Mixin(StatusEffect.class)
-public abstract class StatusEffectMixin {
+@Mixin(PotionUtil.class)
+public abstract class PotionUtilMixin {
 
-    @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
-    private void onColor(CallbackInfoReturnable<Integer> info) {
-        StatusEffect self = (StatusEffect)(Object)this;
-        int color = Colormatic.COLOR_PROPS.getProperties().getPotion(self);
-        if(color != 0) {
-            info.setReturnValue(color);
-        }
+    @ModifyConstant(
+        method = "getColor(Ljava/util/Collection;)I",
+        constant = @Constant(intValue = 0x385dc6)
+    )
+    private static int modifyWaterColor(int waterColor) {
+        int color = Colormatic.COLOR_PROPS.getProperties().getPotion(null);
+        return color != 0 ? color : waterColor;
     }
 }

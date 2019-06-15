@@ -38,6 +38,10 @@ public class StatusEffectAdapter extends TypeAdapter<StatusEffect> {
             throw new JsonSyntaxException(new NullPointerException("Required nonnull"));
         }
         String id = in.nextString();
+        // special case water for empty potions
+        if("water".equals(id) || "minecraft:water".equals(id)) {
+            return null;
+        }
         return Registry.STATUS_EFFECT.get(new Identifier(id));
     }
 

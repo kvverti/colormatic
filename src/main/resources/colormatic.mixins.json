@@ -14,6 +14,7 @@
       "particle.FallingLavaParticleFactoryMixin",
       "particle.LandingLavaParticleFactoryMixin",
       "particle.PortalParticleMixin",
+      "potion.PotionUtilMixin",
       "potion.StatusEffectMixin",
       "render.BackgroundRendererMixin",
       "render.LightmapTextureManagerMixin",
