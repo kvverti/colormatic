@@ -46,9 +46,9 @@ public class GlobalColorResource implements SimpleSynchronousResourceReloadListe
 
     @Override
     public void apply(ResourceManager manager) {
-        properties = GlobalColorProperties.load(manager, optifineId, false);
+        properties = GlobalColorProperties.load(manager, id, false);
         if(properties == null) {
-            properties = GlobalColorProperties.load(manager, id, true);
+            properties = GlobalColorProperties.load(manager, optifineId, true);
         }
     }
 }

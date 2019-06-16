@@ -12,6 +12,7 @@
       "dye.SheepEntityMixin",
       "dye.TextureManagerMixin",
       "dye.WolfCollarFeatureRendererMixin",
+      "item.SpawnEggItemMixin",
       "particle.DustParticleEffectMixin",
       "particle.MyceliumParticleFactoryMixin",
       "particle.DrippingLavaParticleMixin",

@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -56,6 +57,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> collar;
     private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
+    private final Map<EntityType<?>, int[]> spawnEgg;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -68,6 +70,7 @@ public class GlobalColorProperties {
         this.collar = settings.collar;
         this.collarRgb = toRgb(settings.collar);
         this.banner = settings.map;
+        this.spawnEgg = collateSpawnEggColors(settings);
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
         HexColor water = settings.potion.get("water");
@@ -99,6 +102,40 @@ public class GlobalColorProperties {
             rgb[1] = ((col >>  8) & 0xff) / 255.0f;
             rgb[2] = ((col >>  0) & 0xff) / 255.0f;
             res.put(entry.getKey(), rgb);
+        }
+        return res;
+    }
+
+    private static Map<EntityType<?>, int[]> collateSpawnEggColors(Settings settings) {
+        Map<EntityType<?>, int[]> res = new HashMap<>();
+        Registry<EntityType<?>> registry = Registry.ENTITY_TYPE;
+        // handle legacy egg color structure
+        if(settings.egg != null) {
+            LegacyEggColor legacy = settings.egg;
+            for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
+                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                if(type != null) {
+                    res.put(type, new int[] { entry.getValue().get(), 0 });
+                }
+            }
+            for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
+                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                if(type != null) {
+                    int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+                    colors[1] = entry.getValue().get();
+                }
+            }
+        }
+        // handle colormatic egg colors
+        for(Map.Entry<String, HexColor[]> entry : settings.spawnegg.entrySet()) {
+            EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+            if(type != null) {
+                int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+                HexColor[] hexColors = entry.getValue();
+                for(int i = 0; i < Math.min(2, hexColors.length); i++) {
+                    colors[i] = hexColors[i].get();
+                }
+            }
         }
         return res;
     }
@@ -146,6 +183,11 @@ public class GlobalColorProperties {
 
     public int getBanner(DyeColor color) {
         return getColor(color, banner);
+    }
+
+    public int getSpawnEgg(EntityType<?> type, int idx) {
+        int[] colors = spawnEgg.get(type);
+        return colors != null ? colors[idx] : 0;
     }
 
     public enum ColoredParticle implements StringIdentifiable {
@@ -226,5 +268,16 @@ public class GlobalColorProperties {
         Map<DyeColor, HexColor> sheep = Collections.emptyMap();
         Map<DyeColor, HexColor> collar = Collections.emptyMap();
         Map<DyeColor, HexColor> map = Collections.emptyMap();
+        Map<String, HexColor[]> spawnegg = Collections.emptyMap();
+        LegacyEggColor egg;
+    }
+
+    /**
+     * Optifine color.properties splits spawn egg colors between shell
+     * and spots.
+     */
+    private static class LegacyEggColor {
+        Map<String, HexColor> shell = Collections.emptyMap();
+        Map<String, HexColor> spots = Collections.emptyMap();
     }
 }
