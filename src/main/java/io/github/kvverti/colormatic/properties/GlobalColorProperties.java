@@ -164,9 +164,33 @@ public class GlobalColorProperties {
         }
     }
 
+    // not sure if Optifine changed their color.properties keys over to
+    // the official string IDs yet, but in case they haven't here they are
+    private static final Map<String, String> keyRemap;
+    static {
+        keyRemap = new HashMap<>();
+        keyRemap.put("nether", "the_nether");
+        keyRemap.put("end", "the_end");
+        keyRemap.put("lightBlue", "light_blue");
+        keyRemap.put("silver", "light_gray");
+        keyRemap.put("moveSpeed", "speed");
+        keyRemap.put("moveSlowdown", "slowness");
+        keyRemap.put("digSpeed", "haste");
+        keyRemap.put("digSlowDown", "mining_fatigue");
+        keyRemap.put("damageBoost", "strength");
+        keyRemap.put("heal", "instant_health");
+        keyRemap.put("harm", "instant_damage");
+        keyRemap.put("jump", "jump_boost");
+        keyRemap.put("confusion", "nausea");
+        keyRemap.put("fireResistance", "fire_resistance");
+        keyRemap.put("waterBreathing", "water_breathing");
+        keyRemap.put("nightVision", "night_vision");
+        keyRemap.put("healthBoost", "health_boost");
+    }
+
     public static GlobalColorProperties load(ResourceManager manager, Identifier id, boolean fall) {
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-            try(Reader r = PropertyUtil.getJsonReader(in, id)) {
+            try(Reader r = PropertyUtil.getJsonReader(in, id, k -> keyRemap.getOrDefault(k, k), k -> false)) {
                 return loadFromJson(r, id);
             }
         } catch(IOException e) {

@@ -159,7 +159,7 @@ public class ColormapProperties {
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id) {
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-            try(Reader r = PropertyUtil.getJsonReader(in, id)) {
+            try(Reader r = PropertyUtil.getJsonReader(in, id, k -> k, "blocks"::equals)) {
                 return loadFromJson(r, id);
             }
         } catch(IOException e) {

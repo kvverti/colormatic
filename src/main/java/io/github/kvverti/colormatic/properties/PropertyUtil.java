@@ -17,22 +17,24 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.github.kvverti.colormatic.properties.adapter.*;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.texture.NativeImage;
@@ -135,14 +137,22 @@ public class PropertyUtil {
 
     /**
      * Creates a reader suitable for deserializing json from either a json file
-     * or a properties file.
+     * or a properties file. Since Optifine properties files may use old names
+     * for property keys, the keyMapper parameter transforms these into sensible
+     * names. As well, for properties that must be arrays in json, there is the
+     * predicate arrayValue.
      */
-    public static Reader getJsonReader(InputStream in, Identifier id) throws IOException {
+    public static Reader getJsonReader(
+            InputStream in,
+            Identifier id,
+            Function<String, String> keyMapper,
+            Predicate<String> arrayValue) throws IOException {
         Reader jsonInput;
         if(id.getPath().endsWith(".properties")) {
             // properties file
             Properties data = new Properties();
-            jsonInput = new StringReader(PropertyUtil.toJson(data));
+            data.load(in);
+            jsonInput = new StringReader(PropertyUtil.toJson(data, keyMapper, arrayValue));
         } else {
             // json file
             jsonInput = new InputStreamReader(in);
@@ -151,20 +161,59 @@ public class PropertyUtil {
     }
 
     /**
-     * Converts the argument to an equivalent JSON string.
+     * Converts the argument to an equivalent JSON string. Property keys with
+     * dot separators are rendered as nested objects in the JSON string.
+     * Property keys are also mapped according to the keyMapper.
      */
-    public static String toJson(Properties properties) {
+    private static String toJson(Properties properties, Function<String, String> keyMapper, Predicate<String> arrayValue) {
         // split lists of data on whitespace
         Map<String, Object> props = new HashMap<>();
         for(String prop : properties.stringPropertyNames()) {
-            String[] vals = properties.getProperty(prop).split("\\s+");
-            if(vals.length == 1) {
-                props.put(prop, vals[0]);
-            } else {
-                props.put(prop, vals);
+            String[] keys = prop.split("\\.");
+            Map<String, Object> nest = props;
+            int i;
+            for(i = 0; i < keys.length - 1; i++) {
+                String key = keyMapper.apply(keys[i]);
+                Object tmp = nest.computeIfAbsent(key, k -> new HashMap<>());
+                // similar to mergeCompound() below, but the existing key is
+                // the non-map object rather than the map object.
+                if(tmp instanceof Map<?, ?>) {
+                    nest = (Map<String, Object>)tmp;
+                } else {
+                    Map<String, Object> newNest = new HashMap<>();
+                    newNest.put("", tmp);
+                    nest.put(key, newNest);
+                    nest = newNest;
+                }
             }
+            String key = keyMapper.apply(keys[i]);
+            String propVal = properties.getProperty(prop);
+            Object val = arrayValue.test(key) ? propVal.split("\\s+") : propVal;
+            nest.merge(key, val, PropertyUtil::mergeCompound);
         }
         return PROPERTY_GSON.toJson(props);
+    }
+
+    /**
+     * Merge compound keys like so:
+     *   key = value
+     *   key.nest = value2
+     * ---------------------
+     *   "key": {
+     *     "": value,
+     *     "nest": value2
+     *   }
+     */
+    private static Object mergeCompound(Object existingValue, Object newValue) {
+        if(existingValue instanceof Map<?, ?>) {
+            // existing value is a compound, so we add the new value to it
+            @SuppressWarnings("unchecked")
+            Map<String, Object> map = (Map<String, Object>)existingValue;
+            map.put("", newValue);
+            return existingValue;
+        } else {
+            return newValue;
+        }
     }
 
     /**
