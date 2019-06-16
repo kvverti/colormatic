@@ -9,6 +9,7 @@
       "color.BlockColorsMixin",
       "color.ItemColorsMixin",
       "dye.SheepEntityMixin",
+      "dye.WolfCollarFeatureRendererMixin",
       "particle.DustParticleEffectMixin",
       "particle.MyceliumParticleFactoryMixin",
       "particle.DrippingLavaParticleMixin",

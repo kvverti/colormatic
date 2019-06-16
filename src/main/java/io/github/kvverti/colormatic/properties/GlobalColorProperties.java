@@ -54,6 +54,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> sheep;
     private final Map<DyeColor, float[]> sheepRgb;
     private final Map<DyeColor, HexColor> collar;
+    private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
 
     private GlobalColorProperties(Settings settings) {
@@ -65,6 +66,7 @@ public class GlobalColorProperties {
         this.sheep = settings.sheep;
         this.sheepRgb = toRgb(settings.sheep);
         this.collar = settings.collar;
+        this.collarRgb = toRgb(settings.collar);
         this.banner = settings.map;
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
@@ -136,6 +138,10 @@ public class GlobalColorProperties {
 
     public int getCollar(DyeColor color) {
         return getColor(color, collar);
+    }
+
+    public float[] getCollarRgb(DyeColor color) {
+        return collarRgb.get(color);
     }
 
     public int getBanner(DyeColor color) {
