@@ -84,7 +84,11 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(LAVA_DROP_COLORS);
         client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
-        client.registerReloadListener(COLOR_PROPS);
+        // Note: we don't register this as a reload listener here because it
+        // has to be loaded before vanilla resources (namely banner textures).
+        // In order to do this, we mix in to TextureManager and directly call
+        // its reloading method before any textures are loaded.
+        // client.registerReloadListener(COLOR_PROPS);
 
         RegistryEntryAddedCallback.event(Registry.DIMENSION)
             .register(Lightmaps::registerLightmapReload);
