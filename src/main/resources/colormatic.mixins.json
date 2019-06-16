@@ -8,6 +8,7 @@
       "color.BiomeColorsMixin",
       "color.BlockColorsMixin",
       "color.ItemColorsMixin",
+      "dye.SheepEntityMixin",
       "particle.DustParticleEffectMixin",
       "particle.MyceliumParticleFactoryMixin",
       "particle.DrippingLavaParticleMixin",

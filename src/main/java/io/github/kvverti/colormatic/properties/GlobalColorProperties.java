@@ -52,6 +52,7 @@ public class GlobalColorProperties {
     private final int lilypad;
     private final Map<StatusEffect, HexColor> potions;
     private final Map<DyeColor, HexColor> sheep;
+    private final Map<DyeColor, float[]> sheepRgb;
     private final Map<DyeColor, HexColor> collar;
     private final Map<DyeColor, HexColor> banner;
 
@@ -62,6 +63,7 @@ public class GlobalColorProperties {
         this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
         this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;
+        this.sheepRgb = toRgb(settings.sheep);
         this.collar = settings.collar;
         this.banner = settings.map;
         // water potions' color does not correspond to a status effect
@@ -82,6 +84,19 @@ public class GlobalColorProperties {
             if(key != null) {
                 res.put(key, entry.getValue());
             }
+        }
+        return res;
+    }
+
+    private static <T> Map<T, float[]> toRgb(Map<T, HexColor> map) {
+        Map<T, float[]> res = new HashMap<>();
+        for(Map.Entry<T, HexColor> entry : map.entrySet()) {
+            int col = entry.getValue().get();
+            float[] rgb = new float[3];
+            rgb[0] = ((col >> 16) & 0xff) / 255.0f;
+            rgb[1] = ((col >>  8) & 0xff) / 255.0f;
+            rgb[2] = ((col >>  0) & 0xff) / 255.0f;
+            res.put(entry.getKey(), rgb);
         }
         return res;
     }
@@ -113,6 +128,10 @@ public class GlobalColorProperties {
 
     public int getWool(DyeColor color) {
         return getColor(color, sheep);
+    }
+
+    public float[] getWoolRgb(DyeColor color) {
+        return sheepRgb.get(color);
     }
 
     public int getCollar(DyeColor color) {
