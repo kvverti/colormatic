@@ -18,12 +18,15 @@
 package io.github.kvverti.colormatic.mixin.world;
 
 import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.colormap.BiomeColormap;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(World.class)
 public abstract class WorldMixin {
 
-    @Shadow public abstract Dimension getDimension();
+    @Shadow @Final public Dimension dimension;
 
     @Redirect(
         method = "getSkyColor",
@@ -44,9 +47,12 @@ public abstract class WorldMixin {
             target = "Lnet/minecraft/world/biome/Biome;getSkyColor(F)I"
         )
     )
-    private int proxySkyColor(Biome self, float temp) {
-        DimensionType type = this.getDimension().getType();
-        if(type != DimensionType.OVERWORLD || !Colormatic.SKY_COLORS.hasCustomColormap()) {
+    private int proxySkyColor(Biome self, float temp, BlockPos pos, float partialTicks) {
+        DimensionType type = this.dimension.getType();
+        if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
+            BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
+            return BiomeColormap.getBiomeColor((World)(Object)this, pos, colormap);
+        } else {
             int color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(type);
             if(color != 0) {
                 return color;

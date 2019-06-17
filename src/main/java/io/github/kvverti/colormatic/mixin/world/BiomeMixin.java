@@ -32,13 +32,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Biome.class)
 public abstract class BiomeMixin {
 
-    @Inject(method = "getSkyColor", at = @At("HEAD"), cancellable = true)
-    private void onSkyColor(CallbackInfoReturnable<Integer> info) {
-        if(Colormatic.SKY_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.SKY_COLORS.getColormap().getColor((Biome)(Object)this));
-        }
-    }
-
     @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
     private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
         if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
