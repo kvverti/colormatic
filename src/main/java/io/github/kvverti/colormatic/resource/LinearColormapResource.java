@@ -55,4 +55,11 @@ public class LinearColormapResource extends ColormapResource {
     public int getRandomColor() {
         return this.colormap[rand.nextInt(this.colormap.length)];
     }
+
+    /**
+     * Returns the color at the index `frac` way through the colormap.
+     */
+    public int getColorFraction(float frac) {
+        return this.colormap[(int)(frac * (this.colormap.length - 1))];
+    }
 }

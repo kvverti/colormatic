@@ -60,6 +60,8 @@ public class Colormatic implements ClientModInitializer {
         new LinearColormapResource(new Identifier(MODID, "colormap/myceliumparticle.png"));
     public static final LinearColormapResource LAVA_DROP_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/lavadrop.png"));
+    public static final LinearColormapResource DURABILITY_COLORS =
+        new LinearColormapResource(new Identifier(MODID, "colormap/durability.png"));
     public static final CustomBiomeColormapsResource CUSTOM_BLOCK_COLORS =
         new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
     public static final GlobalLightmapResource LIGHTMAP_PROPS =
@@ -82,6 +84,7 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(MELON_STEM_COLORS);
         client.registerReloadListener(MYCELIUM_PARTICLE_COLORS);
         client.registerReloadListener(LAVA_DROP_COLORS);
+        client.registerReloadListener(DURABILITY_COLORS);
         client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
         // Note: we don't register this as a reload listener here because it
