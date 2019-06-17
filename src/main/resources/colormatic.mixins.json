@@ -24,7 +24,8 @@
       "potion.StatusEffectMixin",
       "render.BackgroundRendererMixin",
       "render.LightmapTextureManagerMixin",
-      "world.BiomeMixin"
+      "world.BiomeMixin",
+      "world.WorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
