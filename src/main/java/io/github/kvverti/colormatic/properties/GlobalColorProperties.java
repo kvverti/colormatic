@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.block.MaterialColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
@@ -57,6 +58,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> collar;
     private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
+    private final Map<MaterialColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
 
     private GlobalColorProperties(Settings settings) {
@@ -69,7 +71,8 @@ public class GlobalColorProperties {
         this.sheepRgb = toRgb(settings.sheep);
         this.collar = settings.collar;
         this.collarRgb = toRgb(settings.collar);
-        this.banner = settings.map;
+        this.banner = settings.banner;
+        this.map = settings.map;
         this.spawnEgg = collateSpawnEggColors(settings);
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
@@ -185,6 +188,10 @@ public class GlobalColorProperties {
         return getColor(color, banner);
     }
 
+    public int getMap(MaterialColor color) {
+        return getColor(color, map);
+    }
+
     public int getSpawnEgg(EntityType<?> type, int idx) {
         int[] colors = spawnEgg.get(type);
         return colors != null ? colors[idx] : 0;
@@ -267,7 +274,8 @@ public class GlobalColorProperties {
         Map<String, HexColor> potion = Collections.emptyMap();
         Map<DyeColor, HexColor> sheep = Collections.emptyMap();
         Map<DyeColor, HexColor> collar = Collections.emptyMap();
-        Map<DyeColor, HexColor> map = Collections.emptyMap();
+        Map<MaterialColor, HexColor> map = Collections.emptyMap();
+        Map<DyeColor, HexColor> banner = Collections.emptyMap();
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;
     }

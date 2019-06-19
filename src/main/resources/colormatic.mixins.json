@@ -5,6 +5,7 @@
   "client": [
       "block.RedstoneWireBlockMixin",
       "block.LeverBlockMixin",
+      "block.MaterialColorMixin",
       "color.BiomeColorsMixin",
       "color.BlockColorsMixin",
       "color.ItemColorsMixin",

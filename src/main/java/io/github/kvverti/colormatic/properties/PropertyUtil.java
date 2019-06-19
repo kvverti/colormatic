@@ -37,6 +37,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.MaterialColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.resource.Resource;
@@ -56,6 +57,7 @@ public class PropertyUtil {
         .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
         .registerTypeAdapter(BlockStatePredicate.class, new BlockStatePredicateAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
+        .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
         .create();
 
     /**
