@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.minecraft.ChatFormat;
 import net.minecraft.block.Block;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.client.texture.NativeImage;
@@ -58,6 +59,7 @@ public class PropertyUtil {
         .registerTypeAdapter(BlockStatePredicate.class, new BlockStatePredicateAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
+        .registerTypeAdapter(ChatFormat.class, new ChatFormatAdapter())
         .create();
 
     /**

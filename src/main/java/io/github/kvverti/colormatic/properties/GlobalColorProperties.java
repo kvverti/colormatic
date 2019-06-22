@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.minecraft.ChatFormat;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
@@ -60,6 +61,8 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> banner;
     private final Map<MaterialColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
+    private final Map<ChatFormat, HexColor> textColor;
+    private final TextColor text;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -74,6 +77,25 @@ public class GlobalColorProperties {
         this.banner = settings.banner;
         this.map = settings.map;
         this.spawnEgg = collateSpawnEggColors(settings);
+        if(settings.text != null) {
+            TextColor text = settings.text;
+            this.textColor = new HashMap<>();
+            for(Map.Entry<Integer, HexColor> entry : text.code.entrySet()) {
+                int code = entry.getKey();
+                if(code < 16) {
+                    ChatFormat color = ChatFormat.byId(code);
+                    textColor.put(color, entry.getValue());
+                }
+            }
+            this.textColor.putAll(text.format);
+            text.code = Collections.emptyMap();
+            text.format = Collections.emptyMap();
+            this.text = text;
+        } else {
+            // settings.text == null
+            this.textColor = Collections.emptyMap();
+            this.text = new TextColor();
+        }
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
         HexColor water = settings.potion.get("water");
@@ -197,6 +219,30 @@ public class GlobalColorProperties {
         return colors != null ? colors[idx] : 0;
     }
 
+    private int getColor(HexColor col) {
+        return col != null ? col.get() : 0;
+    }
+
+    public int getXpText() {
+        return getColor(text.xpbar);
+    }
+
+    public int getButtonTextHovered() {
+        return getColor(text.button.hover);
+    }
+
+    public int getButtonTextDisabled() {
+        return getColor(text.button.disabled);
+    }
+
+    public int getSignText(DyeColor color) {
+        return getColor(color, text.sign);
+    }
+
+    public int getText(ChatFormat color) {
+        return getColor(color, textColor);
+    }
+
     public enum ColoredParticle implements StringIdentifiable {
         WATER("water"),
         PORTAL("portal");
@@ -278,6 +324,7 @@ public class GlobalColorProperties {
         Map<DyeColor, HexColor> banner = Collections.emptyMap();
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;
+        TextColor text;
     }
 
     /**
@@ -287,5 +334,18 @@ public class GlobalColorProperties {
     private static class LegacyEggColor {
         Map<String, HexColor> shell = Collections.emptyMap();
         Map<String, HexColor> spots = Collections.emptyMap();
+    }
+
+    private static class TextColor {
+        HexColor xpbar;
+        ButtonText button = new ButtonText();
+        Map<DyeColor, HexColor> sign = Collections.emptyMap();
+        Map<ChatFormat, HexColor> format = Collections.emptyMap();
+        Map<Integer, HexColor> code = Collections.emptyMap();
+
+        static class ButtonText {
+            HexColor hover;
+            HexColor disabled;
+        }
     }
 }
