@@ -17,7 +17,11 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import net.minecraft.util.registry.Registry;
 import com.google.gson.JsonSyntaxException;
+
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -25,6 +29,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.predicate.block.BlockStatePredicate;
@@ -32,6 +37,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.world.biome.Biome;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -78,6 +84,13 @@ public class ColormapProperties {
      */
     private final int yOffset;
 
+    /**
+     * Maps biomes to columns in grid format. If a biome is not present, then
+     * there is no mapping for the biome in this colormap. If null, this colormap
+     * uses the default mechanism of mapping the biome to a column via its raw ID.
+     */
+    private final Object2IntMap<Biome> columnsByBiome;
+
     private ColormapProperties(Settings settings) {
         this.format = settings.format;
         this.blocks = settings.blocks;
@@ -85,6 +98,17 @@ public class ColormapProperties {
         this.color = settings.color.get();
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
+        if(settings.biomes != null) {
+            columnsByBiome = new Object2IntOpenHashMap<>();
+            for(Map.Entry<Identifier, Integer> entry : settings.biomes.entrySet()) {
+                Biome b = Registry.BIOME.get(entry.getKey());
+                if(b != null) {
+                    columnsByBiome.put(b, entry.getValue().intValue());
+                }
+            }
+        } else {
+            columnsByBiome = null;
+        }
     }
 
     public Format getFormat() {
@@ -105,6 +129,22 @@ public class ColormapProperties {
 
     public int getOffset() {
         return yOffset;
+    }
+
+    /**
+     * Returns, for the grid format, which column of the colormap the given
+     * biome should use. Returns -1 if the biome is not assigned to a column.
+     * If the format is not grid, or biome is null, returns 0.
+     */
+    public int getColumn(Biome biome) {
+        if(format == Format.GRID && biome != null) {
+            if(columnsByBiome != null) {
+                return columnsByBiome.getOrDefault(biome, -1);
+            } else {
+                return Registry.BIOME.getRawId(biome);
+            }
+        }
+        return 0;
     }
 
     public boolean isForBlock(BlockState state) {
@@ -205,5 +245,6 @@ public class ColormapProperties {
         HexColor color = HexColor.WHITE;
         int yVariance = 0;
         int yOffset = 0;
+        Map<Identifier, Integer> biomes = null;
     }
 }

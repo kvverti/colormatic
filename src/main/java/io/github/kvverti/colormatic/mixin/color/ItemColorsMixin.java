@@ -40,7 +40,7 @@ public abstract class ItemColorsMixin {
     private void onColorMultiplier(ItemStack stack, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(stack.getItem() instanceof BlockItem) {
             BlockState state = ((BlockItem)stack.getItem()).getBlock().getDefaultState();
-            BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state);
+            BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, null);
             if(colormap != null) {
                 info.setReturnValue(colormap.getDefaultColor());
             }

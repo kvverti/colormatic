@@ -81,7 +81,7 @@ public abstract class BlockColorsMixin {
 
     @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
-        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state);
+        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, world.getBiome(pos));
         if(colormap != null) {
             info.setReturnValue(BiomeColormap.getBiomeColor(world, pos, colormap));
         }

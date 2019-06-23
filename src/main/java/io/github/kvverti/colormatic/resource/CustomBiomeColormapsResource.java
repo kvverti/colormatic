@@ -31,6 +31,7 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.block.BlockState;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.biome.Biome;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -64,9 +65,9 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
      * colormap is defined for this block state. In the case where multiple
      * colormaps apply to the same block state, one of them is returned.
      */
-    public BiomeColormap getColormap(BlockState state) {
+    public BiomeColormap getColormap(BlockState state, Biome biome) {
         for(BiomeColormap colormap : colormaps) {
-            if(colormap.appliesTo(state)) {
+            if(colormap.appliesTo(state, biome)) {
                 return colormap;
             }
         }

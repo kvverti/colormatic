@@ -43,10 +43,11 @@ public class BiomeColormap {
     }
 
     /**
-     * Returns whether this colormap applies to the given block state.
+     * Returns whether this colormap applies to the given block state and the
+     * given biome.
      */
-    public boolean appliesTo(BlockState state) {
-        return properties.isForBlock(state);
+    public boolean appliesTo(BlockState state, Biome biome) {
+        return properties.isForBlock(state) && properties.getColumn(biome) != -1;
     }
 
     /**
@@ -82,7 +83,8 @@ public class BiomeColormap {
                 double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
                 return getColor(rain, temp);
             case GRID:
-                int x = Registry.BIOME.getRawId(biome) % colormap.getWidth();
+                // int x = Registry.BIOME.getRawId(biome) % colormap.getWidth();
+                int x = properties.getColumn(biome) % colormap.getWidth();
                 int y = pos.getY() - properties.getOffset();
                 if(pos != null) {
                     int variance = properties.getVariance();
