@@ -56,6 +56,7 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 
 jar {
 	from "LICENSE"
+	from "COPYING.LESSER"
 }
 
 // configure the maven publication
