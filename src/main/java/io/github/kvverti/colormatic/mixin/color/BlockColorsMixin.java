@@ -25,6 +25,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.StemBlock;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.ExtendedBlockView;
 
 import org.spongepowered.asm.mixin.Dynamic;
@@ -81,7 +82,8 @@ public abstract class BlockColorsMixin {
 
     @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
-        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, world.getBiome(pos));
+        Biome biome = world != null && pos != null ? world.getBiome(pos) : null;
+        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, biome);
         if(colormap != null) {
             info.setReturnValue(BiomeColormap.getBiomeColor(world, pos, colormap));
         }
