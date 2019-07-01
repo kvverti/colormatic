@@ -62,7 +62,7 @@ public final class BiomeColormaps {
      * Retrieves the colormap that applies to the given block state and biome.
      * Returns `null` if there are no colormaps that apply.
      */
-    private static BiomeColormap get(BlockState state, Biome biome) {
+    public static BiomeColormap get(BlockState state, Biome biome) {
         Map<Biome, BiomeColormap> map = colormapsByState.row(state);
         BiomeColormap res = map.get(biome);
         if(res == null) {

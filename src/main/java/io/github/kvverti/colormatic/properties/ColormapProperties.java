@@ -160,7 +160,9 @@ public class ColormapProperties {
     public Set<Block> getApplicableBlocks() {
         Set<Block> res = new HashSet<>();
         for(ApplicableBlockStates a : blocks) {
-            res.add(a.block);
+            if(a.states.isEmpty()) {
+                res.add(a.block);
+            }
         }
         return res;
     }

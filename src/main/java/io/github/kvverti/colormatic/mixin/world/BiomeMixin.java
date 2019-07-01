@@ -18,10 +18,18 @@
 package io.github.kvverti.colormatic.mixin.world;
 
 import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.util.Lazy;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -32,10 +40,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Biome.class)
 public abstract class BiomeMixin {
 
+    @Unique
+    private static Lazy<BlockState> WATER_FOG = new Lazy<>(() ->
+        PseudoBlockStates.FLUID_FOG.getDefaultState()
+        .with(PseudoBlockStates.FLUID, Registry.FLUID.getId(Fluids.WATER)));
+
     @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
     private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
-        if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColormap().getColor((Biome)(Object)this));
+        Biome self = (Biome)(Object)this;
+        if(BiomeColormaps.isCustomColored(WATER_FOG.get())) {
+            BiomeColormap colormap = BiomeColormaps.get(WATER_FOG.get(), self);
+            if(colormap != null) {
+                info.setReturnValue(colormap.getColor(self));
+            } else {
+                info.setReturnValue(0xffffffff);
+            }
+        } else if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
+            info.setReturnValue(Colormatic.UNDERWATER_COLORS.getColormap().getColor(self));
         }
     }
 }

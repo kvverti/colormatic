@@ -17,10 +17,14 @@
  */
 package io.github.kvverti.colormatic.mixin.world;
 
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.Dimension;
@@ -49,7 +53,11 @@ public abstract class WorldMixin {
     )
     private int proxySkyColor(Biome self, float temp, BlockPos pos, float partialTicks) {
         DimensionType type = this.dimension.getType();
-        if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
+        BlockState state = PseudoBlockStates.SKY.getDefaultState()
+            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(type));
+        if(BiomeColormaps.isCustomColored(state)) {
+            return BiomeColormaps.getBiomeColor(state, (World)(Object)this, pos);
+        } else if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             return BiomeColormap.getBiomeColor((World)(Object)this, pos, colormap);
         } else {

@@ -17,20 +17,27 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.util.Lazy;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -60,7 +67,11 @@ public abstract class BackgroundRendererMixin {
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
         DimensionType dimType = self.getDimension().getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
-        if(dimType == DimensionType.OVERWORLD && Colormatic.FOG_COLORS.hasCustomColormap()) {
+        BlockState state = PseudoBlockStates.SKY_FOG.getDefaultState()
+            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(dimType));
+        if(BiomeColormaps.isCustomColored(state)) {
+            color = 0xff000000 | BiomeColormaps.getBiomeColor(state, self, camera.getBlockPos());
+        } else if(dimType == DimensionType.OVERWORLD && Colormatic.FOG_COLORS.hasCustomColormap()) {
             // overworld colors fog by biome
             color = 0xff000000 | BiomeColormap.getBiomeColor(
                 self,
@@ -86,6 +97,11 @@ public abstract class BackgroundRendererMixin {
             return self.getFogColor(partialTicks);
         }
     }
+
+    @Unique
+    private static final Lazy<BlockState> LAVA_FOG = new Lazy<>(() ->
+        PseudoBlockStates.FLUID_FOG.getDefaultState()
+        .with(PseudoBlockStates.FLUID, Registry.FLUID.getId(Fluids.LAVA)));
 
     /* Relevant bytecode:
      *  50: ldc           #122                // float 0.6f
@@ -117,7 +133,12 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private void onRenderLavaFog(Camera camera, float partialTicks, CallbackInfo info) {
-        if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
+        if(BiomeColormaps.isCustomColored(LAVA_FOG.get())) {
+            int color = BiomeColormaps.getBiomeColor(LAVA_FOG.get(), this.client.world, camera.getBlockPos());
+            this.red = ((color >> 16) & 0xff) / 255.0f;
+            this.green = ((color >>  8) & 0xff) / 255.0f;
+            this.blue = ((color >>  0) & 0xff) / 255.0f;
+        } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(
                 this.client.world,
                 camera.getBlockPos(),

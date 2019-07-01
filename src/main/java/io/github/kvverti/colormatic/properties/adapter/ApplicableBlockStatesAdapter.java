@@ -23,7 +23,9 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
+import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.properties.ApplicableBlockStates;
+import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -68,7 +70,12 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
         try {
             if(parts.length > 1 && parts[1].indexOf('=') < 0) {
                 // a qualified name like `minecraft:grass_block:snowy=false`
-                b = Registry.BLOCK.get(new Identifier(parts[0], parts[1]));
+                Identifier id = new Identifier(parts[0], parts[1]);
+                if(parts[0].equals(Colormatic.MODID)) {
+                    b = PseudoBlockStates.getPseudoBlock(id);
+                } else {
+                    b = Registry.BLOCK.get(id);
+                }
                 bgnIdx = 2;
             } else {
                 // an unqualified name like `grass_block:snowy=false`
@@ -108,10 +115,16 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
         }
         // if this applies to all states, the states list is empty
         res.states = new ArrayList<>();
+        boolean excluded = false;
         for(BlockState state : b.getStateFactory().getStates()) {
             if(pred.test(state)) {
                 res.states.add(state);
+            } else {
+                excluded = true;
             }
+        }
+        if(!excluded) {
+            res.states.clear();
         }
         return res;
     }

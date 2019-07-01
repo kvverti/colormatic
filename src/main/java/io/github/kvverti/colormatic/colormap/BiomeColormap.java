@@ -77,10 +77,10 @@ public class BiomeColormap {
                 double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
                 return getColor(rain, temp);
             case GRID:
-                // int x = Registry.BIOME.getRawId(biome) % colormap.getWidth();
                 int x = properties.getColumn(biome) % colormap.getWidth();
-                int y = pos.getY() - properties.getOffset();
+                int y = 63 - properties.getOffset();
                 if(pos != null) {
+                    y = pos.getY() - properties.getOffset();
                     int variance = properties.getVariance();
                     GRID_RANDOM.setSeed(pos.getX() * 31L + pos.getZ());
                     y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
