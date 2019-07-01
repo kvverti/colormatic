@@ -17,17 +17,16 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.AttachedStemBlock;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.StemBlock;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.biome.Biome;
 import net.minecraft.world.ExtendedBlockView;
 
 import org.spongepowered.asm.mixin.Dynamic;
@@ -95,10 +94,9 @@ public abstract class BlockColorsMixin {
 
     @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
-        Biome biome = world != null && pos != null ? world.getBiome(pos) : null;
-        BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, biome);
-        if(colormap != null) {
-            info.setReturnValue(BiomeColormap.getBiomeColor(world, pos, colormap));
+        if(BiomeColormaps.isCustomColored(state)) {
+            int color = BiomeColormaps.getBiomeColor(state, world, pos);
+            info.setReturnValue(color);
         }
     }
 }

@@ -27,26 +27,18 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import net.minecraft.ChatFormat;
-import net.minecraft.block.Block;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
 
 /**
  * Utility class for dealing with properties files.
@@ -56,73 +48,11 @@ public class PropertyUtil {
     public static final Gson PROPERTY_GSON = new GsonBuilder()
         .registerTypeAdapterFactory(new StringIdentifiableTypeAdapterFactory())
         .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
-        .registerTypeAdapter(BlockStatePredicate.class, new BlockStatePredicateAdapter())
+        .registerTypeAdapter(ApplicableBlockStates.class, new ApplicableBlockStatesAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
         .registerTypeAdapter(ChatFormat.class, new ChatFormatAdapter())
         .create();
-
-    /**
-     * Tests a single element of a block state predicate list. For example,
-     * these elements may be `stone`, `minecraft:grass_block`, `lever:attach=wall:facing=east,west`
-     *
-     * @throws InvalidPredicateException if the input is malformed
-     */
-    public static BlockStatePredicate createBlockPredicate(String blockDesc) {
-        Block b;
-        String[] parts = blockDesc.split(":");
-        int bgnIdx;
-        try {
-            if(parts.length > 1 && parts[1].indexOf('=') < 0) {
-                // a qualified name like `minecraft:grass_block:snowy=false`
-                b = Registry.BLOCK.get(new Identifier(parts[0], parts[1]));
-                bgnIdx = 2;
-            } else {
-                // an unqualified name like `grass_block:snowy=false`
-                b = Registry.BLOCK.get(new Identifier(parts[0]));
-                bgnIdx = 1;
-            }
-        } catch(InvalidIdentifierException e) {
-            throw new InvalidPredicateException("Invalid block identifier: " + blockDesc, e);
-        }
-        if(b == null) {
-            throw new InvalidPredicateException("Block not found: " + blockDesc);
-        }
-        BlockStatePredicate res = BlockStatePredicate.forBlock(b);
-        for(int i = bgnIdx; i < parts.length; i++) {
-            int split = parts[i].indexOf('=');
-            if(split < 0) {
-                throw new InvalidPredicateException("Invalid property syntax: " + parts[i]);
-            }
-            String propStr = parts[i].substring(0, split);
-            Property<?> prop = null;
-            for(Property<?> p : b.getDefaultState().getProperties()) {
-                if(p.getName().equals(propStr)) {
-                    prop = p;
-                    break;
-                }
-            }
-            if(prop == null) {
-                throw new InvalidPredicateException("Invalid property: " + propStr);
-            }
-            String[] propValues = parts[i].substring(split + 1).split(",");
-            List<Comparable<?>> ls = new ArrayList<>();
-            for(String s : propValues) {
-                putPropValue(prop, s, ls);
-            }
-            res = res.with(prop, ls::contains);
-        }
-        return res;
-    }
-
-    private static <T extends Comparable<T>> void putPropValue(Property<T> prop, String s, List<? super T> values) {
-        Optional<T> value = prop.getValue(s);
-        if(value.isPresent()) {
-            values.add(value.get());
-        } else {
-            throw new InvalidPredicateException("Invalid property value: " + s);
-        }
-    }
 
     /**
      * Resolves a possibly relative identifier with the given identifier.

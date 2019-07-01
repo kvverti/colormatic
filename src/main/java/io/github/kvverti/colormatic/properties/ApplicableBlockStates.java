@@ -17,24 +17,19 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.BlockState;
+
 /**
- * Thrown when a block state predicate is malformed in some way.
+ * Class used internally by ColormapProperties. This is public so its adapter
+ * can be in the adapter package.
  */
-public class InvalidPredicateException extends RuntimeException {
+public class ApplicableBlockStates {
 
-    public InvalidPredicateException() {
-        super();
-    }
-
-    public InvalidPredicateException(String message) {
-        super(message);
-    }
-
-    public InvalidPredicateException(Throwable cause) {
-        super(cause);
-    }
-
-    public InvalidPredicateException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    public Block block = Blocks.AIR;
+    public Collection<BlockState> states = new ArrayList<>();
 }

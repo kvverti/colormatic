@@ -17,8 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
-import io.github.kvverti.colormatic.Colormatic;
-import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.color.item.ItemColors;
@@ -40,9 +39,9 @@ public abstract class ItemColorsMixin {
     private void onColorMultiplier(ItemStack stack, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(stack.getItem() instanceof BlockItem) {
             BlockState state = ((BlockItem)stack.getItem()).getBlock().getDefaultState();
-            BiomeColormap colormap = Colormatic.CUSTOM_BLOCK_COLORS.getColormap(state, null);
-            if(colormap != null) {
-                info.setReturnValue(colormap.getDefaultColor());
+            if(BiomeColormaps.isCustomColored(state)) {
+                int color = BiomeColormaps.getBiomeColor(state, null, null);
+                info.setReturnValue(color);
             }
         }
     }

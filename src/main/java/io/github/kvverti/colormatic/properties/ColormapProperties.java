@@ -17,7 +17,6 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import net.minecraft.util.registry.Registry;
 import com.google.gson.JsonSyntaxException;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -29,14 +28,17 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
 
 import org.apache.logging.log4j.Logger;
@@ -58,7 +60,7 @@ public class ColormapProperties {
      * A list of BlockStates that this colormap applies to. If not specified,
      * it is taken from the name of the properties file (minecraft namespace only).
      */
-    private final Collection<BlockStatePredicate> blocks;
+    private final Collection<ApplicableBlockStates> blocks;
 
     /**
      * The colormap image. If not specified, it is taken from the file name
@@ -147,13 +149,28 @@ public class ColormapProperties {
         return 0;
     }
 
-    public boolean isForBlock(BlockState state) {
-        for(BlockStatePredicate p : blocks) {
-            if(p.test(state)) {
-                return true;
-            }
+    public Set<Biome> getApplicableBiomes() {
+        Set<Biome> res = new HashSet<>();
+        if(columnsByBiome != null) {
+            res.addAll(columnsByBiome.keySet());
         }
-        return false;
+        return res;
+    }
+
+    public Set<Block> getApplicableBlocks() {
+        Set<Block> res = new HashSet<>();
+        for(ApplicableBlockStates a : blocks) {
+            res.add(a.block);
+        }
+        return res;
+    }
+
+    public Set<BlockState> getApplicableBlockStates() {
+        Set<BlockState> res = new HashSet<>();
+        for(ApplicableBlockStates a : blocks) {
+            res.addAll(a.states);
+        }
+        return res;
     }
 
     @Override
@@ -223,9 +240,9 @@ public class ColormapProperties {
             blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
             settings.blocks = new ArrayList<>();
             try {
-                settings.blocks.add(PropertyUtil.createBlockPredicate(blockId));
-            } catch(InvalidPredicateException e) {
-                log.warn("Error parsing {}: {}", id, e.getMessage());
+                settings.blocks.add(PropertyUtil.PROPERTY_GSON.fromJson(blockId, ApplicableBlockStates.class));
+            } catch(JsonSyntaxException e) {
+                log.error("Error parsing {}: {}", id, e.getMessage());
             }
         }
         if(settings.source == null) {
@@ -240,7 +257,7 @@ public class ColormapProperties {
     private static class Settings {
 
         Format format = Format.VANILLA;
-        Collection<BlockStatePredicate> blocks;
+        Collection<ApplicableBlockStates> blocks;
         String source;
         HexColor color = HexColor.WHITE;
         int yVariance = 0;

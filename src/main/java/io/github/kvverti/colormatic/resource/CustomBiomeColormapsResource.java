@@ -18,20 +18,17 @@
 package io.github.kvverti.colormatic.resource;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.Biome;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,12 +44,10 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
 
     private final Identifier id;
     private final Identifier optifineId;
-    private final List<BiomeColormap> colormaps;
 
     public CustomBiomeColormapsResource(Identifier id) {
         this.id = id;
         this.optifineId = new Identifier("minecraft", "optifine/" + id.getPath());
-        this.colormaps = new ArrayList<>();
     }
 
     @Override
@@ -60,28 +55,14 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
         return id;
     }
 
-    /**
-     * Returns the colormap for the given block state, or `null` if no custom
-     * colormap is defined for this block state. In the case where multiple
-     * colormaps apply to the same block state, one of them is returned.
-     */
-    public BiomeColormap getColormap(BlockState state, Biome biome) {
-        for(BiomeColormap colormap : colormaps) {
-            if(colormap.appliesTo(state, biome)) {
-                return colormap;
-            }
-        }
-        return null;
-    }
-
     @Override
     public void apply(ResourceManager manager) {
-        colormaps.clear();
-        addColormaps(manager, id, colormaps, true);
-        addColormaps(manager, optifineId, colormaps, false);
+        BiomeColormaps.reset();
+        addColormaps(manager, optifineId, false);
+        addColormaps(manager, id, true);
     }
 
-    private static void addColormaps(ResourceManager manager, Identifier dir, List<BiomeColormap> colormaps, boolean json) {
+    private static void addColormaps(ResourceManager manager, Identifier dir, boolean json) {
         String ext = json ? ".json" : ".properties";
         Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext))
             .stream()
@@ -91,7 +72,8 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
         for(Identifier id : files) {
             try {
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id);
-                colormaps.add(new BiomeColormap(pi.properties, pi.image));
+                BiomeColormap colormap = new BiomeColormap(pi.properties, pi.image);
+                BiomeColormaps.add(colormap);
             } catch(InvalidColormapException e) {
                 log.warn("Error parsing {}: {}", id, e.getMessage());
             }

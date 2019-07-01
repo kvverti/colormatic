@@ -21,12 +21,10 @@ import io.github.kvverti.colormatic.properties.ColormapProperties;
 
 import java.util.Random;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.ExtendedBlockView;
 import net.minecraft.world.biome.Biome;
 
@@ -42,12 +40,8 @@ public class BiomeColormap {
         colormap = image;
     }
 
-    /**
-     * Returns whether this colormap applies to the given block state and the
-     * given biome.
-     */
-    public boolean appliesTo(BlockState state, Biome biome) {
-        return properties.isForBlock(state) && properties.getColumn(biome) != -1;
+    public ColormapProperties getProperties() {
+        return properties;
     }
 
     /**
