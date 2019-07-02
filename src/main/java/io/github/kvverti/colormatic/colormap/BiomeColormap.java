@@ -75,7 +75,7 @@ public class BiomeColormap {
                 double temp = pos == null ? biome.getTemperature() : biome.getTemperature(pos);
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
                 double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
-                return getColor(rain, temp);
+                return getColor(temp, rain);
             case GRID:
                 int x = properties.getColumn(biome) % colormap.getWidth();
                 int y = 63 - properties.getOffset();
