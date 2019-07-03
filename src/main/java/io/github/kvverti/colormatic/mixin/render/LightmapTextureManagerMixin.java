@@ -77,7 +77,9 @@ public abstract class LightmapTextureManagerMixin {
         if(world != null && map.hasCustomColormap()) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
             // TODO: handle night vision flicker
-            boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION);
+            boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION) ||
+                (this.client.player.isInWater() &&
+                this.client.player.hasStatusEffect(StatusEffects.CONDUIT_POWER));
             float ambience;
             if(world.getTicksSinceLightning() > 0) {
                 ambience = -1.0f;
