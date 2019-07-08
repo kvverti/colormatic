@@ -70,9 +70,9 @@ public class ColormapProperties {
 
     /**
      * For format = fixed only, the single color that is applied to all relevant
-     * block states.
+     * block states. Null if not specified.
      */
-    private final int color;
+    private final HexColor color;
 
     /**
      * For format = grid only, the amount of noise to add to the y coordinate
@@ -97,7 +97,7 @@ public class ColormapProperties {
         this.format = settings.format;
         this.blocks = settings.blocks;
         this.source = new Identifier(settings.source);
-        this.color = settings.color.get();
+        this.color = settings.color;
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
         if(settings.biomes != null) {
@@ -117,7 +117,7 @@ public class ColormapProperties {
     	return format;
     }
 
-    public int getColor() {
+    public HexColor getColor() {
         return color;
     }
 
@@ -261,7 +261,7 @@ public class ColormapProperties {
         Format format = Format.VANILLA;
         Collection<ApplicableBlockStates> blocks;
         String source;
-        HexColor color = HexColor.WHITE;
+        HexColor color = null;
         int yVariance = 0;
         int yOffset = 0;
         Map<Identifier, Integer> biomes = null;

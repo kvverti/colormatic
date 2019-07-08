@@ -18,6 +18,7 @@
 package io.github.kvverti.colormatic.colormap;
 
 import io.github.kvverti.colormatic.properties.ColormapProperties;
+import io.github.kvverti.colormatic.properties.HexColor;
 
 import java.util.Random;
 
@@ -27,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.ExtendedBlockView;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.Biomes;
 
 public class BiomeColormap {
 
@@ -34,10 +36,31 @@ public class BiomeColormap {
 
     private final ColormapProperties properties;
     private final NativeImage colormap;
+    private transient final int defaultColor;
 
     public BiomeColormap(ColormapProperties props, NativeImage image) {
         properties = props;
         colormap = image;
+        HexColor col = props.getColor();
+        if(col != null) {
+            defaultColor = col.get();
+        } else {
+            defaultColor = computeDefaultColor(props);
+        }
+    }
+
+    private final int computeDefaultColor(ColormapProperties props) {
+        switch(props.getFormat()) {
+            case VANILLA:
+                return colormap.getPixelRGBA(128, 128);
+            case GRID:
+                int x = props.getColumn(Biomes.PLAINS);
+                int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
+                return x != -1 ? colormap.getPixelRGBA(x, y) : 0xffffffff;
+            case FIXED:
+                return 0xffffffff;
+        }
+        throw new AssertionError();
     }
 
     public ColormapProperties getProperties() {
@@ -97,7 +120,7 @@ public class BiomeColormap {
      * Returns the default color given by the custom colormap.
      */
     public int getDefaultColor() {
-        return properties.getColor();
+        return defaultColor;
     }
 
     /**
