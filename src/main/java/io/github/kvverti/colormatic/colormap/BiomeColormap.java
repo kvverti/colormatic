@@ -18,6 +18,7 @@
 package io.github.kvverti.colormatic.colormap;
 
 import io.github.kvverti.colormatic.properties.ColormapProperties;
+import io.github.kvverti.colormatic.properties.ColormapProperties.ColumnBounds;
 import io.github.kvverti.colormatic.properties.HexColor;
 
 import java.util.Random;
@@ -54,9 +55,13 @@ public class BiomeColormap {
             case VANILLA:
                 return colormap.getPixelRGBA(128, 128);
             case GRID:
-                int x = props.getColumn(Biomes.PLAINS);
-                int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
-                return x != -1 ? colormap.getPixelRGBA(x, y) : 0xffffffff;
+                try {
+                    int x = props.getColumn(Biomes.PLAINS).column;
+                    int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
+                    return colormap.getPixelRGBA(x, y);
+                } catch(IllegalArgumentException e) {
+                    return 0xffffffff;
+                }
             case FIXED:
                 return 0xffffffff;
         }
@@ -100,14 +105,22 @@ public class BiomeColormap {
                 double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
-                int x = properties.getColumn(biome) % colormap.getWidth();
-                int y = 63 - properties.getOffset();
+                ColumnBounds cb = properties.getColumn(biome);
+                int x;
+                int y;
                 if(pos != null) {
+                    double frac = Biome.FOLIAGE_NOISE.sample(pos.getX() * 0.0225, pos.getZ() * 0.0225);
+                    frac = (frac + 1.0) / 2; // normalize
+                    x = cb.column + (int)(frac * cb.count);
                     y = pos.getY() - properties.getOffset();
                     int variance = properties.getVariance();
                     GRID_RANDOM.setSeed(pos.getX() * 31L + pos.getZ());
                     y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
+                } else {
+                    x = cb.column;
+                    y = 63 - properties.getOffset();
                 }
+                x %= colormap.getWidth();
                 y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
                 return colormap.getPixelRGBA(x, y);
             case FIXED:

@@ -17,6 +17,10 @@
  */
 package io.github.kvverti.colormatic.properties;
 
+import java.util.Optional;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import com.google.gson.JsonSyntaxException;
 
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
@@ -91,7 +95,32 @@ public class ColormapProperties {
      * there is no mapping for the biome in this colormap. If null, this colormap
      * uses the default mechanism of mapping the biome to a column via its raw ID.
      */
-    private final Object2IntMap<Biome> columnsByBiome;
+    private final Map<Biome, ColumnBounds> columnsByBiome;
+
+    /**
+     * The default mapping of biomes to columns.
+     */
+    private static final Map<Biome, ColumnBounds> defaultColumns;
+    static {
+        defaultColumns = new HashMap<>();
+        for(Biome b : Registry.BIOME) {
+            defaultColumns.put(b, new ColumnBounds(Registry.BIOME.getRawId(b), 1));
+        }
+    }
+
+    /**
+     * Represents a column or columns assigned to a partcular biome.
+     */
+    public static class ColumnBounds {
+
+        public final int column;
+        public final int count;
+
+        public ColumnBounds(int c, int n) {
+            column = c;
+            count = n;
+        }
+    }
 
     private ColormapProperties(Settings settings) {
         this.format = settings.format;
@@ -100,16 +129,27 @@ public class ColormapProperties {
         this.color = settings.color;
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
-        if(settings.biomes != null) {
-            columnsByBiome = new Object2IntOpenHashMap<>();
+        if(settings.grid != null) {
+            this.columnsByBiome = new HashMap<>();
+            for(GridEntry entry : settings.grid) {
+                ColumnBounds bounds = new ColumnBounds(entry.column, entry.width);
+                for(Identifier id : entry.biomes) {
+                    Biome b = Registry.BIOME.get(id);
+                    if(b != null) {
+                        columnsByBiome.put(b, bounds);
+                    }
+                }
+            }
+        } else if(settings.biomes != null) {
+            this.columnsByBiome = new HashMap<>();
             for(Map.Entry<Identifier, Integer> entry : settings.biomes.entrySet()) {
                 Biome b = Registry.BIOME.get(entry.getKey());
                 if(b != null) {
-                    columnsByBiome.put(b, entry.getValue().intValue());
+                    columnsByBiome.put(b, new ColumnBounds(entry.getValue(), 1));
                 }
             }
         } else {
-            columnsByBiome = null;
+            this.columnsByBiome = null;
         }
     }
 
@@ -133,22 +173,40 @@ public class ColormapProperties {
         return yOffset;
     }
 
+    private static final ColumnBounds DEFAULT_BOUNDS = new ColumnBounds(0, 1);
+
     /**
      * Returns, for the grid format, which column of the colormap the given
-     * biome should use. Returns -1 if the biome is not assigned to a column.
-     * If the format is not grid, or biome is null, returns 0.
+     * biome should use. If this colormap applies to all biomes, then the columns
+     * are based on the biome's raw ID.
+     *
+     * @throws IllegalArgumentException if the colormap does not apply to the
+     *     given biome
+     * @throws IllegalStateException if the format is not grid format
      */
-    public int getColumn(Biome biome) {
-        if(format == Format.GRID && biome != null) {
-            if(columnsByBiome != null) {
-                return columnsByBiome.getOrDefault(biome, -1);
+    public ColumnBounds getColumn(Biome biome) {
+        if(format == Format.GRID) {
+            if(biome != null) {
+                if(columnsByBiome != null) {
+                    ColumnBounds cb = columnsByBiome.get(biome);
+                    if(cb == null) {
+                        throw new IllegalArgumentException(Registry.BIOME.getId(biome).toString());
+                    }
+                    return cb;
+                } else {
+                    return defaultColumns.get(biome);
+                }
             } else {
-                return Registry.BIOME.getRawId(biome);
+                return DEFAULT_BOUNDS;
             }
         }
-        return 0;
+        throw new IllegalStateException(format.toString());
     }
 
+    /**
+     * Returns the set of biomes this colormap applies to, or the empty set
+     * if this colormap applies to all biomes.
+     */
     public Set<Biome> getApplicableBiomes() {
         Set<Biome> res = new HashSet<>();
         if(columnsByBiome != null) {
@@ -259,11 +317,19 @@ public class ColormapProperties {
     private static class Settings {
 
         Format format = Format.VANILLA;
-        Collection<ApplicableBlockStates> blocks;
-        String source;
+        Collection<ApplicableBlockStates> blocks = null;
+        String source = null;
         HexColor color = null;
         int yVariance = 0;
         int yOffset = 0;
+        @Deprecated
         Map<Identifier, Integer> biomes = null;
+        List<GridEntry> grid = null;
+    }
+
+    private static class GridEntry {
+        List<Identifier> biomes = Collections.emptyList();
+        int column = 0;
+        int width = 1;
     }
 }
