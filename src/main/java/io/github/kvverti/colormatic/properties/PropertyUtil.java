@@ -157,8 +157,8 @@ public class PropertyUtil {
      * @throws InvalidColormapException if no colormap properties exist for the given id
      *     or if the colormap exists, but is malformed.
      */
-    public static PropertyImage loadColormap(ResourceManager manager, Identifier id) {
-        ColormapProperties props = ColormapProperties.load(manager, id);
+    public static PropertyImage loadColormap(ResourceManager manager, Identifier id, boolean custom) {
+        ColormapProperties props = ColormapProperties.load(manager, id, custom);
         if(props.getFormat() == ColormapProperties.Format.FIXED) {
             // fixed format does not have a corresponding image
             return new PropertyImage(props, null);

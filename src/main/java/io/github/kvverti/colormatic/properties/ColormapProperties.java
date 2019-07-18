@@ -17,14 +17,7 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import java.util.Optional;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import com.google.gson.JsonSyntaxException;
-
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -32,7 +25,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -274,17 +270,17 @@ public class ColormapProperties {
      * should be in JSON format. If not present, returns a default properties taken
      * from the identifier name.
      */
-    public static ColormapProperties load(ResourceManager manager, Identifier id) {
+    public static ColormapProperties load(ResourceManager manager, Identifier id, boolean custom) {
         try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
             try(Reader r = PropertyUtil.getJsonReader(in, id, k -> k, "blocks"::equals)) {
-                return loadFromJson(r, id);
+                return loadFromJson(r, id, custom);
             }
         } catch(IOException e) {
-            return loadFromJson(new StringReader("{}"), id);
+            return loadFromJson(new StringReader("{}"), id, custom);
         }
     }
 
-    private static ColormapProperties loadFromJson(Reader json, Identifier id) {
+    private static ColormapProperties loadFromJson(Reader json, Identifier id, boolean custom) {
         Settings settings;
         try {
             settings = PropertyUtil.PROPERTY_GSON.fromJson(json, Settings.class);
@@ -295,15 +291,22 @@ public class ColormapProperties {
             log.error("Error parsing {}: {}", id, e.getMessage());
             settings = new Settings();
         }
-        if(settings.blocks == null) {
-            String blockId = id.getPath();
-            blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
-            settings.blocks = new ArrayList<>();
-            try {
-                settings.blocks.add(PropertyUtil.PROPERTY_GSON.fromJson(blockId, ApplicableBlockStates.class));
-            } catch(JsonSyntaxException e) {
-                log.error("Error parsing {}: {}", id, e.getMessage());
+        if(custom) {
+            if(settings.blocks == null) {
+                String blockId = id.getPath();
+                blockId = blockId.substring(blockId.lastIndexOf('/') + 1, blockId.lastIndexOf('.'));
+                settings.blocks = new ArrayList<>();
+                try {
+                    settings.blocks.add(PropertyUtil.PROPERTY_GSON.fromJson(blockId, ApplicableBlockStates.class));
+                } catch(JsonSyntaxException e) {
+                    log.error("Error parsing {}: {}", id, e.getMessage());
+                }
             }
+        } else {
+            // disable `blocks`, `grid`, and `biomes` for non-custom colormaps
+            settings.biomes = null;
+            settings.grid = null;
+            settings.blocks = Collections.emptyList();
         }
         if(settings.source == null) {
             String path = id.toString();
