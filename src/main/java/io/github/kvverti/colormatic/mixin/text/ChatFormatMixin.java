@@ -19,7 +19,7 @@ package io.github.kvverti.colormatic.mixin.text;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.ChatFormat;
+import net.minecraft.util.Formatting;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,15 +27,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChatFormat.class)
+@Mixin(Formatting.class)
 public abstract class ChatFormatMixin {
 
     @Shadow public abstract boolean isColor();
 
-    @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getColorValue", at = @At("HEAD"), cancellable = true)
     private void onColor(CallbackInfoReturnable<Integer> info) {
         if(isColor()) {
-            int color = Colormatic.COLOR_PROPS.getProperties().getText((ChatFormat)(Object)this);
+            int color = Colormatic.COLOR_PROPS.getProperties().getText((Formatting)(Object)this);
             if(color != 0) {
                 info.setReturnValue(color);
             }

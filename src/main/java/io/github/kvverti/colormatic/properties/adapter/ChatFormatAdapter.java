@@ -25,22 +25,22 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 
-import net.minecraft.ChatFormat;
+import net.minecraft.util.Formatting;
 
-public class ChatFormatAdapter extends TypeAdapter<ChatFormat> {
+public class ChatFormatAdapter extends TypeAdapter<Formatting> {
 
     @Override
-    public ChatFormat read(JsonReader in) throws IOException {
+    public Formatting read(JsonReader in) throws IOException {
         if(in.peek() == JsonToken.NULL) {
             in.nextNull();
             throw new JsonSyntaxException(new NullPointerException("Required nonnull"));
         }
         String name = in.nextString();
-        return ChatFormat.getFormatByName(name);
+        return Formatting.byName(name);
     }
 
     @Override
-    public void write(JsonWriter out, ChatFormat value) throws IOException {
+    public void write(JsonWriter out, Formatting value) throws IOException {
         if(value == null) {
             out.nullValue();
         } else {

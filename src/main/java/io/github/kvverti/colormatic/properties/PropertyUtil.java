@@ -33,11 +33,11 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.minecraft.ChatFormat;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
 /**
@@ -51,7 +51,7 @@ public class PropertyUtil {
         .registerTypeAdapter(ApplicableBlockStates.class, new ApplicableBlockStatesAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
-        .registerTypeAdapter(ChatFormat.class, new ChatFormatAdapter())
+        .registerTypeAdapter(Formatting.class, new ChatFormatAdapter())
         .create();
 
     /**
@@ -164,7 +164,7 @@ public class PropertyUtil {
             return new PropertyImage(props, null);
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
-            NativeImage image = NativeImage.fromInputStream(in);
+            NativeImage image = NativeImage.read(in);
             // swap the red and blue channels of every pixel, because the biome
             // colormap expects ARGB, but NativeImage is ABGR
             for(int x = 0; x < image.getWidth(); x++) {

@@ -27,13 +27,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.minecraft.ChatFormat;
 import net.minecraft.block.MaterialColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
@@ -61,7 +61,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> banner;
     private final Map<MaterialColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
-    private final Map<ChatFormat, HexColor> textColor;
+    private final Map<Formatting, HexColor> textColor;
     private final TextColor text;
     private final int xpOrbTime;
 
@@ -85,7 +85,7 @@ public class GlobalColorProperties {
             for(Map.Entry<Integer, HexColor> entry : text.code.entrySet()) {
                 int code = entry.getKey();
                 if(code < 16) {
-                    ChatFormat color = ChatFormat.byId(code);
+                    Formatting color = Formatting.byColorIndex(code);
                     textColor.put(color, entry.getValue());
                 }
             }
@@ -241,7 +241,7 @@ public class GlobalColorProperties {
         return getColor(color, text.sign);
     }
 
-    public int getText(ChatFormat color) {
+    public int getText(Formatting color) {
         return getColor(color, textColor);
     }
 
@@ -347,7 +347,7 @@ public class GlobalColorProperties {
         HexColor xpbar;
         ButtonText button = new ButtonText();
         Map<DyeColor, HexColor> sign = Collections.emptyMap();
-        Map<ChatFormat, HexColor> format = Collections.emptyMap();
+        Map<Formatting, HexColor> format = Collections.emptyMap();
         Map<Integer, HexColor> code = Collections.emptyMap();
 
         static class ButtonText {
