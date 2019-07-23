@@ -31,7 +31,8 @@
       "text.DyeColorMixin",
       "text.InGameHudMixin",
       "world.BiomeMixin",
-      "world.WorldMixin"
+      "world.WorldMixin",
+      "xp.ExperienceOrbEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

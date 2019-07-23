@@ -63,6 +63,7 @@ public class GlobalColorProperties {
     private final Map<EntityType<?>, int[]> spawnEgg;
     private final Map<ChatFormat, HexColor> textColor;
     private final TextColor text;
+    private final int xpOrbTime;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -77,6 +78,7 @@ public class GlobalColorProperties {
         this.banner = settings.banner;
         this.map = settings.map;
         this.spawnEgg = collateSpawnEggColors(settings);
+        this.xpOrbTime = settings.xporb.time;
         if(settings.text != null) {
             TextColor text = settings.text;
             this.textColor = new HashMap<>();
@@ -243,6 +245,10 @@ public class GlobalColorProperties {
         return getColor(color, textColor);
     }
 
+    public int getXpOrbTime() {
+        return xpOrbTime;
+    }
+
     public enum ColoredParticle implements StringIdentifiable {
         WATER("water"),
         PORTAL("portal");
@@ -325,6 +331,7 @@ public class GlobalColorProperties {
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;
         TextColor text;
+        XpOrb xporb = XpOrb.DEFAULT;
     }
 
     /**
@@ -347,5 +354,11 @@ public class GlobalColorProperties {
             HexColor hover;
             HexColor disabled;
         }
+    }
+
+    private static class XpOrb {
+        static XpOrb DEFAULT = new XpOrb();
+
+        int time = 628; // milliseconds
     }
 }
