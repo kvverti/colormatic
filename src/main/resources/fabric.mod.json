@@ -35,7 +35,6 @@
     "flamingo": "*"
   },
   "custom": {
-    "modmenu:api": true,
     "modmenu:clientsideOnly": true
   }
 }
