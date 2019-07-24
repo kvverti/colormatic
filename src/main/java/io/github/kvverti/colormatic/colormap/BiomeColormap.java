@@ -100,7 +100,7 @@ public class BiomeColormap {
     public int getColor(Biome biome, BlockPos pos) {
         switch(properties.getFormat()) {
             case VANILLA:
-                double temp = pos == null ? biome.getTemperature() : biome.getTemperature(pos);
+                double temp = pos == null ? biome.getTemperature() : biome.method_21740(pos);
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
                 double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
