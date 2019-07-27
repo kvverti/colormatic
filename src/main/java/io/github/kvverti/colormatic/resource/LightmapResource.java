@@ -67,14 +67,14 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
      * Returns the color for the given block light level. The Random parameter
      * controls block light flicker.
      */
-    public int getBlockLight(int level, float flicker, boolean nightVision) {
+    public int getBlockLight(int level, float flicker, float nightVision) {
         if(lightmap == null) {
             throw new IllegalStateException("No custom lightmap present: " + id);
         }
         int width = lightmap.getWidth();
         int posX = (int)(flicker * width) % width;
         if(posX < 0) {
-            posX += width;
+            posX = -posX;
         }
         return getPixel(posX, level + 16, nightVision);
     }
@@ -85,7 +85,7 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
      * Non-lightning ambiences perform a weighted average of the color to the
      * right in order to provide a smooth transition between ambience levels.
      */
-    public int getSkyLight(int level, float ambience, boolean nightVision) {
+    public int getSkyLight(int level, float ambience, float nightVision) {
         if(lightmap == null) {
             throw new IllegalStateException("No custom lightmap present: " + id);
         }
@@ -110,8 +110,9 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
     /**
      * Returns the pixel at (x, y) with or without night vision.
      */
-    private int getPixel(int x, int y, boolean nightVision) {
-        if(nightVision) {
+    private int getPixel(int x, int y, float nightVision) {
+        if(nightVision > 0.0f) {
+            int nightVisionColor;
             if(lightmap.getHeight() != 64) {
                 // night vision is calculated as
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
@@ -124,9 +125,15 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
                 ret |= (255 * r / scale) << 16;
                 ret |= (255 * g / scale) <<  8;
                 ret |= (255 * b / scale) <<  0;
-                return ret;
+                nightVisionColor = ret;
             } else {
-                return lightmap.getPixelRGBA(x, y + 32);
+                nightVisionColor = lightmap.getPixelRGBA(x, y + 32);
+            }
+            if(nightVision >= 1.0f) {
+                return nightVisionColor;
+            } else {
+                int normalColor = lightmap.getPixelRGBA(x, y);
+                return mergeColors(normalColor, nightVisionColor, nightVision);
             }
         } else {
             return lightmap.getPixelRGBA(x, y);

@@ -27,6 +27,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -76,10 +77,15 @@ public abstract class LightmapTextureManagerMixin {
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
-            // TODO: handle night vision flicker
-            boolean nightVision = this.client.player.hasStatusEffect(StatusEffects.NIGHT_VISION) ||
-                (this.client.player.isInWater() &&
-                this.client.player.hasStatusEffect(StatusEffects.CONDUIT_POWER));
+            float nightVision;
+            PlayerEntity player = this.client.player;
+            if(player.isInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
+                nightVision = 1.0f;
+            } else if(player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
+                nightVision = this.worldRenderer.getNightVisionStrength(player, partialTicks);
+            } else {
+                nightVision = 0.0f;
+            }
             float ambience;
             if(world.getTicksSinceLightning() > 0) {
                 ambience = -1.0f;
