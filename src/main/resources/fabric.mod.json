@@ -34,6 +34,9 @@
     "fabricloader": ">=0.4.0",
     "fabric": ">=0.3.0"
   },
+  "recommends": {
+    "modmenu": ">=1.6.0"
+  },
   "suggests": {
     "flamingo": "*"
   },
