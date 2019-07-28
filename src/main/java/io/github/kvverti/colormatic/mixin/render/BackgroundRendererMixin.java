@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
+import net.minecraft.world.dimension.Dimension;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -66,10 +67,11 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
-        if(Colormatic.config().clearSky) {
+        Dimension dim = self.getDimension();
+        if(Colormatic.config().clearSky && dim.hasVisibleSky()) {
             return self.getSkyColor(camera.getBlockPos(), partialTicks);
         }
-        DimensionType dimType = self.getDimension().getType();
+        DimensionType dimType = dim.getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
         BlockState state = PseudoBlockStates.SKY_FOG.getDefaultState()
             .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(dimType));
