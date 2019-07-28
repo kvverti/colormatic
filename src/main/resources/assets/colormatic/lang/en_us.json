@@ -2,8 +2,8 @@
     "text.autoconfig.colormatic.title": "Colormatic",
     "text.autoconfig.colormatic.category.fog": "Fog & Sky",
     "text.autoconfig.colormatic.category.light": "Lighting",
-    "text.autoconfig.colormatic.option.enableFog": "Enable Fog",
     "text.autoconfig.colormatic.option.clearSky": "Clear Skies",
+    "text.autoconfig.colormatic.option.clearVoid": "Clear Void",
     "text.autoconfig.colormatic.option.blendSkyLight": "Smooth Transitions",
     "text.autoconfig.colormatic.option.flickerBlockLight": "Block Light Flicker"
 }

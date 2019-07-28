@@ -98,7 +98,7 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
             float scaledAmbienceRemainder = scaledAmbience % 1.0f;
             int posX = (int)scaledAmbience;
             int light = getPixel(posX, level, nightVision);
-            boolean blend = Colormatic.LIGHTMAP_PROPS.getProperties().shouldBlendAmbience();
+            boolean blend = Colormatic.config().blendSkyLight;
             if(blend && posX < lightmap.getWidth() - 2) {
                 int rightLight = getPixel(posX + 1, level, nightVision);
                 light = mergeColors(rightLight, light, scaledAmbienceRemainder);

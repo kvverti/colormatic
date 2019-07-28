@@ -26,6 +26,7 @@
       "render.BackgroundRendererMixin",
       "render.ItemRendererMixin",
       "render.LightmapTextureManagerMixin",
+      "render.WorldRendererMixin",
       "text.AbstractButtonWidgetMixin",
       "text.ChatFormatMixin",
       "text.DyeColorMixin",

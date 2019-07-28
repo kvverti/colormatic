@@ -21,7 +21,6 @@ import com.google.gson.JsonParseException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.IOException;
-import java.util.Properties;
 
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -35,12 +34,6 @@ public class LightmapProperties {
     private static final Logger log = LogManager.getLogger();
 
     /**
-     * By default, sky light colors are interpolated smoothly when they change.
-     * Set this to false to disable this behavior.
-     */
-    private final boolean blendAmbience;
-
-    /**
      * Specifies at what sky light level block light should start waning. If the sky
      * light level is greater than this value, block light is taken from
      * `blocklight - (skylight - wane)`, floored at 0.
@@ -48,23 +41,11 @@ public class LightmapProperties {
     private final int blockWane;
 
     private LightmapProperties(Settings settings) {
-        this.blendAmbience = settings.blendAmbience;
         this.blockWane = settings.blockWane;
-    }
-
-    public boolean shouldBlendAmbience() {
-        return blendAmbience;
     }
 
     public int getBlockWane() {
         return blockWane;
-    }
-
-    private static final Properties defaults;
-    static {
-        defaults = new Properties();
-        defaults.setProperty("blend.ambience", "true");
-        defaults.setProperty("block.wane", "15");
     }
 
     /**
@@ -85,7 +66,6 @@ public class LightmapProperties {
     }
 
     private static class Settings {
-        boolean blendAmbience = true;
         int blockWane = 15;
     }
 }

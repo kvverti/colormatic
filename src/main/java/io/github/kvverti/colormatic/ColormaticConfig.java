@@ -9,18 +9,18 @@ import me.sargunvohra.mcmods.autoconfig1.shadowed.blue.endless.jankson.Comment;
 public final class ColormaticConfig implements ConfigData {
 
     @ConfigEntry.Category("fog")
-    @Comment("Toggle fog rendering")
-    public final boolean enableFog = true;
+    @Comment("Use sky colors for fog")
+    public boolean clearSky = false;
 
     @ConfigEntry.Category("fog")
-    @Comment("Use sky colors for fog")
-    public final boolean clearSky = false;
+    @Comment("Use fog colors for the void")
+    public boolean clearVoid = false;
 
     @ConfigEntry.Category("light")
     @Comment("Toggle sunrise/sunset blending")
-    public final boolean blendSkyLight = true;
+    public boolean blendSkyLight = true;
 
     @ConfigEntry.Category("light")
     @Comment("Toggle block light flicker")
-    public final boolean flickerBlockLight = true;
+    public boolean flickerBlockLight = true;
 }

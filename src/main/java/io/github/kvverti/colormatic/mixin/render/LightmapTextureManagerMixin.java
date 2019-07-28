@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -74,6 +75,9 @@ public abstract class LightmapTextureManagerMixin {
         cancellable = true
     )
     private void onUpdate(float partialTicks, CallbackInfo info, World world) {
+        if(!Colormatic.config().flickerBlockLight) {
+            this.prevFlicker = 0.0f;
+        }
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
@@ -143,5 +147,21 @@ public abstract class LightmapTextureManagerMixin {
             this.client.getProfiler().pop();
             info.cancel();
         }
+    }
+
+    /**
+     * Step the ambience into discrete intervals if sky light blending
+     * is disabled. Only necessary for the vanilla lightmap.
+     */
+    @ModifyVariable(
+        method = "update",
+        at = @At(value = "STORE", ordinal = 0), // World#getAmbientLight
+        ordinal = 1
+    )
+    private float modifySkyAmbience(float ambience) {
+        if(!Colormatic.config().blendSkyLight) {
+            ambience = (int)(ambience * 16) / 16.0f;
+        }
+        return ambience;
     }
 }

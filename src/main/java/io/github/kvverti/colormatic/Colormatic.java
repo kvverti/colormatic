@@ -75,9 +75,9 @@ public class Colormatic implements ClientModInitializer {
     public static final GlobalColorResource COLOR_PROPS =
         new GlobalColorResource(new Identifier(MODID, "color"));
 
-    private ConfigHolder<ColormaticConfig> config;
+    private static ConfigHolder<ColormaticConfig> config;
 
-    public ColormaticConfig config() {
+    public static ColormaticConfig config() {
         return config.getConfig();
     }
 

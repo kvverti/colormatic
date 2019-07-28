@@ -17,9 +17,9 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
-import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 
 import net.minecraft.block.BlockState;
@@ -40,6 +40,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -65,6 +66,9 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
+        if(Colormatic.config().clearSky) {
+            return self.getSkyColor(camera.getBlockPos(), partialTicks);
+        }
         DimensionType dimType = self.getDimension().getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
         BlockState state = PseudoBlockStates.SKY_FOG.getDefaultState()
@@ -96,6 +100,39 @@ public abstract class BackgroundRendererMixin {
         } else {
             return self.getFogColor(partialTicks);
         }
+    }
+
+    /**
+     * Don't apply rain and thunder gradients when clear skies are enabled.
+     * World#getSkyColor does this for us.
+     */
+    @Inject(
+        method = "updateColorNotInWater",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/World;getRainGradient(F)F"
+        ),
+        cancellable = true
+    )
+    private void onGetRainGradient(CallbackInfo info) {
+        if(Colormatic.config().clearSky) {
+            info.cancel();
+        }
+    }
+
+    /**
+     * When clear void is enabled, prevent black fog when in the void.
+     */
+    @ModifyVariable(
+        method = "renderBackground",
+        at = @At(value = "STORE", ordinal = 0),
+        ordinal = 0
+    )
+    private double modifyVoidColor(double scale) {
+        if(Colormatic.config().clearVoid) {
+            scale = 1.0;
+        }
+        return scale;
     }
 
     @Unique
