@@ -3,6 +3,11 @@ plugins {
 	id 'maven-publish'
 }
 
+repositories {
+	maven { url = "https://minecraft.curseforge.com/api/maven" }
+	maven { url = 'http://maven.sargunv.s3-website-us-west-2.amazonaws.com/' }
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -24,6 +29,14 @@ dependencies {
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
+	modCompile("cloth-config:ClothConfig:${project.cloth_config_version}") {
+		transitive = false
+	}
+	modCompile "me.sargunvohra.mcmods:auto-config:${project.auto_config_version}"
+	modCompile "io.github.prospector.modmenu:ModMenu:${project.mod_menu_version}"
+
+	include "cloth-config:ClothConfig:${project.cloth_config_version}"
+	include "me.sargunvohra.mcmods:auto-config:${project.auto_config_version}"
 }
 
 processResources {

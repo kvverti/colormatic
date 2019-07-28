@@ -21,6 +21,9 @@
   "entrypoints": {
     "client": [
       "io.github.kvverti.colormatic.Colormatic"
+    ],
+    "modmenu": [
+      "io.github.kvverti.colormatic.ModMenuEntryPoint"
     ]
   },
   "mixins": [

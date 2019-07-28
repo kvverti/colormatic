@@ -23,6 +23,10 @@ import io.github.kvverti.colormatic.resource.GlobalColorResource;
 import io.github.kvverti.colormatic.resource.GlobalLightmapResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
+import me.sargunvohra.mcmods.autoconfig1.AutoConfig;
+import me.sargunvohra.mcmods.autoconfig1.ConfigHolder;
+import me.sargunvohra.mcmods.autoconfig1.serializer.JanksonConfigSerializer;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -71,8 +75,18 @@ public class Colormatic implements ClientModInitializer {
     public static final GlobalColorResource COLOR_PROPS =
         new GlobalColorResource(new Identifier(MODID, "color"));
 
+    private ConfigHolder<ColormaticConfig> config;
+
+    public ColormaticConfig config() {
+        return config.getConfig();
+    }
+
     @Override
     public void onInitializeClient() {
+        // configuration
+        AutoConfig.register(ColormaticConfig.class, JanksonConfigSerializer::new);
+        config = AutoConfig.getConfigHolder(ColormaticConfig.class);
+
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);
