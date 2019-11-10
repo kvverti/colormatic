@@ -32,7 +32,7 @@
       "text.DyeColorMixin",
       "text.InGameHudMixin",
       "world.BiomeMixin",
-      "world.WorldMixin",
+      "world.ClientWorldMixin",
       "xp.ExperienceOrbEntityRendererMixin"
   ],
   "injectors": {

@@ -130,7 +130,7 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
     }
 
     private static <T extends Comparable<T>> void putPropValue(Property<T> prop, String s, List<? super T> values) {
-        Optional<T> value = prop.getValue(s);
+        Optional<T> value = prop.parse(s);
         if(value.isPresent()) {
             values.add(value.get());
         } else {

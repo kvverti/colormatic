@@ -27,7 +27,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.StemBlock;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ExtendedBlockView;
+import net.minecraft.world.BlockRenderView;
 
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
@@ -43,7 +43,7 @@ public abstract class BlockColorsMixin {
 
     @Dynamic("birch foliage lambda method")
     @Inject(method = "method_1687", at = @At("HEAD"), cancellable = true)
-    private static void onBirchColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+    private static void onBirchColor(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.BIRCH_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(world, pos, Colormatic.BIRCH_COLORS.getColormap());
             info.setReturnValue(color);
@@ -52,7 +52,7 @@ public abstract class BlockColorsMixin {
 
     @Dynamic("spruce foliage lambda method")
     @Inject(method = "method_1695", at = @At("HEAD"), cancellable = true)
-    private static void onSpruceColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+    private static void onSpruceColor(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.SPRUCE_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(world, pos, Colormatic.SPRUCE_COLORS.getColormap());
             info.setReturnValue(color);
@@ -61,7 +61,7 @@ public abstract class BlockColorsMixin {
 
     @Dynamic("attached stem foliage lambda method")
     @Inject(method = "method_1698", at = @At("HEAD"), cancellable = true)
-    private static void onAttachedStemColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+    private static void onAttachedStemColor(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         Block block = state.getBlock();
         if(block == Blocks.ATTACHED_PUMPKIN_STEM && Colormatic.PUMPKIN_STEM_COLORS.hasCustomColormap()) {
             info.setReturnValue(Colormatic.PUMPKIN_STEM_COLORS.getColorBounded(Integer.MAX_VALUE));
@@ -72,7 +72,7 @@ public abstract class BlockColorsMixin {
 
     @Dynamic("stem foliage lambda method")
     @Inject(method = "method_1696", at = @At("HEAD"), cancellable = true)
-    private static void onStemColor(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+    private static void onStemColor(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         Block block = state.getBlock();
         if(block == Blocks.PUMPKIN_STEM && Colormatic.PUMPKIN_STEM_COLORS.hasCustomColormap()) {
             int age = state.get(StemBlock.AGE);
@@ -92,8 +92,8 @@ public abstract class BlockColorsMixin {
         }
     }
 
-    @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
-    private void onColorMultiplier(BlockState state, ExtendedBlockView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
+    @Inject(method = "getColor(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/util/math/BlockPos;I)I", at = @At("HEAD"), cancellable = true)
+    private void onColorMultiplier(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(BiomeColormaps.isCustomColored(state)) {
             int color = BiomeColormaps.getBiomeColor(state, world, pos);
             info.setReturnValue(color);

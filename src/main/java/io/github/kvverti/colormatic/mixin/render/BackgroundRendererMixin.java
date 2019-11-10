@@ -17,26 +17,26 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
-import net.minecraft.world.dimension.Dimension;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Lazy;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
+import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -54,22 +54,21 @@ public abstract class BackgroundRendererMixin {
 
     // shadow members
 
-    @Shadow @Final private MinecraftClient client;
-    @Shadow private float red;
-    @Shadow private float green;
-    @Shadow private float blue;
+    @Shadow private static float red;
+    @Shadow private static float green;
+    @Shadow private static float blue;
 
     @Redirect(
-        method = "updateColorNotInWater",
+        method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/World;getFogColor(F)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/client/world/ClientWorld;method_23786(F)Lnet/minecraft/util/math/Vec3d;"
         )
     )
-    private Vec3d proxyFogColor(World self, float partialTicks, Camera camera, World self2, float partialTicks2) {
+    private static Vec3d proxyFogColor(ClientWorld self, float partialTicks, Camera camera, float foo1, ClientWorld self2, int foo2, float partialTicks2) {
         Dimension dim = self.getDimension();
         if(Colormatic.config().clearSky && dim.hasVisibleSky()) {
-            return self.getSkyColor(camera.getBlockPos(), partialTicks);
+            return self.method_23777(camera.getBlockPos(), partialTicks);
         }
         DimensionType dimType = dim.getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
@@ -100,25 +99,54 @@ public abstract class BackgroundRendererMixin {
             }
             return new Vec3d(r, g, b);
         } else {
-            return self.getFogColor(partialTicks);
+            return self.method_23786(partialTicks);
+        }
+    }
+
+    @Unique
+    private static float redStore;
+
+    @Unique
+    private static float greenStore;
+
+    @Unique
+    private static float blueStore;
+
+    /**
+     * Save old colors before rain and thunder is applied when clear skies
+     * are enabled. World#getSkyColor does this for us.
+     */
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"
+        )
+    )
+    private static void saveColorsToRestRainAndThunder(CallbackInfo info) {
+        if(Colormatic.config().clearSky) {
+            redStore = BackgroundRendererMixin.red;
+            greenStore = BackgroundRendererMixin.green;
+            blueStore = BackgroundRendererMixin.blue;
         }
     }
 
     /**
-     * Don't apply rain and thunder gradients when clear skies are enabled.
-     * World#getSkyColor does this for us.
+     * Reset colors after rain and thunder are applied if clear skies are
+     * enabled.
      */
     @Inject(
-        method = "updateColorNotInWater",
+        method = "render",
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/world/World;getRainGradient(F)F"
-        ),
-        cancellable = true
+            value = "FIELD",
+            target = "Lnet/minecraft/client/render/BackgroundRenderer;lastWaterFogColorUpdateTime:J"
+        )
     )
-    private void onGetRainGradient(CallbackInfo info) {
+    private static void resetRainAndThunderColors(CallbackInfo info) {
         if(Colormatic.config().clearSky) {
-            info.cancel();
+            BackgroundRendererMixin.red = redStore;
+            BackgroundRendererMixin.green = greenStore;
+            BackgroundRendererMixin.blue = blueStore;
         }
     }
 
@@ -126,11 +154,11 @@ public abstract class BackgroundRendererMixin {
      * When clear void is enabled, prevent black fog when in the void.
      */
     @ModifyVariable(
-        method = "renderBackground",
+        method = "render",
         at = @At(value = "STORE", ordinal = 0),
         ordinal = 0
     )
-    private double modifyVoidColor(double scale) {
+    private static double modifyVoidColor(double scale) {
         if(Colormatic.config().clearVoid) {
             scale = 1.0;
         }
@@ -157,7 +185,7 @@ public abstract class BackgroundRendererMixin {
      *  70: putfield      #63                 // Field lastWaterFogColorUpdateTime:J
      */
     @Inject(
-        method = "renderBackground",
+        method = "render",
         slice = @Slice(
             from = @At(
                 value = "FIELD",
@@ -171,20 +199,20 @@ public abstract class BackgroundRendererMixin {
             shift = At.Shift.AFTER
         )
     )
-    private void onRenderLavaFog(Camera camera, float partialTicks, CallbackInfo info) {
+    private static void onRenderLavaFog(Camera camera, float partialTicks, ClientWorld world, int int1, float float1, CallbackInfo info) {
         if(BiomeColormaps.isCustomColored(LAVA_FOG.get())) {
-            int color = BiomeColormaps.getBiomeColor(LAVA_FOG.get(), this.client.world, camera.getBlockPos());
-            this.red = ((color >> 16) & 0xff) / 255.0f;
-            this.green = ((color >>  8) & 0xff) / 255.0f;
-            this.blue = ((color >>  0) & 0xff) / 255.0f;
+            int color = BiomeColormaps.getBiomeColor(LAVA_FOG.get(), world, camera.getBlockPos());
+            BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
+            BackgroundRendererMixin.green = ((color >>  8) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = ((color >>  0) & 0xff) / 255.0f;
         } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(
-                this.client.world,
+                world,
                 camera.getBlockPos(),
                 Colormatic.UNDERLAVA_COLORS.getColormap());
-            this.red = ((color >> 16) & 0xff) / 255.0f;
-            this.green = ((color >>  8) & 0xff) / 255.0f;
-            this.blue = ((color >>  0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
+            BackgroundRendererMixin.green = ((color >>  8) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = ((color >>  0) & 0xff) / 255.0f;
         }
     }
 }

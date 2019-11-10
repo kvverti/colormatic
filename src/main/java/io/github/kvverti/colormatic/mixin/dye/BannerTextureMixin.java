@@ -20,7 +20,7 @@ package io.github.kvverti.colormatic.mixin.dye;
 import io.github.kvverti.colormatic.Colormatic;
 
 import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.BannerTexture;
+import net.minecraft.client.texture.LayeredTexture;
 import net.minecraft.util.DyeColor;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,23 +31,23 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * Applies custom colors to banner textures. This requires colors.json
  * to be reloaded beforehand. See TextureManagerMixin.
  */
-@Mixin(BannerTexture.class)
+@Mixin(LayeredTexture.class)
 public abstract class BannerTextureMixin extends AbstractTexture {
 
-    @Redirect(
-        method = "load",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/DyeColor;getColorSwapped()I"
-        )
-    )
-    private int proxyColorSwapped(DyeColor self) {
-        int color = Colormatic.COLOR_PROPS.getProperties().getBanner(self);
-        if(color != 0) {
-            return (color & 0x00ff00) |
-                ((color & 0xff0000) >> 16) |
-                ((color & 0x0000ff) << 16);
-        }
-        return self.getColorSwapped();
-    }
+    // @Redirect(
+    //     method = "load",
+    //     at = @At(
+    //         value = "INVOKE",
+    //         target = "Lnet/minecraft/util/DyeColor;getColorSwapped()I"
+    //     )
+    // )
+    // private int proxyColorSwapped(DyeColor self) {
+    //     int color = Colormatic.COLOR_PROPS.getProperties().getBanner(self);
+    //     if(color != 0) {
+    //         return (color & 0x00ff00) |
+    //             ((color & 0xff0000) >> 16) |
+    //             ((color & 0x0000ff) << 16);
+    //     }
+    //     return ((DyeColorAccessor)(Object)self).colormatic_getColorSwapped();
+    // }
 }

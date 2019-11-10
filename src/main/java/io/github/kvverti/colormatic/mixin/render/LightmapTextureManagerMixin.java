@@ -26,9 +26,9 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
@@ -37,7 +37,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 /**
  * Provides custom lightmap update capability.
@@ -48,7 +47,7 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
     @Shadow private boolean isDirty;
-    @Shadow private float prevFlicker;
+    @Shadow private float field_21528;
     @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
 
@@ -71,13 +70,13 @@ public abstract class LightmapTextureManagerMixin {
             ordinal = 1,
             shift = At.Shift.BEFORE
         ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION,
         cancellable = true
     )
-    private void onUpdate(float partialTicks, CallbackInfo info, World world) {
+    private void onUpdate(float partialTicks, CallbackInfo info) {
         if(!Colormatic.config().flickerBlockLight) {
-            this.prevFlicker = 0.0f;
+            this.field_21528 = 0.0f;
         }
+        ClientWorld world = this.client.world;
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
@@ -86,15 +85,15 @@ public abstract class LightmapTextureManagerMixin {
             if(player.isInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
                 nightVision = 1.0f;
             } else if(player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
-                nightVision = this.worldRenderer.getNightVisionStrength(player, partialTicks);
+                nightVision = GameRenderer.getNightVisionStrength(player, partialTicks);
             } else {
                 nightVision = 0.0f;
             }
             float ambience;
-            if(world.getTicksSinceLightning() > 0) {
+            if(world.method_23789() > 0) {
                 ambience = -1.0f;
             } else {
-                ambience = world.getAmbientLight(partialTicks);
+                ambience = world.method_23787(partialTicks);
                 // ambience is a value between 0.2 and 1.0, inclusive.
                 // we want it to be between 0.0 and 1.0, inclusive.
                 // Note: the overworld ambience ranges between 0.2 and 1.0
@@ -113,7 +112,7 @@ public abstract class LightmapTextureManagerMixin {
                         }
                     }
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(trueBlockLight, this.prevFlicker, nightVision);
+                    int blockColor = map.getBlockLight(trueBlockLight, this.field_21528, nightVision);
                     // color will merge the brightest channels
                     float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
                     float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
@@ -138,7 +137,7 @@ public abstract class LightmapTextureManagerMixin {
                     color |= (int)(r * 255.0f) << 16;
                     color |= (int)(g * 255.0f) <<  8;
                     color |= (int)(b * 255.0f) <<  0;
-                    this.image.setPixelRGBA(blockLight, skyLight, color);
+                    this.image.setPixelRgba(blockLight, skyLight, color);
                 }
             }
             // do the cleanup because we cancel the default

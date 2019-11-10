@@ -19,9 +19,11 @@ package io.github.kvverti.colormatic.mixin.xp;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.ExperienceOrbEntityRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ExperienceOrbEntity;
 import net.minecraft.util.math.MathHelper;
 
@@ -43,19 +45,19 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     }
 
     @Unique
-    private boolean custom;
+    private static boolean custom;
 
     @Unique
-    private int customRed;
+    private static int customRed;
 
     @Unique
-    private int customGreen;
+    private static int customGreen;
 
     @Unique
-    private int customBlue;
+    private static int customBlue;
 
     @Inject(method = "method_3966", at = @At("HEAD"))
-    private void onRenderSetColor(ExperienceOrbEntity entity, double x, double y, double z, float eh, float partialTicks, CallbackInfo info) {
+    private void onRenderSetColor(ExperienceOrbEntity entity, float eh, float partialTicks, MatrixStack matrixStack, VertexConsumerProvider provider, int int1, CallbackInfo info) {
         if(Colormatic.EXPERIENCE_ORB_COLORS.hasCustomColormap()) {
             custom = true;
             float ticksPerCycle = Colormatic.COLOR_PROPS.getProperties().getXpOrbTime() / 50.0f;
@@ -70,13 +72,13 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     }
 
     @Redirect(
-        method = "method_3966",
+        method = "method_23171",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/BufferBuilder;color(IIII)Lnet/minecraft/client/render/BufferBuilder;"
+            target = "Lnet/minecraft/client/render/VertexConsumer;color(IIII)Lnet/minecraft/client/render/VertexConsumer;"
         )
     )
-    private BufferBuilder proxyColor(BufferBuilder self, int r, int g, int b, int a) {
+    private static VertexConsumer proxyColor(VertexConsumer self, int r, int g, int b, int a) {
         if(custom) {
             r = customRed;
             g = customGreen;

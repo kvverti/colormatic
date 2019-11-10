@@ -56,11 +56,11 @@ public class CustomColoredRedDustParticle extends DustParticleEffect {
     }
 
     @Override
-    public float getAlpha() {
+    public float getScale() {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
             return ((getFullColor() >> 24) & 0xff) / 255.0f;
         }
-        return super.getAlpha();
+        return super.getScale();
     }
 
     private int getFullColor() {

@@ -17,9 +17,6 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ExtendedBlockView;
 import java.util.Set;
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 import com.google.common.collect.HashBasedTable;
@@ -28,9 +25,13 @@ import com.google.common.collect.Table;
 import java.util.Map;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.OceanBiome;
+import net.minecraft.world.level.ColorResolver;
 
 /**
  * Class that provides efficient access to biome colors on
@@ -63,6 +64,7 @@ public final class BiomeColormaps {
      * Returns `null` if there are no colormaps that apply.
      */
     public static BiomeColormap get(BlockState state, Biome biome) {
+        // todo: does this allocate, and if so get rid of it
         Map<Biome, BiomeColormap> map = colormapsByState.row(state);
         BiomeColormap res = map.get(biome);
         if(res == null) {
@@ -114,10 +116,50 @@ public final class BiomeColormaps {
     }
 
     /**
+     * Stateful implementation of ColorResolver in order to provide
+     * custom biome colors to Minecraft's color calculations.
+     */
+    public static class ColormaticResolver implements ColorResolver {
+
+        // state from the current method call
+        final BlockPos.Mutable pos = new BlockPos.Mutable();
+        BlockState state = Blocks.AIR.getDefaultState();
+
+        private Biome lastBiome = null;
+        private BiomeColormap colormap = null;
+
+        /**
+         * Retrieves the custom color for the given biome and given
+         * position. This method also uses the current object state.
+         * This method does not directly allocate any objects, and
+         * allocates as few objects indirectly as possible.
+         */
+        @Override
+        public synchronized int getColor(Biome biome, double x, double z) {
+            if (biome != lastBiome) {
+                colormap = get(state, biome);
+                lastBiome = biome;
+            }
+            // ClientWorld#method_23780 sends the BlockPos x and z coordinates
+            // via the two double params, for some reason
+            pos.setX((int)x);
+            pos.setZ((int)z);
+            try {
+                return colormap != null ? colormap.getColor(biome, pos) : 0xffffff;
+            } catch(IllegalArgumentException e) {
+                System.out.format("%s %s %s\n", state, biome, colormap.getProperties().getApplicableBiomes());
+                throw e;
+            }
+        }
+    }
+
+    public static final ColormaticResolver colormaticResolver = new ColormaticResolver();
+
+    /**
      * Retrieves the biome coloring for the given block position, taking into
      * account the client's biome blend options.
      */
-    public static int getBiomeColor(BlockState state, ExtendedBlockView world, BlockPos pos) {
+    public static int getBiomeColor(BlockState state, BlockRenderView world, BlockPos pos) {
         if(world == null || pos == null) {
             // todo figure out held item colors
             BiomeColormap colormap = get(state, ALL);
@@ -127,27 +169,30 @@ public final class BiomeColormaps {
                 return 0xffffff;
             }
         }
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
-        Iterable<BlockPos> coll = BlockPos.iterate(
-            pos.getX() - radius, pos.getY(), pos.getZ() - radius,
-            pos.getX() + radius, pos.getY(), pos.getZ() + radius);
-        Biome lastBiome = world.getBiome(pos);
-        BiomeColormap colormap = get(state, lastBiome);
-        for(BlockPos curpos : coll) {
-            Biome biome = world.getBiome(curpos);
-            if(biome != lastBiome) {
-                colormap = get(state, biome);
-                lastBiome = biome;
-            }
-            int color = colormap != null ? colormap.getColor(biome, curpos) : 0xffffff;
-            r += (color & 0xff0000) >> 16;
-            g += (color & 0x00ff00) >> 8;
-            b += (color & 0x0000ff);
-        }
-        int posCount = (radius * 2 + 1) * (radius * 2 + 1);
-        return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
+        colormaticResolver.state = state;
+        colormaticResolver.pos.setY(pos.getY());
+        return world.method_23752(pos, colormaticResolver);
+        // int r = 0;
+        // int g = 0;
+        // int b = 0;
+        // int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
+        // Iterable<BlockPos> coll = BlockPos.iterate(
+        //     pos.getX() - radius, pos.getY(), pos.getZ() - radius,
+        //     pos.getX() + radius, pos.getY(), pos.getZ() + radius);
+        // Biome lastBiome = world.getBiome(pos);
+        // BiomeColormap colormap = get(state, lastBiome);
+        // for(BlockPos curpos : coll) {
+        //     Biome biome = world.getBiome(curpos);
+        //     if(biome != lastBiome) {
+        //         colormap = get(state, biome);
+        //         lastBiome = biome;
+        //     }
+        //     int color = colormap != null ? colormap.getColor(biome, curpos) : 0xffffff;
+        //     r += (color & 0xff0000) >> 16;
+        //     g += (color & 0x00ff00) >> 8;
+        //     b += (color & 0x0000ff);
+        // }
+        // int posCount = (radius * 2 + 1) * (radius * 2 + 1);
+        // return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
     }
 }
