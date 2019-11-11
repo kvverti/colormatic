@@ -29,9 +29,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
-import net.minecraft.world.level.ColorResolver;
 
-public class BiomeColormap {
+public class BiomeColormap implements ColormaticResolver {
 
     private static final Random GRID_RANDOM = new Random(47L);
 
@@ -136,22 +135,6 @@ public class BiomeColormap {
         return defaultColor;
     }
 
-    public static class SingleColormaticResolver implements ColorResolver {
-
-        final BlockPos.Mutable pos = new BlockPos.Mutable();
-        // must be set before calling getColor()!
-        BiomeColormap colormap = null;
-
-        @Override
-        public synchronized int getColor(Biome biome, double x, double z) {
-            pos.setX((int)x);
-            pos.setZ((int)z);
-            return colormap.getColor(biome, pos);
-        }
-    }
-
-    public static final SingleColormaticResolver colormaticResolver = new SingleColormaticResolver();
-
     /**
      * Retrieves the biome coloring for the given block position, taking into
      * account the client's biome blend options If either `world` or `pos` is
@@ -161,23 +144,6 @@ public class BiomeColormap {
         if(world == null || pos == null) {
             return colormap.getDefaultColor();
         }
-        colormaticResolver.pos.setY(pos.getY());
-        colormaticResolver.colormap = colormap;
-        return world.method_23752(pos, colormaticResolver);
-        // int r = 0;
-        // int g = 0;
-        // int b = 0;
-        // int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
-        // Iterable<BlockPos> coll = BlockPos.iterate(
-        //     pos.getX() - radius, pos.getY(), pos.getZ() - radius,
-        //     pos.getX() + radius, pos.getY(), pos.getZ() + radius);
-        // for(BlockPos curpos : coll) {
-        //     int color = colormap.getColor(world.getBiome(curpos), curpos);
-        //     r += (color & 0xff0000) >> 16;
-        //     g += (color & 0x00ff00) >> 8;
-        //     b += (color & 0x0000ff);
-        // }
-        // int posCount = (radius * 2 + 1) * (radius * 2 + 1);
-        // return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
+        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, colormap);
     }
 }

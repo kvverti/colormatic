@@ -17,14 +17,13 @@
  */
 package io.github.kvverti.colormatic.mixin.world;
 
+import io.github.kvverti.colormatic.colormap.ColormaticResolver;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import io.github.kvverti.colormatic.colormap.ColormaticBlockRenderView;
 import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
-
-import net.minecraft.class_4700;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
@@ -32,20 +31,16 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.ColorResolver;
 
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
  * Provides global sky color customization capability.
  */
 @Mixin(ClientWorld.class)
-public abstract class ClientWorldMixin extends World {
+public abstract class ClientWorldMixin extends World implements ColormaticBlockRenderView {
 
     private ClientWorldMixin() {
         super(null, null, null, null, false);
@@ -63,10 +58,10 @@ public abstract class ClientWorldMixin extends World {
         BlockState state = PseudoBlockStates.SKY.getDefaultState()
             .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(type));
         if(BiomeColormaps.isCustomColored(state)) {
-            return BiomeColormaps.getBiomeColor(state, (ClientWorld)(Object)this, pos);
+            return BiomeColormaps.getBiomeColor(state, this, pos);
         } else if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
-            return BiomeColormap.getBiomeColor((ClientWorld)(Object)this, pos, colormap);
+            return BiomeColormap.getBiomeColor(this, pos, colormap);
         } else {
             int color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(type);
             if(color != 0) {
@@ -76,13 +71,10 @@ public abstract class ClientWorldMixin extends World {
         return self.getSkyColor();
     }
 
-    /**
-     * Add Colormatic's ColorResolvers to ClientWorld's map
-     */
-    @Dynamic("ColorResolver addition in ClientWorld constructor")
-    @Inject(method = "method_23778", at = @At("RETURN"))
-    private static void onColorResolverRegistration(Object2ObjectArrayMap<ColorResolver, class_4700> map, CallbackInfo info) {
-        map.put(BiomeColormap.colormaticResolver, new class_4700());
-        map.put(BiomeColormaps.colormaticResolver, new class_4700());
+    @Override
+    public int colormatic_getColor(BlockPos pos, ColormaticResolver resolver) {
+        // todo: implement biome blend radius
+        Biome biome = this.getBiomeAccess().getBiome(pos);
+        return resolver.getColor(biome, pos);
     }
 }

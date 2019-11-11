@@ -17,7 +17,6 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
-import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 
 import net.minecraft.block.BlockState;

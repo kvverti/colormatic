@@ -32,6 +32,7 @@
       "text.DyeColorMixin",
       "text.InGameHudMixin",
       "world.BiomeMixin",
+      "world.ChunkRendererRegionMixin",
       "world.ClientWorldMixin",
       "xp.ExperienceOrbEntityRendererMixin"
   ],
