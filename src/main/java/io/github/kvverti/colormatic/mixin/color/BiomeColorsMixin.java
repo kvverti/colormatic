@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
+import net.minecraft.fluid.FluidState;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -44,8 +45,9 @@ public abstract class BiomeColorsMixin {
      */
     @Inject(method = "getWaterColor", at = @At("HEAD"), cancellable = true)
     private static void onWaterColorPre(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
-        BlockState state = world.getBlockState(pos);
-        if(state.getFluidState().matches(FluidTags.WATER) && BiomeColormaps.isCustomColored(state)) {
+        FluidState fluidState = world.getBlockState(pos).getFluidState();
+        BlockState state = fluidState.getBlockState();
+        if(fluidState.matches(FluidTags.WATER) && BiomeColormaps.isCustomColored(state)) {
             info.setReturnValue(BiomeColormaps.getBiomeColor(state, world, pos));
         } else if(Colormatic.WATER_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.WATER_COLORS.getColormap();

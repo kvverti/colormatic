@@ -132,15 +132,25 @@ public final class BiomeColormaps {
             }
         }
         for(BlockState state : props.getApplicableBlockStates()) {
+            ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
+            ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
             resolversByState.put(state, (biome, pos) -> {
-                BiomeColormap map = get(state, biome);
-                return map != null ? map.getColor(biome, pos) : 0xffffff;
+                if(lastBiome.get() != biome) {
+                    map.set(get(state, biome));
+                    lastBiome.set(biome);
+                }
+                return map.get() != null ? map.get().getColor(biome, pos) : 0xffffff;
             });
         }
         for(Block block : props.getApplicableBlocks()) {
+            ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
+            ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
             resolversByBlock.put(block, (biome, pos) -> {
-                BiomeColormap map = get(block, biome);
-                return map != null ? map.getColor(biome, pos) : 0xffffff;
+                if(lastBiome.get() != biome) {
+                    map.set(get(block, biome));
+                    lastBiome.set(biome);
+                }
+                return map.get() != null ? map.get().getColor(biome, pos) : 0xffffff;
             });
         }
     }
