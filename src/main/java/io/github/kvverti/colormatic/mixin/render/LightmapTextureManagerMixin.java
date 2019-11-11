@@ -46,7 +46,6 @@ public abstract class LightmapTextureManagerMixin {
 
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
-    @Shadow private boolean isDirty;
     @Shadow private float field_21528;
     @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
@@ -73,6 +72,7 @@ public abstract class LightmapTextureManagerMixin {
         cancellable = true
     )
     private void onUpdate(float partialTicks, CallbackInfo info) {
+        // todo: figure out block light flicker
         if(!Colormatic.config().flickerBlockLight) {
             this.field_21528 = 0.0f;
         }
@@ -93,7 +93,7 @@ public abstract class LightmapTextureManagerMixin {
             if(world.method_23789() > 0) {
                 ambience = -1.0f;
             } else {
-                ambience = world.method_23787(partialTicks);
+                ambience = world.method_23783(partialTicks);
                 // ambience is a value between 0.2 and 1.0, inclusive.
                 // we want it to be between 0.0 and 1.0, inclusive.
                 // Note: the overworld ambience ranges between 0.2 and 1.0
@@ -142,7 +142,6 @@ public abstract class LightmapTextureManagerMixin {
             }
             // do the cleanup because we cancel the default
             this.texture.upload();
-            this.isDirty = false;
             this.client.getProfiler().pop();
             info.cancel();
         }
