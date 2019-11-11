@@ -9,7 +9,7 @@
       "color.BiomeColorsMixin",
       "color.BlockColorsMixin",
       "color.ItemColorsMixin",
-      "dye.BannerTextureMixin",
+      "dye.BannerBlockEntityRendererMixin",
       "dye.SheepEntityMixin",
       "dye.TextureManagerMixin",
       "dye.WolfCollarFeatureRendererMixin",

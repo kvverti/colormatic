@@ -59,6 +59,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, HexColor> collar;
     private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
+    private final Map<DyeColor, float[]> bannerRgb;
     private final Map<MaterialColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
     private final Map<Formatting, HexColor> textColor;
@@ -76,6 +77,7 @@ public class GlobalColorProperties {
         this.collar = settings.collar;
         this.collarRgb = toRgb(settings.collar);
         this.banner = settings.banner;
+        this.bannerRgb = toRgb(settings.banner);
         this.map = settings.map;
         this.spawnEgg = collateSpawnEggColors(settings);
         this.xpOrbTime = settings.xporb.time;
@@ -210,6 +212,10 @@ public class GlobalColorProperties {
 
     public int getBanner(DyeColor color) {
         return getColor(color, banner);
+    }
+
+    public float[] getBannerRgb(DyeColor color) {
+        return bannerRgb.get(color);
     }
 
     public int getMap(MaterialColor color) {

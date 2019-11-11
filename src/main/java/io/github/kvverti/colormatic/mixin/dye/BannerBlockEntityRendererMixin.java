@@ -19,8 +19,9 @@ package io.github.kvverti.colormatic.mixin.dye;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.LayeredTexture;
+import net.minecraft.block.entity.BannerBlockEntity;
+import net.minecraft.client.render.block.entity.BlockEntityRenderer;
+import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
 import net.minecraft.util.DyeColor;
 
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,23 +32,25 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * Applies custom colors to banner textures. This requires colors.json
  * to be reloaded beforehand. See TextureManagerMixin.
  */
-@Mixin(LayeredTexture.class)
-public abstract class BannerTextureMixin extends AbstractTexture {
+@Mixin(BannerBlockEntityRenderer.class)
+public abstract class BannerBlockEntityRendererMixin extends BlockEntityRenderer<BannerBlockEntity> {
 
-    // @Redirect(
-    //     method = "load",
-    //     at = @At(
-    //         value = "INVOKE",
-    //         target = "Lnet/minecraft/util/DyeColor;getColorSwapped()I"
-    //     )
-    // )
-    // private int proxyColorSwapped(DyeColor self) {
-    //     int color = Colormatic.COLOR_PROPS.getProperties().getBanner(self);
-    //     if(color != 0) {
-    //         return (color & 0x00ff00) |
-    //             ((color & 0xff0000) >> 16) |
-    //             ((color & 0x0000ff) << 16);
-    //     }
-    //     return ((DyeColorAccessor)(Object)self).colormatic_getColorSwapped();
-    // }
+    private BannerBlockEntityRendererMixin() {
+        super(null);
+    }
+
+    @Redirect(
+        method = "method_23802",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/util/DyeColor;getColorComponents()[F"
+        )
+    )
+    private static float[] proxyColorComponents(DyeColor self) {
+        float[] color = Colormatic.COLOR_PROPS.getProperties().getBannerRgb(self);
+        if(color != null) {
+            return color;
+        }
+        return self.getColorComponents();
+    }
 }
