@@ -29,10 +29,12 @@ import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.MathHelper;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -49,6 +51,49 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow private float field_21528;
     @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
+
+    // Vanilla block light flicker calculation is no longer compatible
+    // with Colormatic (as of 1.15)
+
+    /**
+     * The current flicker target, in the range [0.0, 1.0).
+     */
+    @Unique
+    private float flickerTarget;
+
+    /**
+     * The current flicker position, in the range [0.0, 1.0).
+     */
+    @Unique
+    private float flickerPos;
+
+    /**
+     * How many ticks until the next flicker target is calculated
+     */
+    @Unique
+    private int flickerTicksRemaining;
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void onTickTickFlicker(CallbackInfo info) {
+        if(Colormatic.config().flickerBlockLight) {
+            // Compute the next flicker target if there are no
+            // more ticks remaining, then (regardless) set the
+            // current flicker pos closer to the flicker target
+            if(flickerTicksRemaining == 0) {
+                // ticks between setting flicker targets
+                flickerTicksRemaining = 4;
+                flickerTarget = (float)Math.random();
+            }
+            // interpolate between the flickerPos and flickerTarget
+            flickerPos = MathHelper.lerp(1.0f / flickerTicksRemaining, flickerPos, flickerTarget);
+            flickerTicksRemaining--;
+        } else {
+            flickerPos = 0.0f;
+            // set the vanilla flicker indicator to zero as <well></well>
+            // (this is why the injection is at RETURN and not HEAD)
+            this.field_21528 = 0.0f;
+        }
+    }
 
     /* Relevant bytecode:
      *  17: invokeinterface #156,  2          // InterfaceMethod net/minecraft/util/profiler/Profiler.push:(Ljava/lang/String;)V
@@ -72,10 +117,6 @@ public abstract class LightmapTextureManagerMixin {
         cancellable = true
     )
     private void onUpdate(float partialTicks, CallbackInfo info) {
-        // todo: figure out block light flicker
-        if(!Colormatic.config().flickerBlockLight) {
-            this.field_21528 = 0.0f;
-        }
         ClientWorld world = this.client.world;
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
@@ -112,7 +153,7 @@ public abstract class LightmapTextureManagerMixin {
                         }
                     }
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(trueBlockLight, this.field_21528, nightVision);
+                    int blockColor = map.getBlockLight(trueBlockLight, flickerPos, nightVision);
                     // color will merge the brightest channels
                     float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
                     float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
