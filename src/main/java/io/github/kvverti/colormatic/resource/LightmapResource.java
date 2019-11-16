@@ -64,8 +64,7 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
     }
 
     /**
-     * Returns the color for the given block light level. The Random parameter
-     * controls block light flicker.
+     * Returns the color for the given block light level.
      */
     public int getBlockLight(int level, float flicker, float nightVision) {
         if(lightmap == null) {

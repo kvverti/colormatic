@@ -22,6 +22,7 @@ import com.google.common.collect.Table;
 
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -49,7 +50,7 @@ public final class BiomeColormaps {
      * Stores colormaps primarily by block, and secondarily by biome. Colormaps
      * that apply to all biomes are stored under the key ALL.
      */
-    private static final Table<Block, Biome, BiomeColormap> colormaps = HashBasedTable.create();
+    private static final Table<Block, Biome, BiomeColormap> colormapsByBlock = HashBasedTable.create();
 
     /**
      * Stores colormaps primarily by block state, and secondarily by biome.
@@ -58,11 +59,15 @@ public final class BiomeColormaps {
     private static final Table<BlockState, Biome, BiomeColormap> colormapsByState = HashBasedTable.create();
 
     /**
-     * Cache of ColormaticResolvers. Must be thread-safe since it is accessed
-     * from multiple threads.
+     * Cache of ColormaticResolvers corresponding to the applicable block
+     * states in all biome colormaps.
      */
     private static final Map<BlockState, ColormaticResolver> resolversByState = new HashMap<>();
 
+    /**
+     * Cache of ColormaticResolbers corresponding to the applicable blocks
+     * in all biome colormaps.
+     */
     private static final Map<Block, ColormaticResolver> resolversByBlock = new HashMap<>();
 
     private BiomeColormaps() {}
@@ -103,7 +108,7 @@ public final class BiomeColormaps {
      * the given block and biome.
      */
     private static BiomeColormap get(Block block, Biome biome) {
-        Map<Biome, BiomeColormap> map = colormaps.row(block);
+        Map<Biome, BiomeColormap> map = colormapsByBlock.row(block);
         BiomeColormap res = map.get(biome);
         if(res == null) {
             res = map.get(ALL);
@@ -115,23 +120,12 @@ public final class BiomeColormaps {
         ColormapProperties props = colormap.getProperties();
         Set<Biome> biomes = props.getApplicableBiomes();
         if(biomes.isEmpty()) {
-            for(BlockState state : props.getApplicableBlockStates()) {
-                colormapsByState.put(state, ALL, colormap);
-            }
-            for(Block block : props.getApplicableBlocks()) {
-                colormaps.put(block, ALL, colormap);
-            }
-        } else {
-            for(Biome b : biomes) {
-                for(BlockState state : props.getApplicableBlockStates()) {
-                    colormapsByState.put(state, b, colormap);
-                }
-                for(Block block : props.getApplicableBlocks()) {
-                    colormaps.put(block, b, colormap);
-                }
-            }
+            biomes = Collections.singleton(ALL);
         }
         for(BlockState state : props.getApplicableBlockStates()) {
+            for(Biome b : biomes) {
+                colormapsByState.put(state, b, colormap);
+            }
             ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
             ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
             resolversByState.put(state, (biome, pos) -> {
@@ -143,6 +137,9 @@ public final class BiomeColormaps {
             });
         }
         for(Block block : props.getApplicableBlocks()) {
+            for(Biome b : biomes) {
+                colormapsByBlock.put(block, b, colormap);
+            }
             ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
             ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
             resolversByBlock.put(block, (biome, pos) -> {
@@ -156,15 +153,17 @@ public final class BiomeColormaps {
     }
 
     public static void reset() {
-        colormaps.clear();
+        colormapsByBlock.clear();
         colormapsByState.clear();
+        resolversByState.clear();
+        resolversByBlock.clear();
     }
 
     /**
      * Returns whether the given state has any custom colormaps.
      */
     public static boolean isCustomColored(BlockState state) {
-        return !colormaps.row(state.getBlock()).isEmpty() ||
+        return !colormapsByBlock.row(state.getBlock()).isEmpty() ||
             !colormapsByState.row(state).isEmpty();
     }
 
