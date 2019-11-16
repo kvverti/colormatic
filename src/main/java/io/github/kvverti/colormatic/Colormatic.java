@@ -80,6 +80,7 @@ public class Colormatic implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
+        ColormaticConfigController.load(config);
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);

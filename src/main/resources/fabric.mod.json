@@ -23,7 +23,7 @@
       "io.github.kvverti.colormatic.Colormatic"
     ],
     "modmenu": [
-      "io.github.kvverti.colormatic.ModMenuEntryPoint"
+      "io.github.kvverti.colormatic.ColormaticModMenu"
     ]
   },
   "mixins": [
@@ -35,7 +35,7 @@
     "fabric": ">=0.3.0"
   },
   "recommends": {
-    "modmenu": ">=1.6.0"
+    "modmenu": ">=1.7.0"
   },
   "suggests": {
     "flamingo": "*"

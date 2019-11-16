@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.2.2-SNAPSHOT'
+	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -25,18 +25,16 @@ dependencies {
 	modCompile "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	modCompile "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
-	// modCompile("cloth-config:ClothConfig:${project.cloth_config_version}") {
-	// 	transitive = false
-	// }
-	// modCompile "me.sargunvohra.mcmods:auto-config:${project.auto_config_version}"
-	// modCompile "io.github.prospector.modmenu:ModMenu:${project.mod_menu_version}"
+	modImplementation("me.shedaniel.cloth:config-2:${project.cloth_config_version}") {
+		transitive = false
+	}
+	modImplementation "io.github.prospector:modmenu:${project.mod_menu_version}"
 
-	// include "cloth-config:ClothConfig:${project.cloth_config_version}"
-	// include "me.sargunvohra.mcmods:auto-config:${project.auto_config_version}"
+	include "me.shedaniel.cloth:config-2:${project.cloth_config_version}"
 }
 
 processResources {
