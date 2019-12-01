@@ -131,7 +131,7 @@ public abstract class LightmapTextureManagerMixin {
                 nightVision = 0.0f;
             }
             float ambience;
-            if(world.method_23789() > 0) {
+            if(world.getLightningTicksLeft() > 0) {
                 ambience = -1.0f;
             } else {
                 ambience = world.method_23783(partialTicks);

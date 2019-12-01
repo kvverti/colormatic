@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SuspendParticle.MyceliumFactory.class)
 public abstract class MyceliumParticleFactoryMixin {
 
-    @Inject(method = "method_3112", at = @At("RETURN"))
+    @Inject(method = "createParticle", at = @At("RETURN"))
     private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
         if(Colormatic.MYCELIUM_PARTICLE_COLORS.hasCustomColormap()) {
             Particle particle = info.getReturnValue();

@@ -17,8 +17,6 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -62,7 +60,7 @@ public abstract class BackgroundRendererMixin {
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld;method_23786(F)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/client/world/ClientWorld;getFogColor(F)Lnet/minecraft/util/math/Vec3d;"
         )
     )
     private static Vec3d proxyFogColor(ClientWorld self, float partialTicks, Camera camera, float foo1, ClientWorld self2, int foo2, float partialTicks2) {
@@ -99,7 +97,7 @@ public abstract class BackgroundRendererMixin {
             }
             return new Vec3d(r, g, b);
         } else {
-            return self.method_23786(partialTicks);
+            return self.getFogColor(partialTicks);
         }
     }
 

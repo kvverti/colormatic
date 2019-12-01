@@ -56,7 +56,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     @Unique
     private static int customBlue;
 
-    @Inject(method = "method_3966", at = @At("HEAD"))
+    @Inject(method = "render", at = @At("HEAD"))
     private void onRenderSetColor(ExperienceOrbEntity entity, float eh, float partialTicks, MatrixStack matrixStack, VertexConsumerProvider provider, int int1, CallbackInfo info) {
         if(Colormatic.EXPERIENCE_ORB_COLORS.hasCustomColormap()) {
             custom = true;
