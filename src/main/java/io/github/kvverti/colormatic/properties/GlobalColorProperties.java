@@ -68,8 +68,8 @@ public class GlobalColorProperties {
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
-        this.dimensionFog = convertMap(settings.fog, Registry.DIMENSION);
-        this.dimensionSky = convertMap(settings.sky, Registry.DIMENSION);
+        this.dimensionFog = convertMap(settings.fog, Registry.DIMENSION_TYPE);
+        this.dimensionSky = convertMap(settings.sky, Registry.DIMENSION_TYPE);
         this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
         this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;

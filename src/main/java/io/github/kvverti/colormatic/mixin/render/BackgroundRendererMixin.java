@@ -71,7 +71,7 @@ public abstract class BackgroundRendererMixin {
         DimensionType dimType = dim.getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
         BlockState state = PseudoBlockStates.SKY_FOG.getDefaultState()
-            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(dimType));
+            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION_TYPE.getId(dimType));
         if(BiomeColormaps.isCustomColored(state)) {
             color = 0xff000000 | BiomeColormaps.getBiomeColor(state, self, camera.getBlockPos());
         } else if(dimType == DimensionType.OVERWORLD && Colormatic.FOG_COLORS.hasCustomColormap()) {

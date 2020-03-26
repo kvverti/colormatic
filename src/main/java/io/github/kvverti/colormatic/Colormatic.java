@@ -104,7 +104,7 @@ public class Colormatic implements ClientModInitializer {
         // its reloading method before any textures are loaded.
         // client.registerReloadListener(COLOR_PROPS);
 
-        RegistryEntryAddedCallback.event(Registry.DIMENSION)
+        RegistryEntryAddedCallback.event(Registry.DIMENSION_TYPE)
             .register(Lightmaps::registerLightmapReload);
         // callbacks don't get run for already registered dim types
         for(DimensionType type : DimensionType.getAll()) {

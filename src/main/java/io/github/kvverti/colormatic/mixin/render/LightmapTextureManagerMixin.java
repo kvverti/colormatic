@@ -123,7 +123,7 @@ public abstract class LightmapTextureManagerMixin {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
             float nightVision;
             PlayerEntity player = this.client.player;
-            if(player.isInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
+            if(player.isSubmergedInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
                 nightVision = 1.0f;
             } else if(player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
                 nightVision = GameRenderer.getNightVisionStrength(player, partialTicks);

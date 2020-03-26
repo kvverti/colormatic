@@ -45,7 +45,7 @@ public final class PseudoBlockStates {
     public static final Block FLUID_FOG;
 
     public static final IdentifierProperty<DimensionType> DIMENSION =
-        IdentifierProperty.create("dimension", Registry.DIMENSION);
+        IdentifierProperty.create("dimension", Registry.DIMENSION_TYPE);
     public static final IdentifierProperty<Fluid> FLUID =
         IdentifierProperty.create("fluid", Registry.FLUID);
 

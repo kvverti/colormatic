@@ -57,7 +57,7 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
     private int proxySkyColor(Biome self, BlockPos pos, float partialTicks) {
         DimensionType type = this.dimension.getType();
         BlockState state = PseudoBlockStates.SKY.getDefaultState()
-            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(type));
+            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION_TYPE.getId(type));
         if(BiomeColormaps.isCustomColored(state)) {
             return BiomeColormaps.getBiomeColor(state, this, pos);
         } else if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
