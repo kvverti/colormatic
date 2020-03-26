@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockLeakParticle.LandingLavaFactory.class)
 public abstract class LandingLavaParticleFactoryMixin {
 
-    @Inject(method = "method_18824", at = @At("RETURN"))
+    @Inject(method = "createParticle", at = @At("RETURN"))
     private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
         if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
             Particle particle = info.getReturnValue();

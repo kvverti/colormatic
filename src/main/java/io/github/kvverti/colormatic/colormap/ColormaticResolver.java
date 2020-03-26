@@ -15,15 +15,13 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic;
+package io.github.kvverti.colormatic.colormap;
 
-public final class ColormaticConfig {
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
 
-    public boolean clearSky = false;
+@FunctionalInterface
+public interface ColormaticResolver {
 
-    public boolean clearVoid = false;
-
-    public boolean blendSkyLight = true;
-
-    public boolean flickerBlockLight = true;
+    int getColor(Biome biome, BlockPos pos);
 }

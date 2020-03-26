@@ -23,15 +23,14 @@ import io.github.kvverti.colormatic.properties.HexColor;
 
 import java.util.Random;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.ExtendedBlockView;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.Biomes;
 
-public class BiomeColormap {
+public class BiomeColormap implements ColormaticResolver {
 
     private static final Random GRID_RANDOM = new Random(47L);
 
@@ -53,12 +52,12 @@ public class BiomeColormap {
     private final int computeDefaultColor(ColormapProperties props) {
         switch(props.getFormat()) {
             case VANILLA:
-                return colormap.getPixelRGBA(128, 128);
+                return colormap.getPixelRgba(128, 128);
             case GRID:
                 try {
                     int x = props.getColumn(Biomes.PLAINS).column;
                     int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
-                    return colormap.getPixelRGBA(x, y);
+                    return colormap.getPixelRgba(x, y);
                 } catch(IllegalArgumentException e) {
                     return 0xffffffff;
                 }
@@ -83,7 +82,7 @@ public class BiomeColormap {
         if(x >= colormap.getWidth() || y >= colormap.getHeight()) {
             return 0xffff00ff;
         }
-        return colormap.getPixelRGBA(x, y);
+        return colormap.getPixelRgba(x, y);
     }
 
     /**
@@ -109,7 +108,7 @@ public class BiomeColormap {
                 int x;
                 int y;
                 if(pos != null) {
-                    double frac = Biome.FOLIAGE_NOISE.sample(pos.getX() * 0.0225, pos.getZ() * 0.0225);
+                    double frac = Biome.FOLIAGE_NOISE.sample(pos.getX() * 0.0225, pos.getZ() * 0.0225, false);
                     frac = (frac + 1.0) / 2; // normalize
                     x = cb.column + (int)(frac * cb.count);
                     y = pos.getY() - properties.getOffset();
@@ -122,7 +121,7 @@ public class BiomeColormap {
                 }
                 x %= colormap.getWidth();
                 y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
-                return colormap.getPixelRGBA(x, y);
+                return colormap.getPixelRgba(x, y);
             case FIXED:
                 return getDefaultColor();
         }
@@ -141,24 +140,10 @@ public class BiomeColormap {
      * account the client's biome blend options If either `world` or `pos` is
      * null, this returns the colormap's default color.
      */
-    public static int getBiomeColor(ExtendedBlockView world, BlockPos pos, BiomeColormap colormap) {
+    public static int getBiomeColor(BlockRenderView world, BlockPos pos, BiomeColormap colormap) {
         if(world == null || pos == null) {
             return colormap.getDefaultColor();
         }
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
-        Iterable<BlockPos> coll = BlockPos.iterate(
-            pos.getX() - radius, pos.getY(), pos.getZ() - radius,
-            pos.getX() + radius, pos.getY(), pos.getZ() + radius);
-        for(BlockPos curpos : coll) {
-            int color = colormap.getColor(world.getBiome(curpos), curpos);
-            r += (color & 0xff0000) >> 16;
-            g += (color & 0x00ff00) >> 8;
-            b += (color & 0x0000ff);
-        }
-        int posCount = (radius * 2 + 1) * (radius * 2 + 1);
-        return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
+        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, colormap);
     }
 }

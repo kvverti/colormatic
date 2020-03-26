@@ -116,7 +116,7 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
         // if this applies to all states, the states list is empty
         res.states = new ArrayList<>();
         boolean excluded = false;
-        for(BlockState state : b.getStateFactory().getStates()) {
+        for(BlockState state : b.getStateManager().getStates()) {
             if(pred.test(state)) {
                 res.states.add(state);
             } else {
@@ -130,7 +130,7 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
     }
 
     private static <T extends Comparable<T>> void putPropValue(Property<T> prop, String s, List<? super T> values) {
-        Optional<T> value = prop.getValue(s);
+        Optional<T> value = prop.parse(s);
         if(value.isPresent()) {
             values.add(value.get());
         } else {

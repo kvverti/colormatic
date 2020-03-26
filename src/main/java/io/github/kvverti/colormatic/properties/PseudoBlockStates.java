@@ -27,7 +27,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Material;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.state.StateFactory;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.AbstractProperty;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -87,7 +87,7 @@ public final class PseudoBlockStates {
          * a slash.
          */
         @Override
-        public Optional<Identifier> getValue(String str) {
+        public Optional<Identifier> parse(String str) {
             return Optional.ofNullable(
                 registry.get(new Identifier(str.replaceFirst("/", ":"))))
                 .map(registry::getId);
@@ -99,7 +99,7 @@ public final class PseudoBlockStates {
          * pseudo-blocks are never deserialized, this poses no issue.
          */
         @Override
-        public String getName(Identifier id) {
+        public String name(Identifier id) {
             return id.toString().replace(":", "_");
         }
     }
@@ -112,7 +112,7 @@ public final class PseudoBlockStates {
             }
 
             @Override
-            protected void appendProperties(StateFactory.Builder<Block, BlockState> builder) {
+            protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
                 builder.add(DIMENSION);
             }
         }
@@ -120,7 +120,7 @@ public final class PseudoBlockStates {
         SKY_FOG = new DimensionPseudoBlock();
         FLUID_FOG = new Block(Block.Settings.of(Material.AIR)) {
             @Override
-            protected void appendProperties(StateFactory.Builder<Block, BlockState> builder) {
+            protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
                 builder.add(FLUID);
             }
         };

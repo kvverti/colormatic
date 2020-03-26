@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 /**
  * Provides (dripping) lava drop particle color customization capability.
  */
-@Mixin(targets = "net.minecraft.client.particle.BlockLeakParticle$DrippingLavaParticle")
+@Mixin(targets = "net.minecraft.client.particle.BlockLeakParticle$DrippingLava")
 public abstract class DrippingLavaParticleMixin extends SpriteBillboardParticle {
 
     private DrippingLavaParticleMixin() {

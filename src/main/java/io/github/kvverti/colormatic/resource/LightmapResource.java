@@ -64,8 +64,7 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
     }
 
     /**
-     * Returns the color for the given block light level. The Random parameter
-     * controls block light flicker.
+     * Returns the color for the given block light level.
      */
     public int getBlockLight(int level, float flicker, float nightVision) {
         if(lightmap == null) {
@@ -116,7 +115,7 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
             if(lightmap.getHeight() != 64) {
                 // night vision is calculated as
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
-                int color = lightmap.getPixelRGBA(x, y);
+                int color = lightmap.getPixelRgba(x, y);
                 int r = (color >> 16) & 0xff;
                 int g = (color >>  8) & 0xff;
                 int b = (color >>  0) & 0xff;
@@ -127,16 +126,16 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
                 ret |= (255 * b / scale) <<  0;
                 nightVisionColor = ret;
             } else {
-                nightVisionColor = lightmap.getPixelRGBA(x, y + 32);
+                nightVisionColor = lightmap.getPixelRgba(x, y + 32);
             }
             if(nightVision >= 1.0f) {
                 return nightVisionColor;
             } else {
-                int normalColor = lightmap.getPixelRGBA(x, y);
+                int normalColor = lightmap.getPixelRgba(x, y);
                 return mergeColors(normalColor, nightVisionColor, nightVision);
             }
         } else {
-            return lightmap.getPixelRGBA(x, y);
+            return lightmap.getPixelRgba(x, y);
         }
     }
 

@@ -23,16 +23,19 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 @Mixin(AbstractButtonWidget.class)
 public abstract class AbstractButtonWidgetMixin extends DrawableHelper {
 
-    @ModifyConstant(method = "renderButton", constant = @Constant(intValue = 16777120))
+    @Shadow public abstract boolean isHovered();
+
+    @ModifyConstant(method = "renderButton", constant = @Constant(intValue = 16777215))
     private int proxyButtonHoverColor(int original) {
         int col = Colormatic.COLOR_PROPS.getProperties().getButtonTextHovered();
-        return col != 0 ? col : original;
+        return col != 0 && this.isHovered() ? col : original;
     }
 
     @ModifyConstant(method = "renderButton", constant = @Constant(intValue = 10526880))

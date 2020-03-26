@@ -17,18 +17,20 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ExtendedBlockView;
-import java.util.Set;
-import io.github.kvverti.colormatic.properties.ColormapProperties;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
+import io.github.kvverti.colormatic.properties.ColormapProperties;
+
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.OceanBiome;
 
@@ -48,7 +50,7 @@ public final class BiomeColormaps {
      * Stores colormaps primarily by block, and secondarily by biome. Colormaps
      * that apply to all biomes are stored under the key ALL.
      */
-    private static final Table<Block, Biome, BiomeColormap> colormaps = HashBasedTable.create();
+    private static final Table<Block, Biome, BiomeColormap> colormapsByBlock = HashBasedTable.create();
 
     /**
      * Stores colormaps primarily by block state, and secondarily by biome.
@@ -56,22 +58,58 @@ public final class BiomeColormaps {
      */
     private static final Table<BlockState, Biome, BiomeColormap> colormapsByState = HashBasedTable.create();
 
+    /**
+     * Cache of ColormaticResolvers corresponding to the applicable block
+     * states in all biome colormaps.
+     */
+    private static final Map<BlockState, ColormaticResolver> resolversByState = new HashMap<>();
+
+    /**
+     * Cache of ColormaticResolbers corresponding to the applicable blocks
+     * in all biome colormaps.
+     */
+    private static final Map<Block, ColormaticResolver> resolversByBlock = new HashMap<>();
+
     private BiomeColormaps() {}
+
+    /**
+     * Gets the Colormatic resolver for the given block state.
+     */
+    public static ColormaticResolver getResolver(BlockState state) {
+        ColormaticResolver resolver = resolversByState.get(state);
+        if(resolver == null) {
+            resolver = resolversByBlock.get(state.getBlock());
+        }
+        if(resolver == null) {
+            throw new IllegalArgumentException(String.valueOf(state));
+        }
+        return resolver;
+    }
 
     /**
      * Retrieves the colormap that applies to the given block state and biome.
      * Returns `null` if there are no colormaps that apply.
      */
     public static BiomeColormap get(BlockState state, Biome biome) {
+        // todo: does this allocate, and if so get rid of it
         Map<Biome, BiomeColormap> map = colormapsByState.row(state);
         BiomeColormap res = map.get(biome);
         if(res == null) {
             res = map.get(ALL);
         }
         if(res == null) {
-            map = colormaps.row(state.getBlock());
-            res = map.get(biome);
+            res = get(state.getBlock(), biome);
         }
+        return res;
+    }
+
+    /**
+     * Retrieves the colormap that applies to all states of
+     * the given block and biome.
+     */
+    private static BiomeColormap get(Block block, Biome biome) {
+        Map<Biome, BiomeColormap> map = colormapsByBlock.row(block);
+        BiomeColormap res = map.get(biome);
         if(res == null) {
             res = map.get(ALL);
         }
@@ -82,34 +120,50 @@ public final class BiomeColormaps {
         ColormapProperties props = colormap.getProperties();
         Set<Biome> biomes = props.getApplicableBiomes();
         if(biomes.isEmpty()) {
-            for(BlockState state : props.getApplicableBlockStates()) {
-                colormapsByState.put(state, ALL, colormap);
-            }
-            for(Block block : props.getApplicableBlocks()) {
-                colormaps.put(block, ALL, colormap);
-            }
-        } else {
+            biomes = Collections.singleton(ALL);
+        }
+        for(BlockState state : props.getApplicableBlockStates()) {
             for(Biome b : biomes) {
-                for(BlockState state : props.getApplicableBlockStates()) {
-                    colormapsByState.put(state, b, colormap);
-                }
-                for(Block block : props.getApplicableBlocks()) {
-                    colormaps.put(block, b, colormap);
-                }
+                colormapsByState.put(state, b, colormap);
             }
+            ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
+            ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
+            resolversByState.put(state, (biome, pos) -> {
+                if(lastBiome.get() != biome) {
+                    map.set(get(state, biome));
+                    lastBiome.set(biome);
+                }
+                return map.get() != null ? map.get().getColor(biome, pos) : 0xffffff;
+            });
+        }
+        for(Block block : props.getApplicableBlocks()) {
+            for(Biome b : biomes) {
+                colormapsByBlock.put(block, b, colormap);
+            }
+            ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
+            ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
+            resolversByBlock.put(block, (biome, pos) -> {
+                if(lastBiome.get() != biome) {
+                    map.set(get(block, biome));
+                    lastBiome.set(biome);
+                }
+                return map.get() != null ? map.get().getColor(biome, pos) : 0xffffff;
+            });
         }
     }
 
     public static void reset() {
-        colormaps.clear();
+        colormapsByBlock.clear();
         colormapsByState.clear();
+        resolversByState.clear();
+        resolversByBlock.clear();
     }
 
     /**
      * Returns whether the given state has any custom colormaps.
      */
     public static boolean isCustomColored(BlockState state) {
-        return !colormaps.row(state.getBlock()).isEmpty() ||
+        return !colormapsByBlock.row(state.getBlock()).isEmpty() ||
             !colormapsByState.row(state).isEmpty();
     }
 
@@ -117,7 +171,7 @@ public final class BiomeColormaps {
      * Retrieves the biome coloring for the given block position, taking into
      * account the client's biome blend options.
      */
-    public static int getBiomeColor(BlockState state, ExtendedBlockView world, BlockPos pos) {
+    public static int getBiomeColor(BlockState state, BlockRenderView world, BlockPos pos) {
         if(world == null || pos == null) {
             // todo figure out held item colors
             BiomeColormap colormap = get(state, ALL);
@@ -127,27 +181,7 @@ public final class BiomeColormaps {
                 return 0xffffff;
             }
         }
-        int r = 0;
-        int g = 0;
-        int b = 0;
-        int radius = MinecraftClient.getInstance().options.biomeBlendRadius;
-        Iterable<BlockPos> coll = BlockPos.iterate(
-            pos.getX() - radius, pos.getY(), pos.getZ() - radius,
-            pos.getX() + radius, pos.getY(), pos.getZ() + radius);
-        Biome lastBiome = world.getBiome(pos);
-        BiomeColormap colormap = get(state, lastBiome);
-        for(BlockPos curpos : coll) {
-            Biome biome = world.getBiome(curpos);
-            if(biome != lastBiome) {
-                colormap = get(state, biome);
-                lastBiome = biome;
-            }
-            int color = colormap != null ? colormap.getColor(biome, curpos) : 0xffffff;
-            r += (color & 0xff0000) >> 16;
-            g += (color & 0x00ff00) >> 8;
-            b += (color & 0x0000ff);
-        }
-        int posCount = (radius * 2 + 1) * (radius * 2 + 1);
-        return ((r / posCount & 255) << 16) | ((g / posCount & 255) << 8) | (b / posCount & 255);
+        ColormaticResolver resolver = getResolver(state);
+        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, resolver);
     }
 }

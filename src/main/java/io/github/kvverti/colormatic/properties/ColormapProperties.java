@@ -52,6 +52,11 @@ public class ColormapProperties {
     private static final Logger log = LogManager.getLogger();
 
     /**
+     * The file these properties came from.
+     */
+    private final Identifier id;
+
+    /**
      * The format of the corresponding colormap.
      */
     private final Format format;
@@ -118,7 +123,8 @@ public class ColormapProperties {
         }
     }
 
-    private ColormapProperties(Settings settings) {
+    private ColormapProperties(Identifier id, Settings settings) {
+        this.id = id;
         this.format = settings.format;
         this.blocks = settings.blocks;
         this.source = new Identifier(settings.source);
@@ -129,8 +135,8 @@ public class ColormapProperties {
             this.columnsByBiome = new HashMap<>();
             for(GridEntry entry : settings.grid) {
                 ColumnBounds bounds = new ColumnBounds(entry.column, entry.width);
-                for(Identifier id : entry.biomes) {
-                    Biome b = Registry.BIOME.get(id);
+                for(Identifier biomeId : entry.biomes) {
+                    Biome b = Registry.BIOME.get(biomeId);
                     if(b != null) {
                         columnsByBiome.put(b, bounds);
                     }
@@ -147,6 +153,10 @@ public class ColormapProperties {
         } else {
             this.columnsByBiome = null;
         }
+    }
+
+    public Identifier getId() {
+        return id;
     }
 
     public Format getFormat() {
@@ -314,7 +324,7 @@ public class ColormapProperties {
             settings.source = path;
         }
         settings.source = PropertyUtil.resolve(settings.source, id);
-        return new ColormapProperties(settings);
+        return new ColormapProperties(id, settings);
     }
 
     private static class Settings {

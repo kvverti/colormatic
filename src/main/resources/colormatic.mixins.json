@@ -9,7 +9,7 @@
       "color.BiomeColorsMixin",
       "color.BlockColorsMixin",
       "color.ItemColorsMixin",
-      "dye.BannerTextureMixin",
+      "dye.BannerBlockEntityRendererMixin",
       "dye.SheepEntityMixin",
       "dye.TextureManagerMixin",
       "dye.WolfCollarFeatureRendererMixin",
@@ -32,7 +32,8 @@
       "text.DyeColorMixin",
       "text.InGameHudMixin",
       "world.BiomeMixin",
-      "world.WorldMixin",
+      "world.ChunkRendererRegionMixin",
+      "world.ClientWorldMixin",
       "xp.ExperienceOrbEntityRendererMixin"
   ],
   "injectors": {

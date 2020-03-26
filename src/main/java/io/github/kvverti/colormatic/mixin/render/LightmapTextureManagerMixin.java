@@ -26,18 +26,19 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.util.math.MathHelper;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 /**
  * Provides custom lightmap update capability.
@@ -47,10 +48,52 @@ public abstract class LightmapTextureManagerMixin {
 
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
-    @Shadow private boolean isDirty;
-    @Shadow private float prevFlicker;
+    @Shadow private float field_21528;
     @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
+
+    // Vanilla block light flicker calculation is no longer compatible
+    // with Colormatic (as of 1.15)
+
+    /**
+     * The current flicker target, in the range [0.0, 1.0).
+     */
+    @Unique
+    private float flickerTarget;
+
+    /**
+     * The current flicker position, in the range [0.0, 1.0).
+     */
+    @Unique
+    private float flickerPos;
+
+    /**
+     * How many ticks until the next flicker target is calculated
+     */
+    @Unique
+    private int flickerTicksRemaining;
+
+    @Inject(method = "tick", at = @At("RETURN"))
+    private void onTickTickFlicker(CallbackInfo info) {
+        if(Colormatic.config().flickerBlockLight) {
+            // Compute the next flicker target if there are no
+            // more ticks remaining, then (regardless) set the
+            // current flicker pos closer to the flicker target
+            if(flickerTicksRemaining == 0) {
+                // ticks between setting flicker targets
+                flickerTicksRemaining = 4;
+                flickerTarget = (float)Math.random();
+            }
+            // interpolate between the flickerPos and flickerTarget
+            flickerPos = MathHelper.lerp(1.0f / flickerTicksRemaining, flickerPos, flickerTarget);
+            flickerTicksRemaining--;
+        } else {
+            flickerPos = 0.0f;
+            // set the vanilla flicker indicator to zero as <well></well>
+            // (this is why the injection is at RETURN and not HEAD)
+            this.field_21528 = 0.0f;
+        }
+    }
 
     /* Relevant bytecode:
      *  17: invokeinterface #156,  2          // InterfaceMethod net/minecraft/util/profiler/Profiler.push:(Ljava/lang/String;)V
@@ -71,13 +114,10 @@ public abstract class LightmapTextureManagerMixin {
             ordinal = 1,
             shift = At.Shift.BEFORE
         ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION,
         cancellable = true
     )
-    private void onUpdate(float partialTicks, CallbackInfo info, World world) {
-        if(!Colormatic.config().flickerBlockLight) {
-            this.prevFlicker = 0.0f;
-        }
+    private void onUpdate(float partialTicks, CallbackInfo info) {
+        ClientWorld world = this.client.world;
         LightmapResource map = Lightmaps.get(world.getDimension().getType());
         if(world != null && map.hasCustomColormap()) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
@@ -86,15 +126,15 @@ public abstract class LightmapTextureManagerMixin {
             if(player.isInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
                 nightVision = 1.0f;
             } else if(player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
-                nightVision = this.worldRenderer.getNightVisionStrength(player, partialTicks);
+                nightVision = GameRenderer.getNightVisionStrength(player, partialTicks);
             } else {
                 nightVision = 0.0f;
             }
             float ambience;
-            if(world.getTicksSinceLightning() > 0) {
+            if(world.getLightningTicksLeft() > 0) {
                 ambience = -1.0f;
             } else {
-                ambience = world.getAmbientLight(partialTicks);
+                ambience = world.method_23783(partialTicks);
                 // ambience is a value between 0.2 and 1.0, inclusive.
                 // we want it to be between 0.0 and 1.0, inclusive.
                 // Note: the overworld ambience ranges between 0.2 and 1.0
@@ -113,7 +153,7 @@ public abstract class LightmapTextureManagerMixin {
                         }
                     }
                     int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(trueBlockLight, this.prevFlicker, nightVision);
+                    int blockColor = map.getBlockLight(trueBlockLight, flickerPos, nightVision);
                     // color will merge the brightest channels
                     float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
                     float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
@@ -138,12 +178,11 @@ public abstract class LightmapTextureManagerMixin {
                     color |= (int)(r * 255.0f) << 16;
                     color |= (int)(g * 255.0f) <<  8;
                     color |= (int)(b * 255.0f) <<  0;
-                    this.image.setPixelRGBA(blockLight, skyLight, color);
+                    this.image.setPixelRgba(blockLight, skyLight, color);
                 }
             }
             // do the cleanup because we cancel the default
             this.texture.upload();
-            this.isDirty = false;
             this.client.getProfiler().pop();
             info.cancel();
         }

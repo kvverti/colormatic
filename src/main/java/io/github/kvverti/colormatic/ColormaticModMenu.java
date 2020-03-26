@@ -17,13 +17,21 @@
  */
 package io.github.kvverti.colormatic;
 
-public final class ColormaticConfig {
+import io.github.prospector.modmenu.api.ModMenuApi;
 
-    public boolean clearSky = false;
+import java.util.function.Function;
 
-    public boolean clearVoid = false;
+import net.minecraft.client.gui.screen.Screen;
 
-    public boolean blendSkyLight = true;
+public class ColormaticModMenu implements ModMenuApi {
 
-    public boolean flickerBlockLight = true;
+    @Override
+    public String getModId() {
+        return Colormatic.MODID;
+    }
+
+    @Override
+    public Function<Screen, ? extends Screen> getConfigScreenFactory() {
+        return parent -> ColormaticConfigController.getConfigScreen(Colormatic.config(), parent);
+    }
 }
