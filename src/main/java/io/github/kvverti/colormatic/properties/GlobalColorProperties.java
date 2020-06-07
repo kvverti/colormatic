@@ -35,6 +35,7 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -62,8 +63,8 @@ public class GlobalColorProperties {
     private final Map<DyeColor, float[]> bannerRgb;
     private final Map<MaterialColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
-    private final Map<Formatting, HexColor> textColor;
-    private final TextColor text;
+    private final Map<Formatting, TextColor> textColor;
+    private final TextColorSettings text;
     private final int xpOrbTime;
 
     private GlobalColorProperties(Settings settings) {
@@ -82,23 +83,25 @@ public class GlobalColorProperties {
         this.spawnEgg = collateSpawnEggColors(settings);
         this.xpOrbTime = settings.xporb.time;
         if(settings.text != null) {
-            TextColor text = settings.text;
+            TextColorSettings text = settings.text;
             this.textColor = new HashMap<>();
             for(Map.Entry<Integer, HexColor> entry : text.code.entrySet()) {
                 int code = entry.getKey();
                 if(code < 16) {
                     Formatting color = Formatting.byColorIndex(code);
-                    textColor.put(color, entry.getValue());
+                    textColor.put(color, TextColor.fromRgb(entry.getValue().get()));
                 }
             }
-            this.textColor.putAll(text.format);
+            for(Map.Entry<Formatting, HexColor> entry : text.format.entrySet()) {
+                this.textColor.put(entry.getKey(), TextColor.fromRgb(entry.getValue().get()));
+            }
             text.code = Collections.emptyMap();
             text.format = Collections.emptyMap();
             this.text = text;
         } else {
             // settings.text == null
             this.textColor = Collections.emptyMap();
-            this.text = new TextColor();
+            this.text = new TextColorSettings();
         }
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
@@ -258,8 +261,8 @@ public class GlobalColorProperties {
         return getColor(color, text.sign);
     }
 
-    public int getText(Formatting color) {
-        return getColor(color, textColor);
+    public TextColor getText(Formatting color) {
+        return textColor.get(color);
     }
 
     public int getXpOrbTime() {
@@ -348,7 +351,7 @@ public class GlobalColorProperties {
         Map<DyeColor, HexColor> banner = Collections.emptyMap();
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;
-        TextColor text;
+        TextColorSettings text;
         XpOrb xporb = XpOrb.DEFAULT;
     }
 
@@ -361,7 +364,7 @@ public class GlobalColorProperties {
         Map<String, HexColor> spots = Collections.emptyMap();
     }
 
-    private static class TextColor {
+    private static class TextColorSettings {
         HexColor xpbar;
         ButtonText button = new ButtonText();
         Map<DyeColor, HexColor> sign = Collections.emptyMap();
