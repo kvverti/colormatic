@@ -20,6 +20,7 @@ package io.github.kvverti.colormatic.mixin.render;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -35,6 +36,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -94,6 +96,34 @@ public abstract class BackgroundRendererMixin {
     )
     private static int proxyCustomFogColor(Biome self) {
         return storedFogColor != 0 ? storedFogColor : self.getFogColor();
+    }
+
+    /**
+     * Set the fog color to exactly the same color as the sky when clear skies are enabled.
+     */
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/render/BackgroundRenderer;blue:F",
+            opcode = Opcodes.PUTSTATIC,
+            ordinal = 0,
+            shift = At.Shift.AFTER
+        ),
+        slice = @Slice(
+            from = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
+            )
+        )
+    )
+    private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
+        if(Colormatic.config().clearSky) {
+            Vec3d color = world.method_23777(camera.getBlockPos(), partialTicks);
+            BackgroundRendererMixin.red = (float)color.x;
+            BackgroundRendererMixin.green = (float)color.y;
+            BackgroundRendererMixin.blue = (float)color.z;
+        }
     }
 
     @Unique
