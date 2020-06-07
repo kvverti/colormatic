@@ -275,7 +275,7 @@ public class GlobalColorProperties {
 
         private final String name;
 
-        private ColoredParticle(String name) {
+        ColoredParticle(String name) {
             this.name = name;
         }
 

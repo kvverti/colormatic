@@ -257,7 +257,7 @@ public class ColormapProperties {
             format,
             blocks,
             source,
-            color,
+            color == null ? 0 : color.get(),
             yVariance,
             yOffset);
     }
@@ -269,7 +269,7 @@ public class ColormapProperties {
 
         private final String name;
 
-        private Format(String s) {
+        Format(String s) {
             name = s;
         }
 
