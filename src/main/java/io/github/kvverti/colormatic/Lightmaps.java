@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,15 +17,11 @@
  */
 package io.github.kvverti.colormatic;
 
-import io.github.kvverti.colormatic.Colormatic;
-import io.github.kvverti.colormatic.resource.LightmapResource;
-
 import java.util.HashMap;
 import java.util.Map;
 
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import io.github.kvverti.colormatic.colormap.Lightmap;
 
-import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.dimension.DimensionType;
 
@@ -34,28 +30,17 @@ import net.minecraft.world.dimension.DimensionType;
  */
 public final class Lightmaps {
 
-    private static final Map<DimensionType, LightmapResource> lightmaps = new HashMap<>();
+    private static final Map<Identifier, Lightmap> lightmaps = new HashMap<>();
 
-    public static LightmapResource get(DimensionType type) {
-        return lightmaps.get(type);
+    public static Lightmap get(DimensionType type) {
+        return lightmaps.get(Colormatic.getDimId(type));
     }
 
-    /**
-     * Callback method called when a DimensionType is registered.
-     */
-    static void registerLightmapReload(int rawId, Identifier id, DimensionType type) {
-        String filepart;
-        if(id.getNamespace().equals("minecraft")) {
-            filepart = id.getPath();
-        } else {
-            filepart = id.toString().replace(':', '/');
-        }
-        String filename = String.format("lightmap/%s.png", filepart);
-        String optifine = String.format("lightmap/world%d.png", rawId);
-        LightmapResource rsc =
-            new LightmapResource(new Identifier(Colormatic.MODID, filename), optifine);
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES)
-            .registerReloadListener(rsc);
-        lightmaps.put(type, rsc);
+    public static void addLightmap(Identifier id, Lightmap lightmap) {
+        lightmaps.put(id, lightmap);
+    }
+
+    public static void clearLightmaps() {
+        lightmaps.clear();
     }
 }

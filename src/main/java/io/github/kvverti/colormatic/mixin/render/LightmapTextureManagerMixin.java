@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,7 +19,7 @@ package io.github.kvverti.colormatic.mixin.render;
 
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.Lightmaps;
-import io.github.kvverti.colormatic.resource.LightmapResource;
+import io.github.kvverti.colormatic.colormap.Lightmap;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
@@ -118,12 +118,15 @@ public abstract class LightmapTextureManagerMixin {
     )
     private void onUpdate(float partialTicks, CallbackInfo info) {
         ClientWorld world = this.client.world;
-        LightmapResource map = Lightmaps.get(world.getDimension().getType());
-        if(world != null && map.hasCustomColormap()) {
+        if(world == null) {
+            return;
+        }
+        Lightmap map = Lightmaps.get(world.getDimension());
+        if(map != null) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
             float nightVision;
             PlayerEntity player = this.client.player;
-            if(player.isInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
+            if(player.isSubmergedInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
                 nightVision = 1.0f;
             } else if(player.hasStatusEffect(StatusEffects.NIGHT_VISION)) {
                 nightVision = GameRenderer.getNightVisionStrength(player, partialTicks);

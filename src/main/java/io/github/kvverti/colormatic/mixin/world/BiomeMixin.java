@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,19 +20,13 @@ package io.github.kvverti.colormatic.mixin.world;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import io.github.kvverti.colormatic.properties.PseudoBlockStates;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.Lazy;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.biome.Biome;
-
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.fluid.Fluids;
+import net.minecraft.world.biome.Biome;
 
 /**
  * Provides sky color and underwater color customization capability.
@@ -40,16 +34,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Biome.class)
 public abstract class BiomeMixin {
 
-    @Unique
-    private static Lazy<BlockState> WATER_FOG = new Lazy<>(() ->
-        PseudoBlockStates.FLUID_FOG.getDefaultState()
-        .with(PseudoBlockStates.FLUID, Registry.FLUID.getId(Fluids.WATER)));
-
     @Inject(method = "getWaterFogColor", at = @At("HEAD"), cancellable = true)
     private void onUnderwaterColor(CallbackInfoReturnable<Integer> info) {
         Biome self = (Biome)(Object)this;
-        if(BiomeColormaps.isCustomColored(WATER_FOG.get())) {
-            BiomeColormap colormap = BiomeColormaps.get(WATER_FOG.get(), self);
+        if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
+            BiomeColormap colormap = BiomeColormaps.getFluidFog(Fluids.WATER, self);
             if(colormap != null) {
                 info.setReturnValue(colormap.getColor(self));
             } else {

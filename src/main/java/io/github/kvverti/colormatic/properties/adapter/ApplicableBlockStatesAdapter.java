@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,20 +17,21 @@
  */
 package io.github.kvverti.colormatic.properties.adapter;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.properties.ApplicableBlockStates;
-import io.github.kvverti.colormatic.properties.PseudoBlockStates;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -41,6 +42,8 @@ import net.minecraft.util.InvalidIdentifierException;
 import net.minecraft.util.registry.Registry;
 
 public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockStates> {
+
+    private static final Logger logger = LogManager.getLogger();
 
     @Override
     public void write(JsonWriter out, ApplicableBlockStates value) throws IOException {
@@ -72,7 +75,8 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
                 // a qualified name like `minecraft:grass_block:snowy=false`
                 Identifier id = new Identifier(parts[0], parts[1]);
                 if(parts[0].equals(Colormatic.MODID)) {
-                    b = PseudoBlockStates.getPseudoBlock(id);
+                    initSpecialBlockStates(res, id, parts);
+                    return res;
                 } else {
                     b = Registry.BLOCK.get(id);
                 }
@@ -84,9 +88,6 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
             }
         } catch(InvalidIdentifierException e) {
             throw new JsonSyntaxException("Invalid block identifier: " + blockDesc, e);
-        }
-        if(b == null) {
-            throw new JsonSyntaxException("Block not found: " + blockDesc);
         }
         res.block = b;
         BlockStatePredicate pred = BlockStatePredicate.forBlock(b);
@@ -127,6 +128,29 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
             res.states.clear();
         }
         return res;
+    }
+
+    private static void initSpecialBlockStates(ApplicableBlockStates res, Identifier id, String[] parts) {
+        res.specialKey = id;
+        // parts[0] == id namespace, parts[1] == id path
+        if(parts.length != 3) {
+            logger.warn("Special identifier does not specify sole property: {}", Arrays.toString(parts));
+        } else {
+            for(int i = 2; i < parts.length; i++) {
+                int split = parts[i].indexOf('=');
+                if(split < 0) {
+                    throw new JsonSyntaxException("Invalid property syntax: " + parts[i]);
+                }
+                String[] propValues = parts[i].substring(split + 1).split(",");
+                for(String value : propValues) {
+                    Identifier val = Identifier.tryParse(value.replaceFirst("/", ":"));
+                    if(val == null) {
+                        throw new JsonSyntaxException("Invalid identifier value: " + value);
+                    }
+                    res.specialIds.add(val);
+                }
+            }
+        }
     }
 
     private static <T extends Comparable<T>> void putPropValue(Property<T> prop, String s, List<? super T> values) {

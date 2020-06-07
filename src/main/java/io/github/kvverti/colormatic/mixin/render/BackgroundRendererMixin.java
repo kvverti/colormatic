@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,20 +20,6 @@ package io.github.kvverti.colormatic.mixin.render;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import io.github.kvverti.colormatic.properties.PseudoBlockStates;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.render.BackgroundRenderer;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.util.Lazy;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.dimension.Dimension;
-import net.minecraft.world.dimension.DimensionType;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -44,6 +30,14 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.client.render.BackgroundRenderer;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
+
 /**
  * Provides air and underlava fog color and customization capability.
  */
@@ -52,53 +46,54 @@ public abstract class BackgroundRendererMixin {
 
     // shadow members
 
-    @Shadow private static float red;
-    @Shadow private static float green;
-    @Shadow private static float blue;
+    @Shadow
+    private static float red;
+    @Shadow
+    private static float green;
+    @Shadow
+    private static float blue;
 
-    @Redirect(
+    @Unique
+    private static int storedFogColor;
+
+    @Inject(
         method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/world/ClientWorld;getFogColor(F)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
         )
     )
-    private static Vec3d proxyFogColor(ClientWorld self, float partialTicks, Camera camera, float foo1, ClientWorld self2, int foo2, float partialTicks2) {
-        Dimension dim = self.getDimension();
-        if(Colormatic.config().clearSky && dim.hasVisibleSky()) {
-            return self.method_23777(camera.getBlockPos(), partialTicks);
+    private static void storeCustomFogColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
+        DimensionType dimType = world.getDimension();
+        BlockPos pos = camera.getBlockPos();
+        if(Colormatic.config().clearSky && dimType.hasSkyLight()) {
+            storedFogColor = 0;
+            return;
         }
-        DimensionType dimType = dim.getType();
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
-        BlockState state = PseudoBlockStates.SKY_FOG.getDefaultState()
-            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(dimType));
-        if(BiomeColormaps.isCustomColored(state)) {
-            color = 0xff000000 | BiomeColormaps.getBiomeColor(state, self, camera.getBlockPos());
-        } else if(dimType == DimensionType.OVERWORLD && Colormatic.FOG_COLORS.hasCustomColormap()) {
+        if(BiomeColormaps.isSkyFogCustomColored(dimType)) {
+            color = 0xff000000 | BiomeColormaps.getSkyFogColor(dimType, world, pos);
+        } else if(dimType == DimensionType.getOverworldDimensionType() && Colormatic.FOG_COLORS.hasCustomColormap()) {
             // overworld colors fog by biome
             color = 0xff000000 | BiomeColormap.getBiomeColor(
-                self,
-                camera.getBlockPos(),
+                world,
+                pos,
                 Colormatic.FOG_COLORS.getColormap());
         }
-        if(color != 0) {
-            double r = ((color >> 16) & 0xff) / 255.0;
-            double g = ((color >>  8) & 0xff) / 255.0;
-            double b = ((color >>  0) & 0xff) / 255.0;
-            // time-of-day calculations, assumes typical day-night cycle
-            // (i.e. time 6000 = noon and 18000 = midnight)
-            if(dimType.hasSkyLight()) {
-                float daytimeAngle = self.getSkyAngle(partialTicks);
-                float float_3 = MathHelper.cos(daytimeAngle * 2.0f * (float)Math.PI) * 2.0F + 0.5F;
-                float_3 = MathHelper.clamp(float_3, 0.0F, 1.0F);
-                r *= float_3 * 0.94F + 0.06F;
-                g *= float_3 * 0.94F + 0.06F;
-                b *= float_3 * 0.91F + 0.09F;
-            }
-            return new Vec3d(r, g, b);
-        } else {
-            return self.getFogColor(partialTicks);
-        }
+        storedFogColor = color;
+    }
+
+    // lambda method wrapping Biome#getFogColor inside #render
+    @SuppressWarnings("UnresolvedMixinReference")
+    @Redirect(
+        method = "method_24873",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/biome/Biome;getFogColor()I"
+        )
+    )
+    private static int proxyCustomFogColor(Biome self) {
+        return storedFogColor != 0 ? storedFogColor : self.getFogColor();
     }
 
     @Unique
@@ -163,11 +158,6 @@ public abstract class BackgroundRendererMixin {
         return scale;
     }
 
-    @Unique
-    private static final Lazy<BlockState> LAVA_FOG = new Lazy<>(() ->
-        PseudoBlockStates.FLUID_FOG.getDefaultState()
-        .with(PseudoBlockStates.FLUID, Registry.FLUID.getId(Fluids.LAVA)));
-
     /* Relevant bytecode:
      *  50: ldc           #122                // float 0.6f
      *  52: putfield      #124                // Field red:F
@@ -187,7 +177,7 @@ public abstract class BackgroundRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "FIELD",
-                target = "Lnet/minecraft/tag/FluidTags;LAVA:Lnet/minecraft/tag/Tag;"
+                target = "Lnet/minecraft/tag/FluidTags;LAVA:Lnet/minecraft/tag/Tag$Identified;"
             )
         ),
         at = @At(
@@ -198,19 +188,19 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private static void onRenderLavaFog(Camera camera, float partialTicks, ClientWorld world, int int1, float float1, CallbackInfo info) {
-        if(BiomeColormaps.isCustomColored(LAVA_FOG.get())) {
-            int color = BiomeColormaps.getBiomeColor(LAVA_FOG.get(), world, camera.getBlockPos());
+        if(BiomeColormaps.isFluidFogCustomColored(Fluids.LAVA)) {
+            int color = BiomeColormaps.getFluidFogColor(Fluids.LAVA, world, camera.getBlockPos());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
-            BackgroundRendererMixin.green = ((color >>  8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >>  0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
         } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(
                 world,
                 camera.getBlockPos(),
                 Colormatic.UNDERLAVA_COLORS.getColormap());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
-            BackgroundRendererMixin.green = ((color >>  8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >>  0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
         }
     }
 }

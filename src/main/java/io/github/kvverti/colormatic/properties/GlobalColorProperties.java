@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,8 +17,6 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import com.google.gson.JsonParseException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -26,6 +24,11 @@ import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.gson.JsonParseException;
+import io.github.kvverti.colormatic.Colormatic;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.block.MaterialColor;
 import net.minecraft.entity.EntityType;
@@ -39,9 +42,6 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 /**
  * The global color.json file. It's a monster.
  */
@@ -50,8 +50,8 @@ public class GlobalColorProperties {
     private static final Logger log = LogManager.getLogger();
 
     private final Map<ColoredParticle, HexColor> particle;
-    private final Map<DimensionType, HexColor> dimensionFog;
-    private final Map<DimensionType, HexColor> dimensionSky;
+    private final Map<Identifier, HexColor> dimensionFog;
+    private final Map<Identifier, HexColor> dimensionSky;
     private final int lilypad;
     private final Map<StatusEffect, HexColor> potions;
     private final Map<DyeColor, HexColor> sheep;
@@ -68,8 +68,8 @@ public class GlobalColorProperties {
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
-        this.dimensionFog = convertMap(settings.fog, Registry.DIMENSION);
-        this.dimensionSky = convertMap(settings.sky, Registry.DIMENSION);
+        this.dimensionFog = convertIdMap(settings.fog);
+        this.dimensionSky = convertIdMap(settings.sky);
         this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
         this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;
@@ -111,6 +111,17 @@ public class GlobalColorProperties {
         }
     }
 
+    private Map<Identifier, HexColor> convertIdMap(Map<String, HexColor> map) {
+        Map<Identifier, HexColor> res = new HashMap<>();
+        for(Map.Entry<String, HexColor> entry : map.entrySet()) {
+            Identifier id = Identifier.tryParse(entry.getKey());
+            if(id != null) {
+                res.put(id, entry.getValue());
+            }
+        }
+        return res;
+    }
+
     private static <T> Map<T, HexColor> convertMap(Map<String, HexColor> initial, Registry<T> registry) {
         Map<T, HexColor> res = new HashMap<>();
         for(Map.Entry<String, HexColor> entry : initial.entrySet()) {
@@ -128,8 +139,8 @@ public class GlobalColorProperties {
             int col = entry.getValue().get();
             float[] rgb = new float[3];
             rgb[0] = ((col >> 16) & 0xff) / 255.0f;
-            rgb[1] = ((col >>  8) & 0xff) / 255.0f;
-            rgb[2] = ((col >>  0) & 0xff) / 255.0f;
+            rgb[1] = ((col >> 8) & 0xff) / 255.0f;
+            rgb[2] = ((col >> 0) & 0xff) / 255.0f;
             res.put(entry.getKey(), rgb);
         }
         return res;
@@ -179,11 +190,11 @@ public class GlobalColorProperties {
     }
 
     public int getDimensionFog(DimensionType type) {
-        return getColor(type, dimensionFog);
+        return getColor(Colormatic.getDimId(type), dimensionFog);
     }
 
     public int getDimensionSky(DimensionType type) {
-        return getColor(type, dimensionSky);
+        return getColor(Colormatic.getDimId(type), dimensionSky);
     }
 
     public int getLilypad() {
@@ -274,6 +285,7 @@ public class GlobalColorProperties {
     // not sure if Optifine changed their color.properties keys over to
     // the official string IDs yet, but in case they haven't here they are
     private static final Map<String, String> keyRemap;
+
     static {
         keyRemap = new HashMap<>();
         keyRemap.put("nether", "the_nether");

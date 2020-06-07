@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.fluid.Fluid;
+import net.minecraft.util.Identifier;
 
 /**
  * Class used internally by ColormapProperties. This is public so its adapter
@@ -32,4 +34,6 @@ public class ApplicableBlockStates {
 
     public Block block = Blocks.AIR;
     public Collection<BlockState> states = new ArrayList<>();
+    public Identifier specialKey = null;
+    public Collection<Identifier> specialIds = new ArrayList<>();
 }

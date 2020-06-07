@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,16 +21,16 @@ import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 import io.github.kvverti.colormatic.resource.CustomBiomeColormapsResource;
 import io.github.kvverti.colormatic.resource.GlobalColorResource;
 import io.github.kvverti.colormatic.resource.GlobalLightmapResource;
+import io.github.kvverti.colormatic.resource.LightmapsResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
-import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.event.registry.RegistryEntryAddedCallback;
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
+
+import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 
 public class Colormatic implements ClientModInitializer {
 
@@ -68,6 +68,8 @@ public class Colormatic implements ClientModInitializer {
         new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
     public static final GlobalLightmapResource LIGHTMAP_PROPS =
         new GlobalLightmapResource(new Identifier(MODID, "lightmap.json"));
+    public static final LightmapsResource LIGHTMAPS =
+        new LightmapsResource(new Identifier(MODID, "lightmap"));
     public static final GlobalColorResource COLOR_PROPS =
         new GlobalColorResource(new Identifier(MODID, "color"));
 
@@ -77,9 +79,12 @@ public class Colormatic implements ClientModInitializer {
         return config;
     }
 
+    public static Identifier getDimId(DimensionType type) {
+        return MinecraftClient.getInstance().getNetworkHandler().method_29091().getDimensionTypeRegistry().getId(type);
+    }
+
     @Override
     public void onInitializeClient() {
-
         ColormaticConfigController.load(config);
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
@@ -98,17 +103,11 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(EXPERIENCE_ORB_COLORS);
         client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
+        client.registerReloadListener(LIGHTMAPS);
         // Note: we don't register this as a reload listener here because it
         // has to be loaded before vanilla resources (namely banner textures).
         // In order to do this, we mix in to TextureManager and directly call
         // its reloading method before any textures are loaded.
         // client.registerReloadListener(COLOR_PROPS);
-
-        RegistryEntryAddedCallback.event(Registry.DIMENSION)
-            .register(Lightmaps::registerLightmapReload);
-        // callbacks don't get run for already registered dim types
-        for(DimensionType type : DimensionType.getAll()) {
-            Lightmaps.registerLightmapReload(type.getRawId(), DimensionType.getId(type), type);
-        }
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,25 +53,29 @@ public abstract class RedstoneWireBlockMixin extends Block {
 
     /*
      * Relevant bytecode:
-     *  13: istore        5
-     *  15: iload         5
-     *  17: ifne          21    <--- if (int_1 != 0)
-     *  20: return
+     * L1
+     *  LINENUMBER 447 L1
+     *  ILOAD 5
+     *  IFNE L2                  // if(i != 0)
+     * L3
+     *  LINENUMBER 448 L3
+     *  RETURN
+     * L2
+     *  LINENUMBER 450 L2
+     *  FRAME APPEND [I]
      *  <injection point>
-     *  21: aload_3
-     *  22: invokevirtual #513                // Method net/minecraft/util/math/BlockPos.getX:()I
-     *  25: i2d
-     *  26: ldc2_w        #514                // double 0.5d
+     *  GETSTATIC net/minecraft/util/math/Direction$Type.HORIZONTAL : Lnet/minecraft/util/math/Direction$Type;
+     *  INVOKEVIRTUAL net/minecraft/util/math/Direction$Type.iterator ()Ljava/util/Iterator;
+     *  ASTORE 6
      */
     @Inject(
         method = "randomDisplayTick",
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/math/BlockPos;getX()I",
-            ordinal = 0,
-            shift = At.Shift.BEFORE
+            value = "FIELD",
+            target = "Lnet/minecraft/util/math/Direction$Type;HORIZONTAL:Lnet/minecraft/util/math/Direction$Type;",
+            ordinal = 0
         ),
-        locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+        locals = LocalCapture.CAPTURE_FAILHARD,
         cancellable = true
     )
     private void onRandomDisplayTick(BlockState state, World world, BlockPos pos, Random rand, CallbackInfo info, int power) {

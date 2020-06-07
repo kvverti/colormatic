@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -15,50 +15,31 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.resource;
+package io.github.kvverti.colormatic.colormap;
 
 import io.github.kvverti.colormatic.Colormatic;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.Executor;
-import java.util.concurrent.CompletableFuture;
-
-import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.resource.Resource;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.profiler.Profiler;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * A lightmap texture.
  */
-public class LightmapResource implements SimpleResourceReloadListener<NativeImage> {
+public class Lightmap {
 
     private static final Logger log = LogManager.getLogger();
 
-    private final Identifier id;
-    private final Identifier optifineId;
-    private NativeImage lightmap;
+    private final NativeImage lightmap;
 
-    public LightmapResource(Identifier id, String optifinePath) {
-        this.id = id;
-        this.optifineId = new Identifier("minecraft", "optifine/" + optifinePath);
-    }
-
-    @Override
-    public Identifier getFabricId() {
-        return id;
+    public Lightmap(NativeImage lightmap) {
+        this.lightmap = lightmap;
     }
 
     /**
      * Returns whether a resource pack defines this custom lightmap.
      */
+    @Deprecated
     public boolean hasCustomColormap() {
         return lightmap != null;
     }
@@ -67,9 +48,6 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
      * Returns the color for the given block light level.
      */
     public int getBlockLight(int level, float flicker, float nightVision) {
-        if(lightmap == null) {
-            throw new IllegalStateException("No custom lightmap present: " + id);
-        }
         int width = lightmap.getWidth();
         int posX = (int)(flicker * width) % width;
         if(posX < 0) {
@@ -85,9 +63,6 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
      * right in order to provide a smooth transition between ambience levels.
      */
     public int getSkyLight(int level, float ambience, float nightVision) {
-        if(lightmap == null) {
-            throw new IllegalStateException("No custom lightmap present: " + id);
-        }
         if(ambience < 0) {
             // lightning
             int posX = lightmap.getWidth() - 1;
@@ -117,13 +92,13 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
                 int color = lightmap.getPixelRgba(x, y);
                 int r = (color >> 16) & 0xff;
-                int g = (color >>  8) & 0xff;
-                int b = (color >>  0) & 0xff;
+                int g = (color >> 8) & 0xff;
+                int b = (color >> 0) & 0xff;
                 int scale = Math.max(Math.max(r, g), b);
                 int ret = 0xff000000;
                 ret |= (255 * r / scale) << 16;
-                ret |= (255 * g / scale) <<  8;
-                ret |= (255 * b / scale) <<  0;
+                ret |= (255 * g / scale) << 8;
+                ret |= (255 * b / scale) << 0;
                 nightVisionColor = ret;
             } else {
                 nightVisionColor = lightmap.getPixelRgba(x, y + 32);
@@ -153,36 +128,5 @@ public class LightmapResource implements SimpleResourceReloadListener<NativeImag
         chb = b & 0xff;
         res |= (int)(cha * aweight + chb * oneMinusAweight);
         return res;
-    }
-
-    @Override
-    public CompletableFuture<NativeImage> load(ResourceManager manager, Profiler profiler, Executor executor) {
-        return CompletableFuture.supplyAsync(() -> {
-            try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
-                return NativeImage.read(in);
-            } catch(IOException e) {
-                // try optifine ID
-                try(Resource rsc = manager.getResource(optifineId); InputStream in = rsc.getInputStream()) {
-                    return NativeImage.read(in);
-                } catch(IOException e2) {
-                    // no lightmap
-                    return null;
-                }
-            }
-        }, executor);
-    }
-
-    @Override
-    public CompletableFuture<Void> apply(NativeImage data, ResourceManager manager, Profiler profiler, Executor executor) {
-        return CompletableFuture.runAsync(() -> {
-            if(data != null &&
-                    (data.getWidth() < 2 ||
-                    (data.getHeight() != 32 && data.getHeight() != 64))) {
-                log.warn("Lightmap image dimensions must be nX32 or nX64: " + id);
-                lightmap = null;
-            } else {
-                lightmap = data;
-            }
-        }, executor);
     }
 }

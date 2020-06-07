@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,10 +17,8 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import com.google.gson.JsonSyntaxException;
-
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -32,6 +30,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.JsonSyntaxException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.resource.Resource;
@@ -40,9 +42,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
 
 /**
  * A colormap properties structure, specified by a `.properties` file.
@@ -102,6 +101,7 @@ public class ColormapProperties {
      * The default mapping of biomes to columns.
      */
     private static final Map<Biome, ColumnBounds> defaultColumns;
+
     static {
         defaultColumns = new HashMap<>();
         for(Biome b : Registry.BIOME) {
@@ -160,7 +160,7 @@ public class ColormapProperties {
     }
 
     public Format getFormat() {
-    	return format;
+        return format;
     }
 
     public HexColor getColor() {
@@ -172,7 +172,7 @@ public class ColormapProperties {
     }
 
     public int getVariance() {
-    	return yVariance;
+        return yVariance;
     }
 
     public int getOffset() {
@@ -187,8 +187,8 @@ public class ColormapProperties {
      * are based on the biome's raw ID.
      *
      * @throws IllegalArgumentException if the colormap does not apply to the
-     *     given biome
-     * @throws IllegalStateException if the format is not grid format
+     *                                  given biome
+     * @throws IllegalStateException    if the format is not grid format
      */
     public ColumnBounds getColumn(Biome biome) {
         if(format == Format.GRID) {
@@ -224,7 +224,7 @@ public class ColormapProperties {
     public Set<Block> getApplicableBlocks() {
         Set<Block> res = new HashSet<>();
         for(ApplicableBlockStates a : blocks) {
-            if(a.states.isEmpty()) {
+            if(a.specialKey == null && a.states.isEmpty()) {
                 res.add(a.block);
             }
         }
@@ -234,7 +234,19 @@ public class ColormapProperties {
     public Set<BlockState> getApplicableBlockStates() {
         Set<BlockState> res = new HashSet<>();
         for(ApplicableBlockStates a : blocks) {
-            res.addAll(a.states);
+            if(a.specialKey == null) {
+                res.addAll(a.states);
+            }
+        }
+        return res;
+    }
+
+    public Map<Identifier, Collection<Identifier>> getApplicableSpecialIds() {
+        Map<Identifier, Collection<Identifier>> res = new HashMap<>();
+        for(ApplicableBlockStates a : blocks) {
+            if(a.specialKey != null) {
+                res.put(a.specialKey, a.specialIds);
+            }
         }
         return res;
     }
@@ -268,9 +280,12 @@ public class ColormapProperties {
 
         public static Format byName(String name) {
             switch(name) {
-                case "fixed": return FIXED;
-                case "grid": return GRID;
-                default: return VANILLA;
+            case "fixed":
+                return FIXED;
+            case "grid":
+                return GRID;
+            default:
+                return VANILLA;
             }
         }
     }

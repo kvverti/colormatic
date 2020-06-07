@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,13 +32,13 @@ public abstract class ChatFormatMixin {
 
     @Shadow public abstract boolean isColor();
 
-    @Inject(method = "getColorValue", at = @At("HEAD"), cancellable = true)
-    private void onColor(CallbackInfoReturnable<Integer> info) {
-        if(isColor()) {
-            int color = Colormatic.COLOR_PROPS.getProperties().getText((Formatting)(Object)this);
-            if(color != 0) {
-                info.setReturnValue(color);
-            }
-        }
-    }
+//    @Inject(method = "getColorValue", at = @At("HEAD"), cancellable = true)
+//    private void onColor(CallbackInfoReturnable<Integer> info) {
+//        if(isColor()) {
+//            int color = Colormatic.COLOR_PROPS.getProperties().getText((Formatting)(Object)this);
+//            if(color != 0) {
+//                info.setReturnValue(color);
+//            }
+//        }
+//    }
 }

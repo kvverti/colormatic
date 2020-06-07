@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,25 +17,21 @@
  */
 package io.github.kvverti.colormatic.mixin.world;
 
-import net.minecraft.client.MinecraftClient;
-import io.github.kvverti.colormatic.colormap.ColormaticResolver;
-import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import io.github.kvverti.colormatic.colormap.ColormaticBlockRenderView;
-import io.github.kvverti.colormatic.properties.PseudoBlockStates;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
-
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import io.github.kvverti.colormatic.colormap.ColormaticBlockRenderView;
+import io.github.kvverti.colormatic.colormap.ColormaticResolver;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
+import net.minecraft.world.dimension.DimensionType;
 
 /**
  * Provides global sky color customization capability.
@@ -44,7 +40,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public abstract class ClientWorldMixin extends World implements ColormaticBlockRenderView {
 
     private ClientWorldMixin() {
-        super(null, null, null, null, false);
+        super(null, null, null, null, null, false, false, 0L);
     }
 
     @Redirect(
@@ -55,12 +51,10 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
         )
     )
     private int proxySkyColor(Biome self, BlockPos pos, float partialTicks) {
-        DimensionType type = this.dimension.getType();
-        BlockState state = PseudoBlockStates.SKY.getDefaultState()
-            .with(PseudoBlockStates.DIMENSION, Registry.DIMENSION.getId(type));
-        if(BiomeColormaps.isCustomColored(state)) {
-            return BiomeColormaps.getBiomeColor(state, this, pos);
-        } else if(type == DimensionType.OVERWORLD && Colormatic.SKY_COLORS.hasCustomColormap()) {
+        DimensionType type = this.getDimension();
+        if(BiomeColormaps.isSkyCustomColored(type)) {
+            return BiomeColormaps.getSkyColor(type, this, pos);
+        } else if(type == DimensionType.getOverworldDimensionType() && Colormatic.SKY_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             return BiomeColormap.getBiomeColor(this, pos, colormap);
         } else {

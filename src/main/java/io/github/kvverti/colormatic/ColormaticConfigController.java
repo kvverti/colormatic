@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,6 +30,7 @@ import java.util.Properties;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.TranslatableText;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
@@ -51,27 +52,27 @@ public final class ColormaticConfigController {
     public static Screen getConfigScreen(ColormaticConfig config, Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
             .setParentScreen(parent)
-            .setTitle("colormatic.config.title")
+            .setTitle(new TranslatableText("colormatic.config.title"))
             .setSavingRunnable(() -> persist(config));
-        builder.getOrCreateCategory("colormatic.config.category.fog")
+        builder.getOrCreateCategory(new TranslatableText("colormatic.config.category.fog"))
             .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle("colormatic.config.option.clearSky", config.clearSky)
+                .startBooleanToggle(new TranslatableText("colormatic.config.option.clearSky"), config.clearSky)
                 .setDefaultValue(defaults.clearSky)
                 .setSaveConsumer(value -> config.clearSky = value)
                 .build())
             .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle("colormatic.config.option.clearVoid", config.clearVoid)
+                .startBooleanToggle(new TranslatableText("colormatic.config.option.clearVoid"), config.clearVoid)
                 .setDefaultValue(defaults.clearVoid)
                 .setSaveConsumer(value -> config.clearVoid = value)
                 .build());
-        builder.getOrCreateCategory("colormatic.config.category.light")
+        builder.getOrCreateCategory(new TranslatableText("colormatic.config.category.light"))
             .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle("colormatic.config.option.blendSkyLight", config.blendSkyLight)
+                .startBooleanToggle(new TranslatableText("colormatic.config.option.blendSkyLight"), config.blendSkyLight)
                 .setDefaultValue(defaults.blendSkyLight)
                 .setSaveConsumer(value -> config.blendSkyLight = value)
                 .build())
             .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle("colormatic.config.option.flickerBlockLight", config.flickerBlockLight)
+                .startBooleanToggle(new TranslatableText("colormatic.config.option.flickerBlockLight"), config.flickerBlockLight)
                 .setDefaultValue(defaults.flickerBlockLight)
                 .setSaveConsumer(value -> config.flickerBlockLight = value)
                 .build());
