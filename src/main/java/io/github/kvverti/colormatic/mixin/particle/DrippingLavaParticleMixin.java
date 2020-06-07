@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -42,7 +42,7 @@ public abstract class DrippingLavaParticleMixin extends SpriteBillboardParticle 
     private int age;
 
     @Inject(
-        method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/fluid/Fluid;Lnet/minecraft/particle/ParticleEffect;)V",
+        method = "<init>(Lnet/minecraft/client/world/ClientWorld;DDDLnet/minecraft/fluid/Fluid;Lnet/minecraft/particle/ParticleEffect;)V",
         at = @At("RETURN")
     )
     private void onConstruct(CallbackInfo info) {

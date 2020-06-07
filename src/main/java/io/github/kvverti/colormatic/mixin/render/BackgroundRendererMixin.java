@@ -21,6 +21,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -85,8 +86,7 @@ public abstract class BackgroundRendererMixin {
         storedFogColor = color;
     }
 
-    // lambda method wrapping Biome#getFogColor inside #render
-    @SuppressWarnings("UnresolvedMixinReference")
+    @Dynamic("RgbFetcher lambda method in #render")
     @Redirect(
         method = "method_24873",
         at = @At(

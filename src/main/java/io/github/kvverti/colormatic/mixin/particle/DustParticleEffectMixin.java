@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -18,12 +18,11 @@
 package io.github.kvverti.colormatic.mixin.particle;
 
 import io.github.kvverti.colormatic.particle.CustomColoredRedDustParticle;
-
-import net.minecraft.particle.DustParticleEffect;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.particle.DustParticleEffect;
 
 /**
  * Replace the redstone dust particle with one that takes its color
@@ -32,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 @Mixin(DustParticleEffect.class)
 public abstract class DustParticleEffectMixin {
 
+    @SuppressWarnings("UnresolvedMixinReference")
     @Redirect(
         method = "<clinit>",
         at = @At(
