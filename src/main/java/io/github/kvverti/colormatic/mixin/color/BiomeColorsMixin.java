@@ -47,7 +47,7 @@ public abstract class BiomeColorsMixin {
     private static void onWaterColorPre(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
         FluidState fluidState = world.getBlockState(pos).getFluidState();
         BlockState state = fluidState.getBlockState();
-        if(fluidState.matches(FluidTags.WATER) && BiomeColormaps.isCustomColored(state)) {
+        if(fluidState.isIn(FluidTags.WATER) && BiomeColormaps.isCustomColored(state)) {
             info.setReturnValue(BiomeColormaps.getBiomeColor(state, world, pos));
         } else if(Colormatic.WATER_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.WATER_COLORS.getColormap();

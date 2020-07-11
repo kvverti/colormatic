@@ -51,7 +51,7 @@ public class MaterialColorAdapter extends TypeAdapter<MaterialColor> {
 
     static {
         materialColors = new HashMap<>();
-        materialColors.put("air", MaterialColor.AIR);
+        materialColors.put("air", MaterialColor.CLEAR);
         materialColors.put("grass", MaterialColor.GRASS);
         materialColors.put("sand", MaterialColor.SAND);
         materialColors.put("cloth", MaterialColor.WEB);

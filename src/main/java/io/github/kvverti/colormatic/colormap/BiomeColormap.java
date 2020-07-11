@@ -52,12 +52,12 @@ public class BiomeColormap implements ColormaticResolver {
     private final int computeDefaultColor(ColormapProperties props) {
         switch(props.getFormat()) {
             case VANILLA:
-                return colormap.getPixelRgba(128, 128);
+                return colormap.getPixelColor(128, 128);
             case GRID:
                 try {
                     int x = props.getColumn(Biomes.PLAINS).column;
                     int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
-                    return colormap.getPixelRgba(x, y);
+                    return colormap.getPixelColor(x, y);
                 } catch(IllegalArgumentException e) {
                     return 0xffffffff;
                 }
@@ -82,7 +82,7 @@ public class BiomeColormap implements ColormaticResolver {
         if(x >= colormap.getWidth() || y >= colormap.getHeight()) {
             return 0xffff00ff;
         }
-        return colormap.getPixelRgba(x, y);
+        return colormap.getPixelColor(x, y);
     }
 
     /**
@@ -121,7 +121,7 @@ public class BiomeColormap implements ColormaticResolver {
                 }
                 x %= colormap.getWidth();
                 y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
-                return colormap.getPixelRgba(x, y);
+                return colormap.getPixelColor(x, y);
             case FIXED:
                 return getDefaultColor();
         }

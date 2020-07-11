@@ -169,12 +169,12 @@ public class PropertyUtil {
             // colormap expects ARGB, but NativeImage is ABGR
             for(int x = 0; x < image.getWidth(); x++) {
                 for(int y = 0; y < image.getHeight(); y++) {
-                    int pix = image.getPixelRgba(x, y);
+                    int pix = image.getPixelColor(x, y);
                     int tmp = (pix & 0xff0000) >> 16;
                     tmp |= (pix & 0x0000ff) << 16;
                     pix &= ~(0xff0000 | 0x0000ff);
                     pix |= tmp;
-                    image.setPixelRgba(x, y, pix);
+                    image.setPixelColor(x, y, pix);
                 }
             }
             // cross-reference image dimensions with colormap format

@@ -181,7 +181,7 @@ public abstract class LightmapTextureManagerMixin {
                     color |= (int)(r * 255.0f) << 16;
                     color |= (int)(g * 255.0f) <<  8;
                     color |= (int)(b * 255.0f) <<  0;
-                    this.image.setPixelRgba(blockLight, skyLight, color);
+                    this.image.setPixelColor(blockLight, skyLight, color);
                 }
             }
             // do the cleanup because we cancel the default

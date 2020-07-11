@@ -80,7 +80,7 @@ public class Colormatic implements ClientModInitializer {
     }
 
     public static Identifier getDimId(DimensionType type) {
-        return MinecraftClient.getInstance().getNetworkHandler().method_29091().getDimensionTypeRegistry().getId(type);
+        return MinecraftClient.getInstance().getNetworkHandler().getRegistryTracker().getDimensionTypeRegistry().getId(type);
     }
 
     @Override
