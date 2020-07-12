@@ -6,6 +6,7 @@ plugins {
 repositories {
 	maven { url = "https://minecraft.curseforge.com/api/maven" }
 	maven { url = 'http://maven.sargunv.s3-website-us-west-2.amazonaws.com/' }
+	maven { url = 'https://jitpack.io' }
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
@@ -33,6 +34,8 @@ dependencies {
 	modImplementation("io.github.prospector:modmenu:${project.mod_menu_version}") {
 		transitive = false
 	}
+	modCompileOnly "com.github.jellysquid3:sodium-fabric:8c8ce1b"
+	modRuntime "com.github.jellysquid3:sodium-fabric:8c8ce1b"
 
 	include "me.shedaniel.cloth:config-2:${project.cloth_config_version}"
 }

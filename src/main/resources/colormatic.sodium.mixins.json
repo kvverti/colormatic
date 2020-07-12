@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.kvverti.colormatic.mixinsodium",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "color.SodiumBlockColorsMixin",
+    "world.WorldSliceMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
