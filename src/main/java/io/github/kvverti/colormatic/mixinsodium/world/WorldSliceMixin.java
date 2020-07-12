@@ -14,7 +14,7 @@ import net.minecraft.world.biome.Biome;
 @Mixin(WorldSlice.class)
 public abstract class WorldSliceMixin extends ReusableObject implements ColormaticBlockRenderView {
 
-    @Shadow
+    @Shadow(remap = false)
     public native Biome getCachedBiome(int x, int z);
 
     /**
