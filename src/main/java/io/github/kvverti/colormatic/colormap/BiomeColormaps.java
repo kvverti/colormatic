@@ -236,7 +236,7 @@ public final class BiomeColormaps {
             }
         }
         ColormaticResolver resolver = getResolver(state);
-        return ((ColormaticBlockRenderView) world).colormatic_getColor(pos, resolver);
+        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, resolver);
     }
 
     public static int getSkyColor(DimensionType dim, BlockRenderView world, BlockPos pos) {
@@ -270,6 +270,6 @@ public final class BiomeColormaps {
         if(resolver == null) {
             throw new IllegalStateException("Resolver for existing colormap cannot be null: " + key);
         }
-        return ((ColormaticBlockRenderView) world).colormatic_getColor(pos, resolver);
+        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, resolver);
     }
 }
