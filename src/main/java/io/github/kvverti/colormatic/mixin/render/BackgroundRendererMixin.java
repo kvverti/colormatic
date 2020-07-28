@@ -118,7 +118,7 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
-        if(Colormatic.config().clearSky) {
+        if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
             Vec3d color = world.method_23777(camera.getBlockPos(), partialTicks);
             BackgroundRendererMixin.red = (float)color.x;
             BackgroundRendererMixin.green = (float)color.y;
@@ -163,6 +163,12 @@ public abstract class BackgroundRendererMixin {
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/client/render/BackgroundRenderer;lastWaterFogColorUpdateTime:J"
+        ),
+        slice = @Slice(
+            from = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"
+            )
         )
     )
     private static void resetRainAndThunderColors(CallbackInfo info) {
