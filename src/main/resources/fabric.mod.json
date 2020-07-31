@@ -36,12 +36,9 @@
     "fabric": ">=0.3.0"
   },
   "recommends": {
-    "modmenu": ">=1.7.0"
+    "modmenu": ">=1.12.0"
   },
   "suggests": {
     "flamingo": "*"
-  },
-  "custom": {
-    "modmenu:clientsideOnly": true
   }
 }

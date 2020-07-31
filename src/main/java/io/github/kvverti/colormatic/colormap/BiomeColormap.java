@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -101,7 +101,7 @@ public class BiomeColormap implements ColormaticResolver {
             case VANILLA:
                 double temp = pos == null ? biome.getTemperature() : biome.getTemperature(pos);
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
-                double rain = MathHelper.clamp(biome.getRainfall(), 0.0F, 1.0F);
+                double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
                 ColumnBounds cb = properties.getColumn(biome);

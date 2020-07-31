@@ -34,8 +34,8 @@ dependencies {
 	modImplementation("io.github.prospector:modmenu:${project.mod_menu_version}") {
 		transitive = false
 	}
-	modCompileOnly "com.github.jellysquid3:sodium-fabric:20efff5"
-	modRuntime "com.github.jellysquid3:sodium-fabric:20efff5"
+	modCompileOnly "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
+//	modRuntime "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
 
 	include "me.shedaniel.cloth:config-2:${project.cloth_config_version}"
 }

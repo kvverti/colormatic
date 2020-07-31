@@ -49,7 +49,6 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
     @Shadow private float field_21528;
-    @Shadow @Final private GameRenderer worldRenderer;
     @Shadow @Final private MinecraftClient client;
 
     // Vanilla block light flicker calculation is no longer compatible

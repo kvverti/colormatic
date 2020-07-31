@@ -28,10 +28,9 @@ import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.TranslatableText;
-
-import net.fabricmc.loader.api.FabricLoader;
 
 /**
  * This class holds functions that control loading, opening, and persisting
@@ -106,7 +105,7 @@ public final class ColormaticConfigController {
     }
 
     static {
-        configFile = new File(FabricLoader.getInstance().getConfigDirectory(), "colormatic.properties");
+        configFile = new File(FabricLoader.getInstance().getConfigDir().toFile(), "colormatic.properties");
         try {
             if(configFile.createNewFile()) {
                 persist(new ColormaticConfig());
