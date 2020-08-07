@@ -76,7 +76,7 @@ public abstract class BackgroundRendererMixin {
         int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
         if(BiomeColormaps.isSkyFogCustomColored(dimType)) {
             color = 0xff000000 | BiomeColormaps.getSkyFogColor(dimType, world, pos);
-        } else if(dimType == DimensionType.getOverworldDimensionType() && Colormatic.FOG_COLORS.hasCustomColormap()) {
+        } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(dimType) == DimensionType.OVERWORLD_ID) {
             // overworld colors fog by biome
             color = 0xff000000 | BiomeColormap.getBiomeColor(
                 world,

@@ -29,8 +29,9 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.BuiltinRegistries;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BuiltInBiomes;
 import net.minecraft.world.dimension.DimensionType;
 
 public class Colormatic implements ClientModInitializer {
@@ -80,25 +81,21 @@ public class Colormatic implements ClientModInitializer {
         return config;
     }
 
-    private static final Identifier OVERWORLD_ID = new Identifier("overworld");
-
     public static Identifier getDimId(DimensionType type) {
         Identifier id = MinecraftClient.getInstance().getNetworkHandler().getRegistryManager().getDimensionTypes().getId(type);
         if(id == null) {
             // I have gotten reports of crashes caused by the dimension ID being null. This should never happen,
             // but may perhaps occur if the client tries to render the sky or fog before it receives the list
             // of dimensions. In this case, default to the overworld and hope no one caches the result.
-            id = OVERWORLD_ID;
+            id = DimensionType.OVERWORLD_ID;
         }
         return id;
     }
 
-    private static final Identifier PLAINS_ID = new Identifier("plains");
-
     public static Identifier getBiomeId(Biome biome) {
-        Identifier id = BuiltinRegistries.BIOME.getId(biome);
+        Identifier id = MinecraftClient.getInstance().getNetworkHandler().getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
         if(id == null) {
-            id = PLAINS_ID;
+            id = BuiltInBiomes.PLAINS.getValue();
         }
         return id;
     }

@@ -40,7 +40,7 @@ import net.minecraft.world.dimension.DimensionType;
 public abstract class ClientWorldMixin extends World implements ColormaticBlockRenderView {
 
     private ClientWorldMixin() {
-        super(null, null, null, null, null, false, false, 0L);
+        super(null, null, null, null, false, false, 0L);
     }
 
     @Redirect(
@@ -54,7 +54,7 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
         DimensionType type = this.getDimension();
         if(BiomeColormaps.isSkyCustomColored(type)) {
             return BiomeColormaps.getSkyColor(type, this, pos);
-        } else if(type == DimensionType.getOverworldDimensionType() && Colormatic.SKY_COLORS.hasCustomColormap()) {
+        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(type) == DimensionType.OVERWORLD_ID) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             return BiomeColormap.getBiomeColor(this, pos, colormap);
         } else {
