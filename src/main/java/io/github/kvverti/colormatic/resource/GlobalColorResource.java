@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -20,7 +20,6 @@ package io.github.kvverti.colormatic.resource;
 import io.github.kvverti.colormatic.properties.GlobalColorProperties;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -28,7 +27,7 @@ public class GlobalColorResource implements SimpleSynchronousResourceReloadListe
 
     private final Identifier id;
     private final Identifier optifineId;
-    private GlobalColorProperties properties;
+    private GlobalColorProperties properties = GlobalColorProperties.DEFAULT;
 
     public GlobalColorResource(Identifier id) {
         this.id = new Identifier(id.getNamespace(), id.getPath() + ".json");
@@ -41,14 +40,15 @@ public class GlobalColorResource implements SimpleSynchronousResourceReloadListe
     }
 
     public GlobalColorProperties getProperties() {
-    	return properties;
+        return properties;
     }
 
     @Override
     public void apply(ResourceManager manager) {
-        properties = GlobalColorProperties.load(manager, id, false);
-        if(properties == null) {
-            properties = GlobalColorProperties.load(manager, optifineId, true);
+        GlobalColorProperties props = GlobalColorProperties.load(manager, id, false);
+        if(props == null) {
+            props = GlobalColorProperties.load(manager, optifineId, true);
         }
+        properties = props;
     }
 }

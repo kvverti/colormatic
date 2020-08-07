@@ -20,7 +20,6 @@ package io.github.kvverti.colormatic.properties;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +48,8 @@ import net.minecraft.world.dimension.DimensionType;
 public class GlobalColorProperties {
 
     private static final Logger log = LogManager.getLogger();
+
+    public static final GlobalColorProperties DEFAULT = new GlobalColorProperties(new Settings());
 
     private final Map<ColoredParticle, HexColor> particle;
     private final Map<Identifier, HexColor> dimensionFog;
@@ -158,7 +159,7 @@ public class GlobalColorProperties {
             for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
                 EntityType<?> type = registry.get(new Identifier(entry.getKey()));
                 if(type != null) {
-                    res.put(type, new int[] { entry.getValue().get(), 0 });
+                    res.put(type, new int[]{ entry.getValue().get(), 0 });
                 }
             }
             for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
@@ -316,7 +317,7 @@ public class GlobalColorProperties {
                 return loadFromJson(r, id);
             }
         } catch(IOException e) {
-            return fall ? loadFromJson(new StringReader("{}"), id) : null;
+            return fall ? GlobalColorProperties.DEFAULT : null;
         }
     }
 
