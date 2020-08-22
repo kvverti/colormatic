@@ -17,18 +17,19 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
+import java.util.Random;
+
+import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 import io.github.kvverti.colormatic.properties.ColormapProperties.ColumnBounds;
 import io.github.kvverti.colormatic.properties.HexColor;
-
-import java.util.Random;
 
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.Biomes;
+import net.minecraft.world.biome.BiomeKeys;
 
 public class BiomeColormap implements ColormaticResolver {
 
@@ -49,13 +50,13 @@ public class BiomeColormap implements ColormaticResolver {
         }
     }
 
-    private final int computeDefaultColor(ColormapProperties props) {
+    private int computeDefaultColor(ColormapProperties props) {
         switch(props.getFormat()) {
             case VANILLA:
                 return colormap.getPixelColor(128, 128);
             case GRID:
                 try {
-                    int x = props.getColumn(Biomes.PLAINS).column;
+                    int x = props.getColumn(BiomeKeys.PLAINS).column;
                     int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
                     return colormap.getPixelColor(x, y);
                 } catch(IllegalArgumentException e) {
@@ -104,7 +105,7 @@ public class BiomeColormap implements ColormaticResolver {
                 double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
-                ColumnBounds cb = properties.getColumn(biome);
+                ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(biome));
                 int x;
                 int y;
                 if(pos != null) {

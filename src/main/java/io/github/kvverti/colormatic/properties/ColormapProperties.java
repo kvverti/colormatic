@@ -41,6 +41,7 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 
 /**
@@ -181,10 +182,10 @@ public class ColormapProperties {
      *                                  given biome
      * @throws IllegalStateException    if the format is not grid format
      */
-    public ColumnBounds getColumn(Biome biome) {
+    public ColumnBounds getColumn(RegistryKey<Biome> biome) {
         if(format == Format.GRID) {
             if(biome != null) {
-                Identifier id = Colormatic.getBiomeId(biome);
+                Identifier id = biome.getValue();
                 if(columnsByBiome != null) {
                     ColumnBounds cb = columnsByBiome.get(id);
                     if(cb == null) {

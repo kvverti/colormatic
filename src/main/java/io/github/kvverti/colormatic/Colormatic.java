@@ -30,8 +30,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BuiltInBiomes;
+import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionType;
 
 public class Colormatic implements ClientModInitializer {
@@ -95,9 +96,18 @@ public class Colormatic implements ClientModInitializer {
     public static Identifier getBiomeId(Biome biome) {
         Identifier id = MinecraftClient.getInstance().getNetworkHandler().getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
         if(id == null) {
-            id = BuiltInBiomes.PLAINS.getValue();
+            id = BiomeKeys.PLAINS.getValue();
         }
         return id;
+    }
+
+    public static RegistryKey<Biome> getBiomeKey(Biome biome) {
+        return MinecraftClient.getInstance()
+            .getNetworkHandler()
+            .getRegistryManager()
+            .get(Registry.BIOME_KEY)
+            .getKey(biome)
+            .orElse(BiomeKeys.PLAINS);
     }
 
     @Override
