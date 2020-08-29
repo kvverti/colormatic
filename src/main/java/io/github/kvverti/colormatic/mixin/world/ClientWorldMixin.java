@@ -61,7 +61,7 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
         DimensionType type = this.getDimension();
         if(BiomeColormaps.isSkyCustomColored(type)) {
             return BiomeColormaps.getSkyColor(type, this, pos);
-        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(type) == DimensionType.OVERWORLD_ID) {
+        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(type).equals(DimensionType.OVERWORLD_ID)) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             return BiomeColormap.getBiomeColor(this, pos, colormap);
         } else {

@@ -272,6 +272,7 @@ public class GlobalColorProperties {
 
     public enum ColoredParticle implements StringIdentifiable {
         WATER("water"),
+        LAVA("lava"),
         PORTAL("portal");
 
         private final String name;
