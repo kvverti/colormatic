@@ -80,7 +80,8 @@ public abstract class WorldSliceMixin extends ReusableObject implements Colormat
 
     // so we don't create an object
     @ModifyVariable(method = "reset", ordinal = 0, at = @At(value = "LOAD", ordinal = 0), remap = false)
-    private void resetColormaticColor(BiomeCache[] unused) {
+    private BiomeCache[] resetColormaticColor(BiomeCache[] unused) {
         customColorCache.clear();
+        return unused;
     }
 }
