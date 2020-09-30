@@ -35,7 +35,7 @@ dependencies {
 		transitive = false
 	}
 	modCompileOnly "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
-//	modRuntime "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
+	modRuntime "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
 
 	include "me.shedaniel.cloth:config-2:${project.cloth_config_version}"
 }

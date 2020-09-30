@@ -23,11 +23,6 @@ import io.github.prospector.modmenu.api.ModMenuApi;
 public class ColormaticModMenu implements ModMenuApi {
 
     @Override
-    public String getModId() {
-        return Colormatic.MODID;
-    }
-
-    @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         return parent -> ColormaticConfigController.getConfigScreen(Colormatic.config(), parent);
     }
