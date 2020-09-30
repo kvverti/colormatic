@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2020  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -35,7 +35,7 @@ public class HexColorAdapter extends TypeAdapter<HexColor> {
             in.nextNull();
             throw new JsonSyntaxException(new NullPointerException("Required nonnull"));
         }
-        String s = in.nextString();
+        String s = in.nextString().trim();
         try {
             return new HexColor(Integer.parseInt(s, 16));
         } catch(NumberFormatException e) {
