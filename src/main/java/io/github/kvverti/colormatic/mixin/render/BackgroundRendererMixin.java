@@ -56,6 +56,28 @@ public abstract class BackgroundRendererMixin {
     @Shadow
     private static float blue;
 
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/biome/Biome;getWaterFogColor()I"
+        )
+    )
+    private static int proxyWaterFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+        if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
+            BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), Fluids.WATER, biome);
+            if(colormap != null) {
+                return colormap.getColor(world.getRegistryManager(), biome);
+            } else {
+                return 0xffffffff;
+            }
+        } else if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
+            return Colormatic.UNDERWATER_COLORS.getColormap().getColor(world.getRegistryManager(), biome);
+        } else {
+            return biome.getWaterFogColor();
+        }
+    }
+
     @Unique
     private static int storedFogColor;
 
@@ -73,10 +95,10 @@ public abstract class BackgroundRendererMixin {
             storedFogColor = 0;
             return;
         }
-        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
-        if(BiomeColormaps.isSkyFogCustomColored(dimType)) {
-            color = 0xff000000 | BiomeColormaps.getSkyFogColor(dimType, world, pos);
-        } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(dimType).equals(DimensionType.OVERWORLD_ID)) {
+        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(world);
+        if(BiomeColormaps.isSkyFogCustomColored(world)) {
+            color = 0xff000000 | BiomeColormaps.getSkyFogColor(world, pos);
+        } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(world).equals(DimensionType.OVERWORLD_ID)) {
             // overworld colors fog by biome
             color = 0xff000000 | BiomeColormap.getBiomeColor(
                 world,

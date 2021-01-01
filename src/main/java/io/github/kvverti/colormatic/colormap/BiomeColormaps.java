@@ -33,10 +33,11 @@ import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockRenderView;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionType;
 
 /**
  * Class that provides efficient access to biome colors on
@@ -82,12 +83,12 @@ public final class BiomeColormaps {
         private ColormaticResolver createResolver(K key) {
             ThreadLocal<Biome> lastBiome = new ThreadLocal<>();
             ThreadLocal<BiomeColormap> map = new ThreadLocal<>();
-            return (biome, pos) -> {
+            return (manager, biome, pos) -> {
                 if(lastBiome.get() != biome) {
-                    map.set(get(this, key, biome));
+                    map.set(get(this, manager, key, biome));
                     lastBiome.set(biome);
                 }
-                return map.get() != null ? map.get().getColor(biome, pos) : 0xffffff;
+                return map.get() != null ? map.get().getColor(manager, biome, pos) : 0xffffff;
             };
         }
 
@@ -133,23 +134,23 @@ public final class BiomeColormaps {
      * Retrieves the colormap that applies to the given block state and biome.
      * Returns `null` if there are no colormaps that apply.
      */
-    public static BiomeColormap get(BlockState state, Biome biome) {
-        BiomeColormap res = get(colormapsByState, state, biome);
+    public static BiomeColormap get(DynamicRegistryManager manager, BlockState state, Biome biome) {
+        BiomeColormap res = get(colormapsByState, manager, state, biome);
         if(res == null) {
-            res = get(colormapsByBlock, state.getBlock(), biome);
+            res = get(colormapsByBlock, manager, state.getBlock(), biome);
         }
         return res;
     }
 
-    public static BiomeColormap getFluidFog(Fluid fluid, Biome biome) {
-        return get(fluidFogColormaps, fluid, biome);
+    public static BiomeColormap getFluidFog(DynamicRegistryManager manager, Fluid fluid, Biome biome) {
+        return get(fluidFogColormaps, manager, fluid, biome);
     }
 
     /**
      * Retrieves the colormap that applies to the given map
      */
-    private static <K> BiomeColormap get(ColormapStorage<K> storage, K key, Biome biome) {
-        BiomeColormap res = storage.colormaps.get(key, Colormatic.getBiomeId(biome));
+    private static <K> BiomeColormap get(ColormapStorage<K> storage, DynamicRegistryManager manager, K key, Biome biome) {
+        BiomeColormap res = storage.colormaps.get(key, Colormatic.getBiomeId(manager, biome));
         if(res == null) {
             res = storage.fallbackColormaps.get(key);
         }
@@ -192,12 +193,12 @@ public final class BiomeColormaps {
         return colormapsByBlock.contains(state.getBlock()) || colormapsByState.contains(state);
     }
 
-    public static boolean isSkyCustomColored(DimensionType dim) {
-        return skyColormaps.contains(Colormatic.getDimId(dim));
+    public static boolean isSkyCustomColored(World world) {
+        return skyColormaps.contains(Colormatic.getDimId(world));
     }
 
-    public static boolean isSkyFogCustomColored(DimensionType dim) {
-        return skyFogColormaps.contains(Colormatic.getDimId(dim));
+    public static boolean isSkyFogCustomColored(World world) {
+        return skyFogColormaps.contains(Colormatic.getDimId(world));
     }
 
     public static boolean isFluidFogCustomColored(Fluid fluid) {
@@ -221,13 +222,13 @@ public final class BiomeColormaps {
         return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, resolver);
     }
 
-    public static int getSkyColor(DimensionType dim, BlockRenderView world, BlockPos pos) {
-        Identifier id = Colormatic.getDimId(dim);
+    public static int getSkyColor(World world, BlockPos pos) {
+        Identifier id = Colormatic.getDimId(world);
         return getBiomeColor(skyColormaps, id, world, pos);
     }
 
-    public static int getSkyFogColor(DimensionType dim, BlockRenderView world, BlockPos pos) {
-        Identifier id = Colormatic.getDimId(dim);
+    public static int getSkyFogColor(World world, BlockPos pos) {
+        Identifier id = Colormatic.getDimId(world);
         return getBiomeColor(skyFogColormaps, id, world, pos);
     }
 

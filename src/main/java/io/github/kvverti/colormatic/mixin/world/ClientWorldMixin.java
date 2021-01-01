@@ -26,6 +26,7 @@ import io.github.kvverti.colormatic.colormap.ColormaticBlockRenderView;
 import io.github.kvverti.colormatic.colormap.ColormaticResolver;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,6 +37,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
@@ -45,6 +47,8 @@ import net.minecraft.world.dimension.DimensionType;
  */
 @Mixin(ClientWorld.class)
 public abstract class ClientWorldMixin extends World implements ColormaticBlockRenderView {
+
+    @Shadow public abstract DynamicRegistryManager getRegistryManager();
 
     private ClientWorldMixin() {
         super(null, null, null, null, false, false, 0L);
@@ -58,14 +62,13 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
         )
     )
     private int proxySkyColor(Biome self, BlockPos pos, float partialTicks) {
-        DimensionType type = this.getDimension();
-        if(BiomeColormaps.isSkyCustomColored(type)) {
-            return BiomeColormaps.getSkyColor(type, this, pos);
-        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(type).equals(DimensionType.OVERWORLD_ID)) {
+        if(BiomeColormaps.isSkyCustomColored(this)) {
+            return BiomeColormaps.getSkyColor(this, pos);
+        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(this).equals(DimensionType.OVERWORLD_ID)) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             return BiomeColormap.getBiomeColor(this, pos, colormap);
         } else {
-            int color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(type);
+            int color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(this);
             if(color != 0) {
                 return color;
             }
@@ -96,7 +99,7 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
             pos.getX() + radius, pos.getY(), pos.getZ() + radius);
         for(BlockPos curpos : coll) {
             Biome biome = this.getBiomeAccess().getBiome(curpos);
-            int color = resolver.getColor(biome, curpos);
+            int color = resolver.getColor(this.getRegistryManager(), biome, curpos);
             r += (color & 0xff0000) >> 16;
             g += (color & 0x00ff00) >> 8;
             b += (color & 0x0000ff);

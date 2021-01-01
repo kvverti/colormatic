@@ -27,6 +27,7 @@ import io.github.kvverti.colormatic.properties.HexColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
@@ -89,15 +90,15 @@ public class BiomeColormap implements ColormaticResolver {
     /**
      * Returns a color given by the custom colormap for the given biome.
      */
-    public int getColor(Biome biome) {
-        return getColor(biome, null);
+    public int getColor(DynamicRegistryManager manager, Biome biome) {
+        return getColor(manager, biome, null);
     }
 
     /**
      * Returns a color given by the custom colormap for the given biome and
      * BlockPos.
      */
-    public int getColor(Biome biome, BlockPos pos) {
+    public int getColor(DynamicRegistryManager manager, Biome biome, BlockPos pos) {
         switch(properties.getFormat()) {
             case VANILLA:
                 double temp = pos == null ? biome.getTemperature() : biome.getTemperature(pos);
@@ -105,7 +106,7 @@ public class BiomeColormap implements ColormaticResolver {
                 double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
-                ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(biome));
+                ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome));
                 int x;
                 int y;
                 if(pos != null) {

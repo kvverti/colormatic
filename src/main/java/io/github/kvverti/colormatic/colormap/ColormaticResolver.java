@@ -18,10 +18,11 @@
 package io.github.kvverti.colormatic.colormap;
 
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.biome.Biome;
 
 @FunctionalInterface
 public interface ColormaticResolver {
 
-    int getColor(Biome biome, BlockPos pos);
+    int getColor(DynamicRegistryManager manager, Biome biome, BlockPos pos);
 }

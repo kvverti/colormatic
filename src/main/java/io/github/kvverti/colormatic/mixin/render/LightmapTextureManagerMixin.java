@@ -120,7 +120,7 @@ public abstract class LightmapTextureManagerMixin {
         if(world == null) {
             return;
         }
-        Lightmap map = Lightmaps.get(world.getDimension());
+        Lightmap map = Lightmaps.get(world);
         if(map != null) {
             int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
             float nightVision;

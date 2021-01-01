@@ -23,7 +23,7 @@ import java.util.Map;
 import io.github.kvverti.colormatic.colormap.Lightmap;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 
 /**
  * Container class for lightmap resource associations.
@@ -32,8 +32,8 @@ public final class Lightmaps {
 
     private static final Map<Identifier, Lightmap> lightmaps = new HashMap<>();
 
-    public static Lightmap get(DimensionType type) {
-        return lightmaps.get(Colormatic.getDimId(type));
+    public static Lightmap get(World world) {
+        return lightmaps.get(Colormatic.getDimId(world));
     }
 
     public static void addLightmap(Identifier id, Lightmap lightmap) {

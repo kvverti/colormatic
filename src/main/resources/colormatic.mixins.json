@@ -15,6 +15,8 @@
     "dye.TextureManagerMixin",
     "dye.WolfCollarFeatureRendererMixin",
     "item.SpawnEggItemMixin",
+    "network.ClientPlayNetworkHandlerMixin",
+    "network.GameJoinS2CPacketMixin",
     "particle.DrippingLavaParticleMixin",
     "particle.DustParticleEffectMixin",
     "particle.FallingLavaParticleFactoryMixin",
@@ -32,7 +34,6 @@
     "text.ChatFormatMixin",
     "text.DyeColorMixin",
     "text.InGameHudMixin",
-    "world.BiomeMixin",
     "world.ChunkRendererRegionMixin",
     "world.ClientWorldMixin",
     "xp.ExperienceOrbEntityRendererMixin"

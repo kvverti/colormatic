@@ -26,6 +26,7 @@ import me.jellysquid.mods.sodium.client.world.WorldSlice;
 import me.jellysquid.mods.sodium.client.world.biome.BiomeCache;
 import me.jellysquid.mods.sodium.common.util.pool.ReusableObject;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,12 +35,17 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
-@Mixin(WorldSlice.class)
+@Pseudo
+@Mixin(value = WorldSlice.class, remap = false)
 public abstract class WorldSliceMixin extends ReusableObject implements ColormaticBlockRenderView {
 
-    @Shadow(remap = false)
+    @Shadow
+    private World world;
+
+    @Shadow
     public native Biome getCachedBiome(int x, int z);
 
     /**
@@ -69,7 +75,7 @@ public abstract class WorldSliceMixin extends ReusableObject implements Colormat
             pos.getX() + radius, pos.getY(), pos.getZ() + radius);
         for(BlockPos curpos : coll) {
             Biome biome = this.getCachedBiome(curpos.getX(), curpos.getZ());
-            int color = resolver.getColor(biome, curpos);
+            int color = resolver.getColor(this.world.getRegistryManager(), biome, curpos);
             r += (color & 0xff0000) >> 16;
             g += (color & 0x00ff00) >> 8;
             b += (color & 0x0000ff);
@@ -79,7 +85,7 @@ public abstract class WorldSliceMixin extends ReusableObject implements Colormat
     }
 
     // so we don't create an object
-    @ModifyVariable(method = "reset", ordinal = 0, at = @At(value = "LOAD", ordinal = 0), remap = false)
+    @ModifyVariable(method = "reset", ordinal = 0, at = @At(value = "LOAD", ordinal = 0))
     private BiomeCache[] resetColormaticColor(BiomeCache[] unused) {
         customColorCache.clear();
         return unused;

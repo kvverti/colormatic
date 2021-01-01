@@ -40,7 +40,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 
 /**
  * The global color.json file. It's a monster.
@@ -193,12 +193,12 @@ public class GlobalColorProperties {
         return getColor(part, particle);
     }
 
-    public int getDimensionFog(DimensionType type) {
-        return getColor(Colormatic.getDimId(type), dimensionFog);
+    public int getDimensionFog(World world) {
+        return getColor(Colormatic.getDimId(world), dimensionFog);
     }
 
-    public int getDimensionSky(DimensionType type) {
-        return getColor(Colormatic.getDimId(type), dimensionSky);
+    public int getDimensionSky(World world) {
+        return getColor(Colormatic.getDimId(world), dimensionSky);
     }
 
     public int getLilypad() {
