@@ -140,12 +140,18 @@ public class BiomeColormap implements ColormaticResolver {
     /**
      * Retrieves the biome coloring for the given block position, taking into
      * account the client's biome blend options If either `world` or `pos` is
-     * null, this returns the colormap's default color.
+     * null, this returns the colormap's default color. Also returns 
+     * colormap's default color if the wrong BlockRenderView type is passed.
      */
     public static int getBiomeColor(BlockRenderView world, BlockPos pos, BiomeColormap colormap) {
         if(world == null || pos == null) {
             return colormap.getDefaultColor();
         }
-        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, colormap);
+        try {
+            return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, colormap);
+        }
+        catch(Exception e) {
+            return colormap.getDefaultColor();
+        }
     }
 }
