@@ -90,15 +90,20 @@ public class Lightmap {
             if(lightmap.getHeight() != 64) {
                 // night vision is calculated as
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
+                // But if max(r, g, b) is 0, We will use just white. (divide 0 exception)
                 int color = lightmap.getPixelColor(x, y);
                 int r = (color >> 16) & 0xff;
                 int g = (color >> 8) & 0xff;
                 int b = (color >> 0) & 0xff;
                 int scale = Math.max(Math.max(r, g), b);
                 int ret = 0xff000000;
-                ret |= (255 * r / scale) << 16;
-                ret |= (255 * g / scale) << 8;
-                ret |= (255 * b / scale) << 0;
+                if (scale != 0) {
+                    ret |= (255 * r / scale) << 16;
+                    ret |= (255 * g / scale) << 8;
+                    ret |= (255 * b / scale) << 0;
+                } else {
+                    ret |= 0x00ffffff; // white :)
+                }
                 nightVisionColor = ret;
             } else {
                 nightVisionColor = lightmap.getPixelColor(x, y + 32);
