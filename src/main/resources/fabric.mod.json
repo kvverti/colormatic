@@ -4,14 +4,14 @@
   "version": "${version}",
 
   "name": "Colormatic",
-  "description": "Adds the ability to customize colors hardcoded in vanilla.",
+  "description": "Adds the ability to customize colors hardcoded in vanilla. Contains fix for a crash with Litematica",
   "authors": [
     "kwerti"
   ],
   "contact": {
     "homepage": "https://github.com/kvverti/colormatic",
     "issues": "https://github.com/kvverti/colormatic/issues",
-    "sources": "https://github.com/kvverti/colormatic"
+    "sources": "https://github.com/helpimnotdrowning/colormatic"
   },
 
   "license": "LGPL-3",
