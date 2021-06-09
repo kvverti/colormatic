@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,7 +66,7 @@ public class ColormapProperties {
      */
     private final Collection<ApplicableBlockStates> blocks;
 
-    /**
+    /**s
      * The colormap image. If not specified, it is taken from the file name
      * of the properties file.
      */
@@ -250,7 +249,7 @@ public class ColormapProperties {
             format,
             blocks,
             source,
-            color == null ? 0 : color.get(),
+            color == null ? 0 : color.rgb(),
             yVariance,
             yOffset);
     }
@@ -272,14 +271,11 @@ public class ColormapProperties {
         }
 
         public static Format byName(String name) {
-            switch(name) {
-                case "fixed":
-                    return FIXED;
-                case "grid":
-                    return GRID;
-                default:
-                    return VANILLA;
-            }
+            return switch(name) {
+                case "fixed" -> FIXED;
+                case "grid" -> GRID;
+                default -> VANILLA;
+            };
         }
     }
 

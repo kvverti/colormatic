@@ -122,7 +122,7 @@ public abstract class LightmapTextureManagerMixin {
         }
         Lightmap map = Lightmaps.get(world);
         if(map != null) {
-            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
+            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().blockWane();
             float nightVision;
             PlayerEntity player = this.client.player;
             if(player.isSubmergedInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {

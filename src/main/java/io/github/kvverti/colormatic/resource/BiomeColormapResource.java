@@ -82,6 +82,6 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
                 pi = null;
             }
         }
-        colormap = pi == null ? null : new BiomeColormap(pi.properties, pi.image);
+        colormap = pi == null ? null : new BiomeColormap(pi.properties(), pi.image());
     }
 }

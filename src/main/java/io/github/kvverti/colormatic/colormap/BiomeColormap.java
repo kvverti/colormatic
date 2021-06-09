@@ -45,7 +45,7 @@ public class BiomeColormap implements ColormaticResolver {
         colormap = image;
         HexColor col = props.getColor();
         if(col != null) {
-            defaultColor = col.get();
+            defaultColor = col.rgb();
         } else {
             defaultColor = computeDefaultColor(props);
         }

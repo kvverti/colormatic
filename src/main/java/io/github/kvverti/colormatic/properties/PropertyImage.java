@@ -17,20 +17,10 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import io.github.kvverti.colormatic.properties.ColormapProperties;
-
 import net.minecraft.client.texture.NativeImage;
 
 /**
  * Biome properties with their associated colormap image.
  */
-public class PropertyImage {
-
-    public final ColormapProperties properties;
-    public final NativeImage image;
-
-    public PropertyImage(ColormapProperties p, NativeImage i) {
-        properties = p;
-        image = i;
-    }
+public record PropertyImage(ColormapProperties properties, NativeImage image) {
 }

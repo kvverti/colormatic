@@ -20,32 +20,11 @@ package io.github.kvverti.colormatic.properties;
 /**
  * Represents a hexadecimal color in ARGB format with full alpha.
  */
-public final class HexColor {
+public record HexColor(int rgb) {
 
     public static final HexColor WHITE = new HexColor(0xffffff);
 
-    private final int color;
-
-    public HexColor(int col) {
-        color = 0xff000000 | col;
-    }
-
-    public int get() {
-        return color;
-    }
-
-    @Override
-    public String toString() {
-        return Integer.toHexString(color);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof HexColor && color == ((HexColor)obj).color;
-    }
-
-    @Override
-    public int hashCode() {
-        return color;
+    public HexColor {
+        rgb |= 0xff000000;
     }
 }

@@ -72,7 +72,7 @@ public class GlobalColorProperties {
         this.particle = settings.particle;
         this.dimensionFog = convertIdMap(settings.fog);
         this.dimensionSky = convertIdMap(settings.sky);
-        this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
+        this.lilypad = settings.lilypad != null ? settings.lilypad.rgb() : 0;
         this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;
         this.sheepRgb = toRgb(settings.sheep);
@@ -90,11 +90,11 @@ public class GlobalColorProperties {
                 int code = entry.getKey();
                 if(code < 16) {
                     Formatting color = Formatting.byColorIndex(code);
-                    textColor.put(color, TextColor.fromRgb(entry.getValue().get()));
+                    textColor.put(color, TextColor.fromRgb(entry.getValue().rgb()));
                 }
             }
             for(Map.Entry<Formatting, HexColor> entry : text.format.entrySet()) {
-                this.textColor.put(entry.getKey(), TextColor.fromRgb(entry.getValue().get()));
+                this.textColor.put(entry.getKey(), TextColor.fromRgb(entry.getValue().rgb()));
             }
             text.code = Collections.emptyMap();
             text.format = Collections.emptyMap();
@@ -140,11 +140,11 @@ public class GlobalColorProperties {
     private static <T> Map<T, float[]> toRgb(Map<T, HexColor> map) {
         Map<T, float[]> res = new HashMap<>();
         for(Map.Entry<T, HexColor> entry : map.entrySet()) {
-            int col = entry.getValue().get();
+            int col = entry.getValue().rgb();
             float[] rgb = new float[3];
             rgb[0] = ((col >> 16) & 0xff) / 255.0f;
             rgb[1] = ((col >> 8) & 0xff) / 255.0f;
-            rgb[2] = ((col >> 0) & 0xff) / 255.0f;
+            rgb[2] = (col & 0xff) / 255.0f;
             res.put(entry.getKey(), rgb);
         }
         return res;
@@ -158,27 +158,21 @@ public class GlobalColorProperties {
             LegacyEggColor legacy = settings.egg;
             for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
                 EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-                if(type != null) {
-                    res.put(type, new int[]{ entry.getValue().get(), 0 });
-                }
+                res.put(type, new int[]{ entry.getValue().rgb(), 0 });
             }
             for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
                 EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-                if(type != null) {
-                    int[] colors = res.computeIfAbsent(type, t -> new int[2]);
-                    colors[1] = entry.getValue().get();
-                }
+                int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+                colors[1] = entry.getValue().rgb();
             }
         }
         // handle colormatic egg colors
         for(Map.Entry<String, HexColor[]> entry : settings.spawnegg.entrySet()) {
             EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-            if(type != null) {
-                int[] colors = res.computeIfAbsent(type, t -> new int[2]);
-                HexColor[] hexColors = entry.getValue();
-                for(int i = 0; i < Math.min(2, hexColors.length); i++) {
-                    colors[i] = hexColors[i].get();
-                }
+            int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+            HexColor[] hexColors = entry.getValue();
+            for(int i = 0; i < Math.min(2, hexColors.length); i++) {
+                colors[i] = hexColors[i].rgb();
             }
         }
         return res;
@@ -186,7 +180,7 @@ public class GlobalColorProperties {
 
     private static <T> int getColor(T key, Map<T, HexColor> map) {
         HexColor col = map.get(key);
-        return col != null ? col.get() : 0;
+        return col != null ? col.rgb() : 0;
     }
 
     public int getParticle(ColoredParticle part) {
@@ -243,7 +237,7 @@ public class GlobalColorProperties {
     }
 
     private int getColor(HexColor col) {
-        return col != null ? col.get() : 0;
+        return col != null ? col.rgb() : 0;
     }
 
     public int getXpText() {

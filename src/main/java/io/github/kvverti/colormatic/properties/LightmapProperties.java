@@ -17,35 +17,29 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import com.google.gson.JsonParseException;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.IOException;
+
+import com.google.gson.JsonParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
-public class LightmapProperties {
+/**
+ * @param blockWane Specifies at what sky light level block light should start waning. If the sky
+ *                  light level is greater than this value, block light is taken from
+ *                  `blocklight - (skylight - wane)`, floored at 0.
+ */
+public record LightmapProperties(int blockWane) {
 
     private static final Logger log = LogManager.getLogger();
 
-    /**
-     * Specifies at what sky light level block light should start waning. If the sky
-     * light level is greater than this value, block light is taken from
-     * `blocklight - (skylight - wane)`, floored at 0.
-     */
-    private final int blockWane;
-
     private LightmapProperties(Settings settings) {
-        this.blockWane = settings.blockWane;
-    }
-
-    public int getBlockWane() {
-        return blockWane;
+        this(settings.blockWane);
     }
 
     /**

@@ -48,7 +48,7 @@ public class HexColorAdapter extends TypeAdapter<HexColor> {
         if(value == null) {
             out.nullValue();
         } else {
-            out.value(Integer.toHexString(value.get()));
+            out.value(Integer.toHexString(value.rgb()));
         }
     }
 }
