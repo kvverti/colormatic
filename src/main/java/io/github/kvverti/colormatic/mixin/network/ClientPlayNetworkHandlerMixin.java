@@ -46,7 +46,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
         )
     )
     private DimensionType fixDimensionTypeOnPlayerRespawn(DimensionType target) {
-        Registry<DimensionType> registry = this.registryManager.getDimensionTypes();
+        Registry<DimensionType> registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
         for(DimensionType dimType : registry) {
             if(dimType.equals(target)) {
                 return dimType;

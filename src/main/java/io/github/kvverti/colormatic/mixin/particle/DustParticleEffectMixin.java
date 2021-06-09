@@ -23,6 +23,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.util.math.Vec3f;
 
 /**
  * Replace the redstone dust particle with one that takes its color
@@ -40,7 +41,7 @@ public abstract class DustParticleEffectMixin {
             ordinal = 0
         )
     )
-    private static DustParticleEffect proxyRedDust(float r, float g, float b, float a) {
-        return new CustomColoredRedDustParticle(r, g, b, a);
+    private static DustParticleEffect proxyRedDust(Vec3f color, float a) {
+        return new CustomColoredRedDustParticle(color, a);
     }
 }

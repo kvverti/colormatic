@@ -20,7 +20,6 @@ package io.github.kvverti.colormatic.resource;
 import io.github.kvverti.colormatic.properties.LightmapProperties;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -39,11 +38,11 @@ public class GlobalLightmapResource implements SimpleSynchronousResourceReloadLi
     }
 
     public LightmapProperties getProperties() {
-    	return properties;
+        return properties;
     }
 
     @Override
-    public void apply(ResourceManager manager) {
+    public void reload(ResourceManager manager) {
         properties = LightmapProperties.load(manager, id);
     }
 }

@@ -18,7 +18,9 @@
 package io.github.kvverti.colormatic.mixin.network;
 
 import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,9 +34,12 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(GameJoinS2CPacket.class)
 public abstract class GameJoinS2CPacketMixin {
 
+    @Final
+    @Mutable
     @Shadow
     private DimensionType dimensionType;
 
+    @Final
     @Shadow
     private DynamicRegistryManager.Impl registryManager;
 
@@ -43,7 +48,7 @@ public abstract class GameJoinS2CPacketMixin {
      * type.
      */
     @Inject(
-        method = "read",
+        method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;dimensionType:Lnet/minecraft/world/dimension/DimensionType;",
@@ -54,7 +59,7 @@ public abstract class GameJoinS2CPacketMixin {
     )
     private void fixDimensionType(CallbackInfo info) {
         DimensionType target = this.dimensionType;
-        Registry<DimensionType> registry = this.registryManager.getDimensionTypes();
+        Registry<DimensionType> registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
         for(DimensionType dimType : registry) {
             if(dimType.equals(target)) {
                 this.dimensionType = dimType;

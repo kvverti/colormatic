@@ -18,29 +18,22 @@
 package io.github.kvverti.colormatic.mixin.dye;
 
 import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.block.entity.BannerBlockEntity;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
-import net.minecraft.util.DyeColor;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
+import net.minecraft.util.DyeColor;
 
 /**
  * Applies custom colors to banner textures. This requires colors.json
  * to be reloaded beforehand. See TextureManagerMixin.
  */
 @Mixin(BannerBlockEntityRenderer.class)
-public abstract class BannerBlockEntityRendererMixin extends BlockEntityRenderer<BannerBlockEntity> {
-
-    private BannerBlockEntityRendererMixin() {
-        super(null);
-    }
+public abstract class BannerBlockEntityRendererMixin {
 
     @Redirect(
-        method = "renderCanvas",
+        method = "renderCanvas(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/model/ModelPart;Lnet/minecraft/client/util/SpriteIdentifier;ZLjava/util/List;Z)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/DyeColor;getColorComponents()[F"

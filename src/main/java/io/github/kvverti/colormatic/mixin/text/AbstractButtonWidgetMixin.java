@@ -20,14 +20,14 @@ package io.github.kvverti.colormatic.mixin.text;
 import io.github.kvverti.colormatic.Colormatic;
 
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
-@Mixin(AbstractButtonWidget.class)
+@Mixin(ClickableWidget.class)
 public abstract class AbstractButtonWidgetMixin extends DrawableHelper {
 
     @Shadow public abstract boolean isHovered();
