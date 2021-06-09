@@ -25,18 +25,24 @@ import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.colormap.ColormaticBlockRenderView;
 import io.github.kvverti.colormatic.colormap.ColormaticResolver;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -48,7 +54,8 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ClientWorld.class)
 public abstract class ClientWorldMixin extends World implements ColormaticBlockRenderView {
 
-    @Shadow public abstract DynamicRegistryManager getRegistryManager();
+    @Shadow
+    public abstract DynamicRegistryManager getRegistryManager();
 
     private ClientWorldMixin() {
         super(null, null, null, null, false, false, 0L);
@@ -58,22 +65,26 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
         method = "method_23777",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/biome/Biome;getSkyColor()I"
+            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
         )
     )
-    private int proxySkyColor(Biome self, BlockPos pos, float partialTicks) {
+    private Vec3d proxySkyColor(Vec3d noisePos, CubicSampler.RgbFetcher fetcher, Vec3d pos, float partial) {
+        BlockPos blockPos = new BlockPos(pos);
+        int skyColor;
         if(BiomeColormaps.isSkyCustomColored(this)) {
-            return BiomeColormaps.getSkyColor(this, pos);
+            skyColor = BiomeColormaps.getSkyColor(this, blockPos);
         } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(this).equals(DimensionType.OVERWORLD_ID)) {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
-            return BiomeColormap.getBiomeColor(this, pos, colormap);
+            skyColor = BiomeColormap.getBiomeColor(this, blockPos, colormap);
         } else {
-            int color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(this);
-            if(color != 0) {
-                return color;
-            }
+            skyColor = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(this);
         }
-        return self.getSkyColor();
+        if(skyColor != 0) {
+            var skyColorVec = Vec3d.unpackRgb(skyColor);
+            return CubicSampler.sampleColor(noisePos, (x, y, z) -> skyColorVec);
+        } else {
+            return CubicSampler.sampleColor(noisePos, fetcher);
+        }
     }
 
     /**
@@ -112,8 +123,8 @@ public abstract class ClientWorldMixin extends World implements ColormaticBlockR
      * Reset custom colors for a chunk.
      */
     @Inject(method = "resetChunkColor", at = @At("RETURN"))
-    private void resetColormaticChunkColor(int x, int z, CallbackInfo info) {
-        customColorCache.forEach((resolver, cache) -> cache.reset(x, z));
+    private void resetColormaticChunkColor(ChunkPos chunkPos, CallbackInfo ci) {
+        customColorCache.forEach((resolver, cache) -> cache.reset(chunkPos.x, chunkPos.z));
     }
 
     /**

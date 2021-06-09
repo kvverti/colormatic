@@ -85,7 +85,7 @@ public class Colormatic implements ClientModInitializer {
 
     public static Identifier getDimId(World world) {
         DimensionType type = world.getDimension();
-        Identifier id = world.getRegistryManager().getDimensionTypes().getId(type);
+        Identifier id = world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY).getId(type);
         if(id == null) {
             id = DimensionType.OVERWORLD_ID;
         }

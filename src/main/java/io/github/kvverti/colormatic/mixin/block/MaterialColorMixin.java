@@ -19,7 +19,7 @@ package io.github.kvverti.colormatic.mixin.block;
 
 import io.github.kvverti.colormatic.Colormatic;
 
-import net.minecraft.block.MaterialColor;
+import net.minecraft.block.MapColor;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,21 +30,21 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 /**
  * Provides redstone wire color customization capability.
  */
-@Mixin(MaterialColor.class)
+@Mixin(MapColor.class)
 public abstract class MaterialColorMixin {
 
     @Inject(
         method = "getRenderColor",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/block/MaterialColor;color:I",
+            target = "Lnet/minecraft/block/MapColor;color:I",
             ordinal = 0
         ),
         locals = LocalCapture.CAPTURE_FAILEXCEPTION,
         cancellable = true
     )
     private void onRenderColor(int dontCare, CallbackInfoReturnable<Integer> info, int scalar) {
-        int color = Colormatic.COLOR_PROPS.getProperties().getMap((MaterialColor)(Object)this);
+        int color = Colormatic.COLOR_PROPS.getProperties().getMap((MapColor)(Object)this);
         if(color != 0) {
             int r = ((color >> 16) & 0xff) * scalar / 255;
             int g = ((color >>  8) & 0xff) * scalar / 255;

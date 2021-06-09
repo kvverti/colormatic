@@ -29,7 +29,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.block.MaterialColor;
+import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
@@ -62,7 +62,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
     private final Map<DyeColor, float[]> bannerRgb;
-    private final Map<MaterialColor, HexColor> map;
+    private final Map<MapColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
     private final Map<Formatting, TextColor> textColor;
     private final TextColorSettings text;
@@ -233,7 +233,7 @@ public class GlobalColorProperties {
         return bannerRgb.get(color);
     }
 
-    public int getMap(MaterialColor color) {
+    public int getMap(MapColor color) {
         return getColor(color, map);
     }
 
@@ -349,7 +349,7 @@ public class GlobalColorProperties {
         Map<String, HexColor> potion = Collections.emptyMap();
         Map<DyeColor, HexColor> sheep = Collections.emptyMap();
         Map<DyeColor, HexColor> collar = Collections.emptyMap();
-        Map<MaterialColor, HexColor> map = Collections.emptyMap();
+        Map<MapColor, HexColor> map = Collections.emptyMap();
         Map<DyeColor, HexColor> banner = Collections.emptyMap();
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;

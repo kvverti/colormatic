@@ -61,7 +61,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
         if(Colormatic.EXPERIENCE_ORB_COLORS.hasCustomColormap()) {
             custom = true;
             float ticksPerCycle = Colormatic.COLOR_PROPS.getProperties().getXpOrbTime() / 50.0f;
-            float frac = (1 - MathHelper.cos((entity.renderTicks + partialTicks) * (float)(2 * Math.PI) / ticksPerCycle)) / 2;
+            float frac = (1 - MathHelper.cos((entity.age + partialTicks) * (float)(2 * Math.PI) / ticksPerCycle)) / 2;
             int color = Colormatic.EXPERIENCE_ORB_COLORS.getColorFraction(frac);
             customRed = (color >> 16) & 0xff;
             customGreen = (color >> 8) & 0xff;

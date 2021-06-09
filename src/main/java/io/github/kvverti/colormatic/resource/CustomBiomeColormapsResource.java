@@ -17,21 +17,19 @@
  */
 package io.github.kvverti.colormatic.resource;
 
+import java.util.Collection;
+
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
-
-import java.util.Collection;
-
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.Identifier;
 
 import static java.util.stream.Collectors.toList;
 
@@ -56,7 +54,7 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
     }
 
     @Override
-    public void apply(ResourceManager manager) {
+    public void reload(ResourceManager manager) {
         BiomeColormaps.reset();
         addColormaps(manager, optifineId, false);
         addColormaps(manager, id, true);

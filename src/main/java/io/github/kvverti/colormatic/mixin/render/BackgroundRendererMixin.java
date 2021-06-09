@@ -141,7 +141,7 @@ public abstract class BackgroundRendererMixin {
     )
     private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
         if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-            Vec3d color = world.method_23777(camera.getBlockPos(), partialTicks);
+            Vec3d color = world.method_23777(camera.getPos(), partialTicks);
             BackgroundRendererMixin.red = (float)color.x;
             BackgroundRendererMixin.green = (float)color.y;
             BackgroundRendererMixin.blue = (float)color.z;
@@ -235,7 +235,7 @@ public abstract class BackgroundRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "FIELD",
-                target = "Lnet/minecraft/tag/FluidTags;LAVA:Lnet/minecraft/tag/Tag$Identified;"
+                target = "Lnet/minecraft/client/render/CameraSubmersionType;LAVA:Lnet/minecraft/client/render/CameraSubmersionType;"
             )
         ),
         at = @At(
@@ -250,7 +250,7 @@ public abstract class BackgroundRendererMixin {
             int color = BiomeColormaps.getFluidFogColor(Fluids.LAVA, world, camera.getBlockPos());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
             BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
         } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(
                 world,
@@ -258,7 +258,7 @@ public abstract class BackgroundRendererMixin {
                 Colormatic.UNDERLAVA_COLORS.getColormap());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
             BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
         }
     }
 }

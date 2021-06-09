@@ -18,21 +18,22 @@
 package io.github.kvverti.colormatic.mixin.block;
 
 import java.util.Random;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.block.BlockState;
+
 import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.particle.DustParticleEffect;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.RedstoneWireBlock;
+import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3f;
+import net.minecraft.world.World;
 
 /**
  * Provides redstone wire color customization capability.
@@ -85,9 +86,9 @@ public abstract class RedstoneWireBlockMixin extends Block {
             double z = pos.getZ() + 0.5 + (rand.nextFloat() - 0.5) * 0.2;
             int color = Colormatic.REDSTONE_COLORS.getColorBounded(power);
             float r = ((color >> 16) & 0xff) / 255.0f;
-            float g = ((color >>  8) & 0xff) / 255.0f;
-            float b = ((color >>  0) & 0xff) / 255.0f;
-            world.addParticle(new DustParticleEffect(r, g, b, 1.0f), x, y, z, 0.0, 0.0, 0.0);
+            float g = ((color >> 8) & 0xff) / 255.0f;
+            float b = (color & 0xff) / 255.0f;
+            world.addParticle(new DustParticleEffect(new Vec3f(r, g, b), 1.0f), x, y, z, 0.0, 0.0, 0.0);
             info.cancel();
         }
     }

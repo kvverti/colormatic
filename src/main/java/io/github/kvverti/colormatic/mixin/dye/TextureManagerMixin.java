@@ -40,6 +40,6 @@ public abstract class TextureManagerMixin {
     @Dynamic("Post reload lambda method")
     @Inject(method = "method_18167", at = @At("HEAD"))
     private void onReload(ResourceManager manager, Executor exec, Void v, CallbackInfo info) {
-        Colormatic.COLOR_PROPS.apply(manager);
+        Colormatic.COLOR_PROPS.reload(manager);
     }
 }

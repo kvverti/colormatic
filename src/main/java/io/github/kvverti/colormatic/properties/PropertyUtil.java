@@ -33,7 +33,7 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.minecraft.block.MaterialColor;
+import net.minecraft.block.MapColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -50,7 +50,7 @@ public class PropertyUtil {
         .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
         .registerTypeAdapter(ApplicableBlockStates.class, new ApplicableBlockStatesAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
-        .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
+        .registerTypeAdapter(MapColor.class, new MaterialColorAdapter())
         .registerTypeAdapter(Formatting.class, new ChatFormatAdapter())
         .create();
 
