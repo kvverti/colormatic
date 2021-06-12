@@ -17,6 +17,7 @@
  */
 package io.github.kvverti.colormatic.mixin.block;
 
+import io.github.kvverti.colormatic.particle.CustomColoredRedDustParticle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -46,8 +47,6 @@ public abstract class LeverBlockMixin extends Block {
         )
     )
     private static DustParticleEffect proxyRedDust(Vec3f color, float a) {
-        // levers don't take advantage of alpha other than 1.0f, so we save
-        // the object creation that vanilla takes
-        return DustParticleEffect.DEFAULT;
+        return new CustomColoredRedDustParticle(color, a);
     }
 }
