@@ -33,6 +33,7 @@ import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import net.fabricmc.fabric.impl.client.indigo.renderer.helper.ColorHelper;
 import net.minecraft.block.MapColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
@@ -165,16 +166,10 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.read(in);
-            // swap the red and blue channels of every pixel, because the biome
-            // colormap expects ARGB, but NativeImage is ABGR
             for(int x = 0; x < image.getWidth(); x++) {
                 for(int y = 0; y < image.getHeight(); y++) {
-                    int pix = image.getPixelColor(x, y);
-                    int tmp = (pix & 0xff0000) >> 16;
-                    tmp |= (pix & 0x0000ff) << 16;
-                    pix &= ~(0xff0000 | 0x0000ff);
-                    pix |= tmp;
-                    image.setPixelColor(x, y, pix);
+                    int correctedColor = ColorHelper.swapRedBlueIfNeeded(image.getPixelColor(x, y));
+                    image.setPixelColor(x, y, correctedColor);
                 }
             }
             // cross-reference image dimensions with colormap format
