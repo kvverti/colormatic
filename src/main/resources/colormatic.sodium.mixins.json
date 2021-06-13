@@ -3,8 +3,7 @@
   "package": "io.github.kvverti.colormatic.mixinsodium",
   "compatibilityLevel": "JAVA_16",
   "client": [
-    "color.SodiumBlockColorsMixin",
-    "world.WorldSliceMixin"
+    "color.SodiumBlockColorsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -39,6 +39,7 @@ public class BiomeColormap implements ColormaticResolver {
     private final ColormapProperties properties;
     private final NativeImage colormap;
     private transient final int defaultColor;
+    private transient final ExtendedColorResolver resolver;
 
     public BiomeColormap(ColormapProperties props, NativeImage image) {
         properties = props;
@@ -49,6 +50,7 @@ public class BiomeColormap implements ColormaticResolver {
         } else {
             defaultColor = computeDefaultColor(props);
         }
+        this.resolver = new ExtendedColorResolver(this);
     }
 
     private int computeDefaultColor(ColormapProperties props) {
@@ -98,6 +100,7 @@ public class BiomeColormap implements ColormaticResolver {
      * Returns a color given by the custom colormap for the given biome and
      * BlockPos.
      */
+    @Override
     public int getColor(DynamicRegistryManager manager, Biome biome, BlockPos pos) {
         switch(properties.getFormat()) {
             case VANILLA:
@@ -146,6 +149,7 @@ public class BiomeColormap implements ColormaticResolver {
         if(world == null || pos == null) {
             return colormap.getDefaultColor();
         }
-        return ((ColormaticBlockRenderView)world).colormatic_getColor(pos, colormap);
+        colormap.resolver.setY(pos.getY());
+        return world.getColor(pos, colormap.resolver);
     }
 }
