@@ -17,6 +17,7 @@
     "item.SpawnEggItemMixin",
     "network.ClientPlayNetworkHandlerMixin",
     "network.GameJoinS2CPacketMixin",
+    "network.MinecraftClientMixin",
     "particle.DrippingLavaParticleMixin",
     "particle.DustParticleEffectMixin",
     "particle.FallingLavaParticleFactoryMixin",
@@ -34,7 +35,6 @@
     "text.ChatFormatMixin",
     "text.DyeColorMixin",
     "text.InGameHudMixin",
-    "world.ChunkRendererRegionMixin",
     "world.ClientWorldMixin",
     "xp.ExperienceOrbEntityRendererMixin"
   ],
