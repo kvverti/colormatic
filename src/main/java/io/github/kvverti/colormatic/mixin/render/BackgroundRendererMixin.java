@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2019-2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -67,12 +67,16 @@ public abstract class BackgroundRendererMixin {
         if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
             BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), Fluids.WATER, biome);
             if(colormap != null) {
-                return colormap.getColor(world.getRegistryManager(), biome);
+                BlockPos pos = camera.getBlockPos();
+                return colormap.getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
             } else {
                 return 0xffffffff;
             }
         } else if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            return Colormatic.UNDERWATER_COLORS.getColormap().getColor(world.getRegistryManager(), biome);
+            BlockPos pos = camera.getBlockPos();
+            return Colormatic.UNDERWATER_COLORS
+                .getColormap()
+                .getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
         } else {
             return biome.getWaterFogColor();
         }

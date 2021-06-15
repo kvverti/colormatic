@@ -90,40 +90,25 @@ public class BiomeColormap implements ColormaticResolver {
     }
 
     /**
-     * Returns a color given by the custom colormap for the given biome.
-     */
-    public int getColor(DynamicRegistryManager manager, Biome biome) {
-        return getColor(manager, biome, null);
-    }
-
-    /**
-     * Returns a color given by the custom colormap for the given biome and
-     * BlockPos.
+     * Returns a color given by the custom colormap for the given biome and position.
      */
     @Override
-    public int getColor(DynamicRegistryManager manager, Biome biome, BlockPos pos) {
+    public int getColor(DynamicRegistryManager manager, Biome biome, int posX, int posY, int posZ) {
         switch(properties.getFormat()) {
             case VANILLA:
-                double temp = pos == null ? biome.getTemperature() : biome.getTemperature(pos);
+                double temp = biome.getTemperature(new BlockPos(posX, posY, posZ));
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
                 double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
                 ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome));
-                int x;
-                int y;
-                if(pos != null) {
-                    double frac = Biome.FOLIAGE_NOISE.sample(pos.getX() * 0.0225, pos.getZ() * 0.0225, false);
-                    frac = (frac + 1.0) / 2; // normalize
-                    x = cb.column + (int)(frac * cb.count);
-                    y = pos.getY() - properties.getOffset();
-                    int variance = properties.getVariance();
-                    GRID_RANDOM.setSeed(pos.getX() * 31L + pos.getZ());
-                    y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
-                } else {
-                    x = cb.column;
-                    y = 63 - properties.getOffset();
-                }
+                double frac = Biome.FOLIAGE_NOISE.sample(posX * 0.0225, posZ * 0.0225, false);
+                frac = (frac + 1.0) / 2; // normalize
+                int x = cb.column + (int)(frac * cb.count);
+                int y = posY - properties.getOffset();
+                int variance = properties.getVariance();
+                GRID_RANDOM.setSeed(posX * 31L + posZ);
+                y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
                 x %= colormap.getWidth();
                 y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
                 return colormap.getPixelColor(x, y);
