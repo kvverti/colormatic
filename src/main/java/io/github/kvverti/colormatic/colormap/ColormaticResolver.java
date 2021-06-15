@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2019-2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -17,12 +17,11 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.biome.Biome;
 
 @FunctionalInterface
 public interface ColormaticResolver {
 
-    int getColor(DynamicRegistryManager manager, Biome biome, BlockPos pos);
+    int getColor(DynamicRegistryManager manager, Biome biome, int posX, int posY, int posZ);
 }

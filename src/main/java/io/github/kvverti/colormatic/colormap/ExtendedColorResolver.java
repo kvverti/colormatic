@@ -19,8 +19,6 @@ package io.github.kvverti.colormatic.colormap;
 
 import org.jetbrains.annotations.Nullable;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.level.ColorResolver;
@@ -52,7 +50,7 @@ public final class ExtendedColorResolver implements ColorResolver {
 
     @Override
     public int getColor(Biome biome, double x, double z) {
-        return wrappedResolver.getColor(registryManager, biome, new BlockPos(x, this.posY.get().y, z));
+        return wrappedResolver.getColor(registryManager, biome, (int)x, this.posY.get().y, (int)z);
     }
 
     /**
@@ -70,14 +68,14 @@ public final class ExtendedColorResolver implements ColorResolver {
             BiomeColormap lastColormap;
         }
         var data = ThreadLocal.withInitial(StoredData::new);
-        return (manager, biome, pos) -> {
+        return (manager, biome, posX, posY, posZ) -> {
             var storedData = data.get();
             if(storedData.lastBiome != biome) {
                 storedData.lastColormap = storage.get(manager, key, biome);
                 storedData.lastBiome = biome;
             }
             var colormap = storedData.lastColormap;
-            return colormap != null ? colormap.getColor(manager, biome, pos) : 0xffffff;
+            return colormap != null ? colormap.getColor(manager, biome, posX, posY, posZ) : 0xffffff;
         };
     }
 
