@@ -48,7 +48,7 @@ public abstract class GameJoinS2CPacketMixin {
      * type.
      */
     @Inject(
-        method = "<init>(Lnet/minecraft/network/PacketByteBuf;)V",
+        method = "read",
         at = @At(
             value = "FIELD",
             target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;dimensionType:Lnet/minecraft/world/dimension/DimensionType;",

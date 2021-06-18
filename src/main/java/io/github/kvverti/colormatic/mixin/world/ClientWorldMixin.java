@@ -37,6 +37,7 @@ import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.level.ColorResolver;
 
@@ -58,10 +59,10 @@ public abstract class ClientWorldMixin extends World {
         method = "method_23777",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
+            target = "Lnet/minecraft/world/biome/Biome;getSkyColor()I"
         )
     )
-    private Vec3d proxySkyColor(Vec3d noisePos, CubicSampler.RgbFetcher fetcher, Vec3d pos, float partial) {
+    private int proxySkyColor(Biome biome, BlockPos pos, float partial) {
         BlockPos blockPos = new BlockPos(pos);
         int skyColor;
         if(BiomeColormaps.isSkyCustomColored(this)) {
@@ -73,10 +74,9 @@ public abstract class ClientWorldMixin extends World {
             skyColor = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(this);
         }
         if(skyColor != 0) {
-            var skyColorVec = Vec3d.unpackRgb(skyColor);
-            return CubicSampler.sampleColor(noisePos, (x, y, z) -> skyColorVec);
+            return skyColor;
         } else {
-            return CubicSampler.sampleColor(noisePos, fetcher);
+            return biome.getSkyColor();
         }
     }
 

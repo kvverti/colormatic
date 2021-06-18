@@ -26,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.util.registry.DynamicRegistryManager;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
@@ -35,7 +36,7 @@ public abstract class MinecraftClientMixin {
      */
     @Inject(method = "setWorld", at = @At("HEAD"))
     private void propagateDynamicRegistry(@Nullable ClientWorld world, CallbackInfo info) {
-        var manager = world == null ? null : world.getRegistryManager();
+        DynamicRegistryManager manager = world == null ? null : world.getRegistryManager();
         ExtendedColorResolver.setRegistryManager(manager);
     }
 }

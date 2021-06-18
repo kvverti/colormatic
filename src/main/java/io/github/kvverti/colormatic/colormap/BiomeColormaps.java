@@ -71,11 +71,16 @@ public final class BiomeColormaps {
         colormapsByBlock.addColormap(colormap, props.getApplicableBlocks(), biomes);
         for(Map.Entry<Identifier, Collection<Identifier>> entry : props.getApplicableSpecialIds().entrySet()) {
             switch(entry.getKey().toString()) {
-                case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes);
-                case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes);
-                case "colormatic:fluid_fog" -> {
+                case "colormatic:sky":
+                    skyColormaps.addColormap(colormap, entry.getValue(), biomes);
+                    break;
+                case "colormatic:sky_fog":
+                    skyFogColormaps.addColormap(colormap, entry.getValue(), biomes);
+                    break;
+                case "colormatic:fluid_fog": {
                     Collection<Fluid> fluids = entry.getValue().stream().map(Registry.FLUID::get).collect(Collectors.toList());
                     fluidFogColormaps.addColormap(colormap, fluids, biomes);
+                    break;
                 }
             }
         }
@@ -110,7 +115,7 @@ public final class BiomeColormaps {
 
     public static int getBiomeColor(BlockState state, BlockRenderView world, BlockPos pos) {
         if(world != null && pos != null) {
-            var resolver = colormapsByState.getResolver(state);
+            ExtendedColorResolver resolver = colormapsByState.getResolver(state);
             if(resolver == null) {
                 resolver = colormapsByBlock.getResolver(state.getBlock());
             }
@@ -153,7 +158,7 @@ public final class BiomeColormaps {
      */
     private static <K> int getBiomeColor(ColormapStorage<K> storage, K key, BlockRenderView world, BlockPos pos) {
         if(world != null && pos != null) {
-            var resolver = storage.getResolver(key);
+            ExtendedColorResolver resolver = storage.getResolver(key);
             if(resolver == null) {
                 throw new IllegalStateException("Resolver for existing colormap cannot be null: " + key);
             }

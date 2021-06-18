@@ -88,7 +88,7 @@ public abstract class RedstoneWireBlockMixin extends Block {
             float r = ((color >> 16) & 0xff) / 255.0f;
             float g = ((color >> 8) & 0xff) / 255.0f;
             float b = (color & 0xff) / 255.0f;
-            world.addParticle(new DustParticleEffect(new Vec3f(r, g, b), 1.0f), x, y, z, 0.0, 0.0, 0.0);
+            world.addParticle(new DustParticleEffect(r, g, b, 1.0f), x, y, z, 0.0, 0.0, 0.0);
             info.cancel();
         }
     }

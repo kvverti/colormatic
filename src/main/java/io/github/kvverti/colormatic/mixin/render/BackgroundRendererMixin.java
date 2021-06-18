@@ -145,7 +145,7 @@ public abstract class BackgroundRendererMixin {
     )
     private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
         if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-            Vec3d color = world.method_23777(camera.getPos(), partialTicks);
+            Vec3d color = world.method_23777(camera.getBlockPos(), partialTicks);
             BackgroundRendererMixin.red = (float)color.x;
             BackgroundRendererMixin.green = (float)color.y;
             BackgroundRendererMixin.blue = (float)color.z;
@@ -239,7 +239,7 @@ public abstract class BackgroundRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "FIELD",
-                target = "Lnet/minecraft/client/render/CameraSubmersionType;LAVA:Lnet/minecraft/client/render/CameraSubmersionType;"
+                target = "Lnet/minecraft/tag/FluidTags;LAVA:Lnet/minecraft/tag/Tag$Identified;"
             )
         ),
         at = @At(

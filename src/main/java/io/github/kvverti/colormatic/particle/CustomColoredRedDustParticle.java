@@ -28,20 +28,35 @@ import net.minecraft.util.math.Vec3f;
  */
 public class CustomColoredRedDustParticle extends DustParticleEffect {
 
-    public CustomColoredRedDustParticle(Vec3f color, float a) {
-        super(color, a);
+    public CustomColoredRedDustParticle(float red, float green, float blue, float scale) {
+        super(red, green, blue, scale);
     }
 
     @Override
-    public Vec3f getColor() {
+    public float getRed() {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
-            var rgb = getFullColor();
-            var r = ((rgb >> 16) & 0xff) / 255.0f;
-            var g = ((rgb >> 8) & 0xff) / 255.0f;
-            var b = (rgb & 0xff) / 255.0f;
-            return new Vec3f(r, g, b);
+            int rgb = getFullColor();
+            return ((rgb >> 16) & 0xff) / 255.0f;
         }
-        return super.getColor();
+        return super.getRed();
+    }
+
+    @Override
+    public float getGreen() {
+        if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
+            int rgb = getFullColor();
+            return ((rgb >> 8) & 0xff) / 255.0f;
+        }
+        return super.getGreen();
+    }
+
+    @Override
+    public float getBlue() {
+        if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
+            int rgb = getFullColor();
+            return (rgb & 0xff) / 255.0f;
+        }
+        return super.getBlue();
     }
 
     @Override

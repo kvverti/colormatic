@@ -67,14 +67,14 @@ public final class ExtendedColorResolver implements ColorResolver {
             @Nullable
             BiomeColormap lastColormap;
         }
-        var data = ThreadLocal.withInitial(StoredData::new);
+        ThreadLocal<StoredData> data = ThreadLocal.withInitial(StoredData::new);
         return (manager, biome, posX, posY, posZ) -> {
-            var storedData = data.get();
+            StoredData storedData = data.get();
             if(storedData.lastBiome != biome) {
                 storedData.lastColormap = storage.get(manager, key, biome);
                 storedData.lastBiome = biome;
             }
-            var colormap = storedData.lastColormap;
+            BiomeColormap colormap = storedData.lastColormap;
             return colormap != null ? colormap.getColor(manager, biome, posX, posY, posZ) : 0xffffff;
         };
     }
