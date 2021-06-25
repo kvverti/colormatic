@@ -1,0 +1,9 @@
+{
+    "colormatic.config.title": "Colormaticu valikud",
+    "colormatic.config.category.fog": "Udu ja taevas",
+    "colormatic.config.category.light": "Valgustus",
+    "colormatic.config.option.clearSky": "Selge taevas",
+    "colormatic.config.option.clearVoid": "Selge tühjus",
+    "colormatic.config.option.blendSkyLight": "Sujuvad üleminekud",
+    "colormatic.config.option.flickerBlockLight": "Ploki valgusvärelus"
+}
