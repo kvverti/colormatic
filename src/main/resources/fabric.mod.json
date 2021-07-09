@@ -40,5 +40,10 @@
   },
   "suggests": {
     "flamingo": "*"
+  },
+  "custom": {
+    "sodium:options": {
+      "mixin.features.fast_biome_colors": false
+    }
   }
 }
