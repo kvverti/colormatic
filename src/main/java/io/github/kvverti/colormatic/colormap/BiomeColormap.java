@@ -105,7 +105,9 @@ public class BiomeColormap implements ColormaticResolver {
                 double frac = Biome.FOLIAGE_NOISE.sample(posX * 0.0225, posZ * 0.0225, false);
                 frac = (frac + 1.0) / 2; // normalize
                 int x = cb.column + (int)(frac * cb.count);
-                int y = posY - properties.getOffset();
+                // workaround for #39: use default sea level until 3D biome colors become available
+                // int y = posY - properties.getOffset();
+                int y = 63 - properties.getOffset();
                 int variance = properties.getVariance();
                 GRID_RANDOM.setSeed(posX * 31L + posZ);
                 y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
