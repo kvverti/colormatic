@@ -4,9 +4,10 @@ plugins {
 }
 
 repositories {
-	maven { url = 'https://maven.terraformersmc.com/releases/' }
+	// maven { url = 'https://maven.terraformersmc.com/releases/' }
 	maven { url = 'https://maven.shedaniel.me/' }
 	maven { url = 'https://jitpack.io' }
+	maven { url = 'https://maven.fabricmc.net' }
 }
 
 sourceCompatibility = JavaVersion.VERSION_16

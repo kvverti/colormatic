@@ -27,8 +27,7 @@
     ]
   },
   "mixins": [
-    "colormatic.mixins.json",
-    "colormatic.sodium.mixins.json"
+    "colormatic.mixins.json"
   ],
 
   "depends": {

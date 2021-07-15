@@ -35,7 +35,6 @@
     "text.ChatFormatMixin",
     "text.DyeColorMixin",
     "text.InGameHudMixin",
-    "world.ClientWorldMixin",
     "xp.ExperienceOrbEntityRendererMixin"
   ],
   "injectors": {
