@@ -30,6 +30,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockRenderView;
@@ -117,8 +118,7 @@ public final class BiomeColormaps {
             if(resolver == null) {
                 throw new IllegalArgumentException(String.valueOf(state));
             }
-            resolver.setY(pos.getY());
-            return world.getColor(pos, resolver);
+            return resolver.resolveExtendedColor(world, pos);
         } else {
             // todo figure out held item colors
             BiomeColormap colormap = colormapsByState.getFallback(state);
@@ -157,8 +157,7 @@ public final class BiomeColormaps {
             if(resolver == null) {
                 throw new IllegalStateException("Resolver for existing colormap cannot be null: " + key);
             }
-            resolver.setY(pos.getY());
-            return world.getColor(pos, resolver);
+            return resolver.resolveExtendedColor(world, pos);
         } else {
             BiomeColormap colormap = storage.getFallback(key);
             if(colormap != null) {

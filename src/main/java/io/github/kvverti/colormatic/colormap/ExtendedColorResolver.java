@@ -19,7 +19,9 @@ package io.github.kvverti.colormatic.colormap;
 
 import org.jetbrains.annotations.Nullable;
 
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.level.ColorResolver;
 
@@ -31,26 +33,31 @@ public final class ExtendedColorResolver implements ColorResolver {
     @Nullable
     private static DynamicRegistryManager registryManager;
 
-    private final ThreadLocal<CoordinateY> posY;
+    // private final ThreadLocal<CoordinateY> posY;
     private final ColormaticResolver wrappedResolver;
 
     <K> ExtendedColorResolver(ColormapStorage<K> storage, K key) {
-        this.posY = ThreadLocal.withInitial(CoordinateY::new);
+        // this.posY = ThreadLocal.withInitial(CoordinateY::new);
         this.wrappedResolver = createResolver(storage, key);
     }
 
     ExtendedColorResolver(ColormaticResolver wrappedResolver) {
-        this.posY = ThreadLocal.withInitial(CoordinateY::new);
+        // this.posY = ThreadLocal.withInitial(CoordinateY::new);
         this.wrappedResolver = wrappedResolver;
     }
 
-    public void setY(int y) {
-        this.posY.get().y = y;
+    /**
+     * Prefer to use this instead of {@link BlockRenderView#getColor(BlockPos, ColorResolver)}.
+     */
+    public int resolveExtendedColor(BlockRenderView world, BlockPos pos) {
+        // this.posY.get().y = pos.getY();
+        return world.getColor(pos, this);
     }
 
     @Override
     public int getColor(Biome biome, double x, double z) {
-        return wrappedResolver.getColor(registryManager, biome, (int)x, this.posY.get().y, (int)z);
+        // workaround for #39: use default sea level until 3D biome colors become available
+        return wrappedResolver.getColor(registryManager, biome, (int)x, 63, (int)z);
     }
 
     /**
@@ -79,6 +86,7 @@ public final class ExtendedColorResolver implements ColorResolver {
         };
     }
 
+    @SuppressWarnings("unused")
     private static final class CoordinateY {
         int y;
     }
