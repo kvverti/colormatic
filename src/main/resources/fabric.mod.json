@@ -40,5 +40,8 @@
   },
   "suggests": {
     "flamingo": "*"
+  },
+  "conflicts": {
+    "sodium": "0.3.x"
   }
 }
