@@ -27,8 +27,7 @@
     ]
   },
   "mixins": [
-    "colormatic.mixins.json",
-    "colormatic.sodium.mixins.json"
+    "colormatic.mixins.json"
   ],
 
   "depends": {
@@ -41,7 +40,7 @@
   "suggests": {
     "flamingo": "*"
   },
-  "conflicts": {
+  "breaks": {
     "sodium": "0.3.x"
   }
 }
