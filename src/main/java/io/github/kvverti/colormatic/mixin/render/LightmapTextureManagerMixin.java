@@ -48,7 +48,7 @@ public abstract class LightmapTextureManagerMixin {
 
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
-    @Shadow private float field_21528;
+    @Shadow private float flickerIntensity;
     @Shadow @Final private MinecraftClient client;
 
     // Vanilla block light flicker calculation is no longer compatible
@@ -90,7 +90,7 @@ public abstract class LightmapTextureManagerMixin {
             flickerPos = 0.0f;
             // set the vanilla flicker indicator to zero as <well></well>
             // (this is why the injection is at RETURN and not HEAD)
-            this.field_21528 = 0.0f;
+            this.flickerIntensity = 0.0f;
         }
     }
 

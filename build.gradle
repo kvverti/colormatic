@@ -36,7 +36,7 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}") {
 		transitive = false
 	}
-	modCompileOnly "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
+//	modCompileOnly "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
 //	modRuntime "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
 }
 

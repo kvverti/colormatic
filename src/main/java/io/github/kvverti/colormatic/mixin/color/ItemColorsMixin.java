@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemColors.class)
 public abstract class ItemColorsMixin {
 
-    @Inject(method = "getColorMultiplier", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(ItemStack stack, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(stack.getItem() instanceof BlockItem) {
             BlockState state = ((BlockItem)stack.getItem()).getBlock().getDefaultState();

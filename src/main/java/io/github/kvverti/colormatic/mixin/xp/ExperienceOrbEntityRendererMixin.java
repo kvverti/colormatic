@@ -72,7 +72,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     }
 
     @Redirect(
-        method = "method_23171",
+        method = "vertex",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/VertexConsumer;color(IIII)Lnet/minecraft/client/render/VertexConsumer;"

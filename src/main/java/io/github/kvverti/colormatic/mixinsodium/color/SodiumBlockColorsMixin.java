@@ -29,7 +29,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.client.color.block.BlockColors;
 
-@Mixin(value = BlockColors.class, priority = 1001)
+@Mixin(value = BlockColors.class, priority = 2000)
 @Implements(@Interface(iface = SodiumColorProviderCompat.class, prefix = "i$", remap = Interface.Remap.NONE))
 public abstract class SodiumBlockColorsMixin implements SodiumColorProviderCompat {
 
