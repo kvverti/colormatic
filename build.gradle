@@ -6,7 +6,7 @@ plugins {
 repositories {
 	maven { url = 'https://maven.terraformersmc.com/releases/' }
 	maven { url = 'https://maven.shedaniel.me/' }
-	maven { url = 'https://jitpack.io' }
+	maven { url = 'https://api.modrinth.com/maven' }
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -36,8 +36,8 @@ dependencies {
 	modImplementation("com.terraformersmc:modmenu:${project.mod_menu_version}") {
 		transitive = false
 	}
-//	modCompileOnly "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
-//	modRuntime "com.github.jellysquid3:sodium-fabric:${project.sodium_version}"
+	modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
+	modRuntime "maven.modrinth:sodium:${project.sodium_version}"
 }
 
 processResources {

@@ -41,7 +41,9 @@
   "suggests": {
     "flamingo": "*"
   },
-  "conflicts": {
-    "sodium": "0.3.x"
+  "custom": {
+    "sodium:options": {
+      "mixin.features.fast_biome_colors": false
+    }
   }
 }
