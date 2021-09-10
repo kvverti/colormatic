@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -48,7 +52,7 @@ public abstract class LightmapTextureManagerMixin {
 
     @Shadow @Final private NativeImageBackedTexture texture;
     @Shadow @Final private NativeImage image;
-    @Shadow private float field_21528;
+    @Shadow private float flickerIntensity;
     @Shadow @Final private MinecraftClient client;
 
     // Vanilla block light flicker calculation is no longer compatible
@@ -90,7 +94,7 @@ public abstract class LightmapTextureManagerMixin {
             flickerPos = 0.0f;
             // set the vanilla flicker indicator to zero as <well></well>
             // (this is why the injection is at RETURN and not HEAD)
-            this.field_21528 = 0.0f;
+            this.flickerIntensity = 0.0f;
         }
     }
 
@@ -120,9 +124,9 @@ public abstract class LightmapTextureManagerMixin {
         if(world == null) {
             return;
         }
-        Lightmap map = Lightmaps.get(world.getDimension());
+        Lightmap map = Lightmaps.get(world);
         if(map != null) {
-            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().getBlockWane();
+            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().blockWane();
             float nightVision;
             PlayerEntity player = this.client.player;
             if(player.isSubmergedInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {

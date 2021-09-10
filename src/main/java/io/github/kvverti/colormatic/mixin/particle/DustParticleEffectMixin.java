@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.util.math.Vec3f;
 
 /**
  * Replace the redstone dust particle with one that takes its color
@@ -40,7 +45,7 @@ public abstract class DustParticleEffectMixin {
             ordinal = 0
         )
     )
-    private static DustParticleEffect proxyRedDust(float r, float g, float b, float a) {
-        return new CustomColoredRedDustParticle(r, g, b, a);
+    private static DustParticleEffect proxyRedDust(Vec3f color, float a) {
+        return new CustomColoredRedDustParticle(color, a);
     }
 }

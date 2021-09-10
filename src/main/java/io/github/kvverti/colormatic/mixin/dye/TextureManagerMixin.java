@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -40,6 +44,6 @@ public abstract class TextureManagerMixin {
     @Dynamic("Post reload lambda method")
     @Inject(method = "method_18167", at = @At("HEAD"))
     private void onReload(ResourceManager manager, Executor exec, Void v, CallbackInfo info) {
-        Colormatic.COLOR_PROPS.apply(manager);
+        Colormatic.COLOR_PROPS.reload(manager);
     }
 }

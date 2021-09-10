@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,16 +21,16 @@
  */
 package io.github.kvverti.colormatic.properties.adapter;
 
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonToken;
+import java.io.IOException;
+
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-
-import java.io.IOException;
 
 import net.minecraft.util.StringIdentifiable;
 
@@ -54,13 +58,9 @@ public class StringIdentifiableTypeAdapterFactory implements TypeAdapterFactory 
 
         private final T[] values;
 
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "ConstantConditions", "unchecked" })
         StringIdentifiableTypeAdapter(Class<?> cls) {
-            try {
-                values = (T[])cls.getMethod("values").invoke(null);
-            } catch(Exception e) {
-                throw new AssertionError(e);
-            }
+            values = (T[])cls.getEnumConstants();
         }
 
         @Override

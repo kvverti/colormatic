@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,32 +24,11 @@ package io.github.kvverti.colormatic.properties;
 /**
  * Represents a hexadecimal color in ARGB format with full alpha.
  */
-public final class HexColor {
+public record HexColor(int rgb) {
 
     public static final HexColor WHITE = new HexColor(0xffffff);
 
-    private final int color;
-
-    public HexColor(int col) {
-        color = 0xff000000 | col;
-    }
-
-    public int get() {
-        return color;
-    }
-
-    @Override
-    public String toString() {
-        return Integer.toHexString(color);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof HexColor && color == ((HexColor)obj).color;
-    }
-
-    @Override
-    public int hashCode() {
-        return color;
+    public HexColor {
+        rgb |= 0xff000000;
     }
 }

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -29,7 +33,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.block.MaterialColor;
+import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.resource.Resource;
@@ -40,7 +44,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 
 /**
  * The global color.json file. It's a monster.
@@ -62,7 +66,7 @@ public class GlobalColorProperties {
     private final Map<DyeColor, float[]> collarRgb;
     private final Map<DyeColor, HexColor> banner;
     private final Map<DyeColor, float[]> bannerRgb;
-    private final Map<MaterialColor, HexColor> map;
+    private final Map<MapColor, HexColor> map;
     private final Map<EntityType<?>, int[]> spawnEgg;
     private final Map<Formatting, TextColor> textColor;
     private final TextColorSettings text;
@@ -72,7 +76,7 @@ public class GlobalColorProperties {
         this.particle = settings.particle;
         this.dimensionFog = convertIdMap(settings.fog);
         this.dimensionSky = convertIdMap(settings.sky);
-        this.lilypad = settings.lilypad != null ? settings.lilypad.get() : 0;
+        this.lilypad = settings.lilypad != null ? settings.lilypad.rgb() : 0;
         this.potions = convertMap(settings.potion, Registry.STATUS_EFFECT);
         this.sheep = settings.sheep;
         this.sheepRgb = toRgb(settings.sheep);
@@ -90,11 +94,11 @@ public class GlobalColorProperties {
                 int code = entry.getKey();
                 if(code < 16) {
                     Formatting color = Formatting.byColorIndex(code);
-                    textColor.put(color, TextColor.fromRgb(entry.getValue().get()));
+                    textColor.put(color, TextColor.fromRgb(entry.getValue().rgb()));
                 }
             }
             for(Map.Entry<Formatting, HexColor> entry : text.format.entrySet()) {
-                this.textColor.put(entry.getKey(), TextColor.fromRgb(entry.getValue().get()));
+                this.textColor.put(entry.getKey(), TextColor.fromRgb(entry.getValue().rgb()));
             }
             text.code = Collections.emptyMap();
             text.format = Collections.emptyMap();
@@ -140,11 +144,11 @@ public class GlobalColorProperties {
     private static <T> Map<T, float[]> toRgb(Map<T, HexColor> map) {
         Map<T, float[]> res = new HashMap<>();
         for(Map.Entry<T, HexColor> entry : map.entrySet()) {
-            int col = entry.getValue().get();
+            int col = entry.getValue().rgb();
             float[] rgb = new float[3];
             rgb[0] = ((col >> 16) & 0xff) / 255.0f;
             rgb[1] = ((col >> 8) & 0xff) / 255.0f;
-            rgb[2] = ((col >> 0) & 0xff) / 255.0f;
+            rgb[2] = (col & 0xff) / 255.0f;
             res.put(entry.getKey(), rgb);
         }
         return res;
@@ -158,27 +162,21 @@ public class GlobalColorProperties {
             LegacyEggColor legacy = settings.egg;
             for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
                 EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-                if(type != null) {
-                    res.put(type, new int[]{ entry.getValue().get(), 0 });
-                }
+                res.put(type, new int[]{ entry.getValue().rgb(), 0 });
             }
             for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
                 EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-                if(type != null) {
-                    int[] colors = res.computeIfAbsent(type, t -> new int[2]);
-                    colors[1] = entry.getValue().get();
-                }
+                int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+                colors[1] = entry.getValue().rgb();
             }
         }
         // handle colormatic egg colors
         for(Map.Entry<String, HexColor[]> entry : settings.spawnegg.entrySet()) {
             EntityType<?> type = registry.get(new Identifier(entry.getKey()));
-            if(type != null) {
-                int[] colors = res.computeIfAbsent(type, t -> new int[2]);
-                HexColor[] hexColors = entry.getValue();
-                for(int i = 0; i < Math.min(2, hexColors.length); i++) {
-                    colors[i] = hexColors[i].get();
-                }
+            int[] colors = res.computeIfAbsent(type, t -> new int[2]);
+            HexColor[] hexColors = entry.getValue();
+            for(int i = 0; i < Math.min(2, hexColors.length); i++) {
+                colors[i] = hexColors[i].rgb();
             }
         }
         return res;
@@ -186,19 +184,19 @@ public class GlobalColorProperties {
 
     private static <T> int getColor(T key, Map<T, HexColor> map) {
         HexColor col = map.get(key);
-        return col != null ? col.get() : 0;
+        return col != null ? col.rgb() : 0;
     }
 
     public int getParticle(ColoredParticle part) {
         return getColor(part, particle);
     }
 
-    public int getDimensionFog(DimensionType type) {
-        return getColor(Colormatic.getDimId(type), dimensionFog);
+    public int getDimensionFog(World world) {
+        return getColor(Colormatic.getDimId(world), dimensionFog);
     }
 
-    public int getDimensionSky(DimensionType type) {
-        return getColor(Colormatic.getDimId(type), dimensionSky);
+    public int getDimensionSky(World world) {
+        return getColor(Colormatic.getDimId(world), dimensionSky);
     }
 
     public int getLilypad() {
@@ -233,7 +231,7 @@ public class GlobalColorProperties {
         return bannerRgb.get(color);
     }
 
-    public int getMap(MaterialColor color) {
+    public int getMap(MapColor color) {
         return getColor(color, map);
     }
 
@@ -243,7 +241,7 @@ public class GlobalColorProperties {
     }
 
     private int getColor(HexColor col) {
-        return col != null ? col.get() : 0;
+        return col != null ? col.rgb() : 0;
     }
 
     public int getXpText() {
@@ -349,7 +347,7 @@ public class GlobalColorProperties {
         Map<String, HexColor> potion = Collections.emptyMap();
         Map<DyeColor, HexColor> sheep = Collections.emptyMap();
         Map<DyeColor, HexColor> collar = Collections.emptyMap();
-        Map<MaterialColor, HexColor> map = Collections.emptyMap();
+        Map<MapColor, HexColor> map = Collections.emptyMap();
         Map<DyeColor, HexColor> banner = Collections.emptyMap();
         Map<String, HexColor[]> spawnegg = Collections.emptyMap();
         LegacyEggColor egg;

@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "io.github.kvverti.colormatic.mixin",
-  "compatibilityLevel": "JAVA_8",
+  "compatibilityLevel": "JAVA_16",
   "client": [
     "block.LeverBlockMixin",
     "block.MaterialColorMixin",
@@ -15,6 +15,9 @@
     "dye.TextureManagerMixin",
     "dye.WolfCollarFeatureRendererMixin",
     "item.SpawnEggItemMixin",
+    "network.ClientPlayNetworkHandlerMixin",
+    "network.GameJoinS2CPacketMixin",
+    "network.MinecraftClientMixin",
     "particle.DrippingLavaParticleMixin",
     "particle.DustParticleEffectMixin",
     "particle.FallingLavaParticleFactoryMixin",
@@ -32,8 +35,6 @@
     "text.ChatFormatMixin",
     "text.DyeColorMixin",
     "text.InGameHudMixin",
-    "world.BiomeMixin",
-    "world.ChunkRendererRegionMixin",
     "world.ClientWorldMixin",
     "xp.ExperienceOrbEntityRendererMixin"
   ],

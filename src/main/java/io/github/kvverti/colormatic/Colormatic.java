@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -26,11 +30,12 @@ import io.github.kvverti.colormatic.resource.LinearColormapResource;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionType;
@@ -82,32 +87,25 @@ public class Colormatic implements ClientModInitializer {
         return config;
     }
 
-    public static Identifier getDimId(DimensionType type) {
-        Identifier id = MinecraftClient.getInstance().getNetworkHandler().getRegistryManager().getDimensionTypes().getId(type);
+    public static Identifier getDimId(World world) {
+        DimensionType type = world.getDimension();
+        Identifier id = world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY).getId(type);
         if(id == null) {
-            // I have gotten reports of crashes caused by the dimension ID being null. This should never happen,
-            // but may perhaps occur if the client tries to render the sky or fog before it receives the list
-            // of dimensions. In this case, default to the overworld and hope no one caches the result.
             id = DimensionType.OVERWORLD_ID;
         }
         return id;
     }
 
-    public static Identifier getBiomeId(Biome biome) {
-        Identifier id = MinecraftClient.getInstance().getNetworkHandler().getRegistryManager().get(Registry.BIOME_KEY).getId(biome);
+    public static Identifier getBiomeId(DynamicRegistryManager manager, Biome biome) {
+        Identifier id = manager.get(Registry.BIOME_KEY).getId(biome);
         if(id == null) {
             id = BiomeKeys.PLAINS.getValue();
         }
         return id;
     }
 
-    public static RegistryKey<Biome> getBiomeKey(Biome biome) {
-        return MinecraftClient.getInstance()
-            .getNetworkHandler()
-            .getRegistryManager()
-            .get(Registry.BIOME_KEY)
-            .getKey(biome)
-            .orElse(BiomeKeys.PLAINS);
+    public static RegistryKey<Biome> getBiomeKey(DynamicRegistryManager manager, Biome biome) {
+        return manager.get(Registry.BIOME_KEY).getKey(biome).orElse(BiomeKeys.PLAINS);
     }
 
     @Override

@@ -19,29 +19,27 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin.potion;
+package io.github.kvverti.colormatic.mixin.network;
 
-import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.entity.effect.StatusEffect;
-
+import io.github.kvverti.colormatic.colormap.ExtendedColorResolver;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/**
- * Provides custom potion and effect coloring.
- */
-@Mixin(StatusEffect.class)
-public abstract class StatusEffectMixin {
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.world.ClientWorld;
 
-    @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
-    private void onColor(CallbackInfoReturnable<Integer> info) {
-        StatusEffect self = (StatusEffect)(Object)this;
-        int color = Colormatic.COLOR_PROPS.getProperties().getPotion(self);
-        if(color != 0) {
-            info.setReturnValue(color);
-        }
+@Mixin(MinecraftClient.class)
+public abstract class MinecraftClientMixin {
+
+    /**
+     * Reset the cached dynamic registry manager when the world is replaced; as this is when the DRM is regenerated.
+     */
+    @Inject(method = "setWorld", at = @At("HEAD"))
+    private void propagateDynamicRegistry(@Nullable ClientWorld world, CallbackInfo info) {
+        var manager = world == null ? null : world.getRegistryManager();
+        ExtendedColorResolver.setRegistryManager(manager);
     }
 }

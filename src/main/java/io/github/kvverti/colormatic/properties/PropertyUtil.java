@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,23 +21,28 @@
  */
 package io.github.kvverti.colormatic.properties;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
-import io.github.kvverti.colormatic.properties.adapter.*;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.ByteOrder;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import net.minecraft.block.MaterialColor;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import io.github.kvverti.colormatic.properties.adapter.ApplicableBlockStatesAdapter;
+import io.github.kvverti.colormatic.properties.adapter.ChatFormatAdapter;
+import io.github.kvverti.colormatic.properties.adapter.HexColorAdapter;
+import io.github.kvverti.colormatic.properties.adapter.IdentifierAdapter;
+import io.github.kvverti.colormatic.properties.adapter.MaterialColorAdapter;
+import io.github.kvverti.colormatic.properties.adapter.StringIdentifiableTypeAdapterFactory;
+
+import net.minecraft.block.MapColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -50,7 +59,7 @@ public class PropertyUtil {
         .registerTypeAdapter(Identifier.class, new IdentifierAdapter())
         .registerTypeAdapter(ApplicableBlockStates.class, new ApplicableBlockStatesAdapter())
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
-        .registerTypeAdapter(MaterialColor.class, new MaterialColorAdapter())
+        .registerTypeAdapter(MapColor.class, new MaterialColorAdapter())
         .registerTypeAdapter(Formatting.class, new ChatFormatAdapter())
         .create();
 
@@ -77,10 +86,10 @@ public class PropertyUtil {
      * predicate arrayValue.
      */
     public static Reader getJsonReader(
-            InputStream in,
-            Identifier id,
-            Function<String, String> keyMapper,
-            Predicate<String> arrayValue) throws IOException {
+        InputStream in,
+        Identifier id,
+        Function<String, String> keyMapper,
+        Predicate<String> arrayValue) throws IOException {
         Reader jsonInput;
         if(id.getPath().endsWith(".properties")) {
             // properties file
@@ -130,13 +139,13 @@ public class PropertyUtil {
 
     /**
      * Merge compound keys like so:
-     *   key = value
-     *   key.nest = value2
+     * key = value
+     * key.nest = value2
      * ---------------------
-     *   "key": {
-     *     "": value,
-     *     "nest": value2
-     *   }
+     * "key": {
+     * "": value,
+     * "nest": value2
+     * }
      */
     private static Object mergeCompound(Object existingValue, Object newValue) {
         if(existingValue instanceof Map<?, ?>) {
@@ -155,7 +164,7 @@ public class PropertyUtil {
      * them.
      *
      * @throws InvalidColormapException if no colormap properties exist for the given id
-     *     or if the colormap exists, but is malformed.
+     *                                  or if the colormap exists, but is malformed.
      */
     public static PropertyImage loadColormap(ResourceManager manager, Identifier id, boolean custom) {
         ColormapProperties props = ColormapProperties.load(manager, id, custom);
@@ -165,16 +174,18 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.read(in);
-            // swap the red and blue channels of every pixel, because the biome
-            // colormap expects ARGB, but NativeImage is ABGR
             for(int x = 0; x < image.getWidth(); x++) {
                 for(int y = 0; y < image.getHeight(); y++) {
-                    int pix = image.getPixelColor(x, y);
-                    int tmp = (pix & 0xff0000) >> 16;
-                    tmp |= (pix & 0x0000ff) << 16;
-                    pix &= ~(0xff0000 | 0x0000ff);
-                    pix |= tmp;
-                    image.setPixelColor(x, y, pix);
+                    if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+                        // swap the red and blue channels of every pixel, because the biome
+                        // colormap expects ARGB, but NativeImage is ABGR
+                        int pix = image.getPixelColor(x, y);
+                        int tmp = (pix & 0xff0000) >> 16;
+                        tmp |= (pix & 0x0000ff) << 16;
+                        pix &= ~(0xff0000 | 0x0000ff);
+                        pix |= tmp;
+                        image.setPixelColor(x, y, pix);
+                    }
                 }
             }
             // cross-reference image dimensions with colormap format

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,13 +21,12 @@
  */
 package io.github.kvverti.colormatic.resource;
 
-import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
+import io.github.kvverti.colormatic.properties.InvalidColormapException;
 import io.github.kvverti.colormatic.properties.PropertyImage;
 import io.github.kvverti.colormatic.properties.PropertyUtil;
 
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
-
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
@@ -70,7 +73,7 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
     }
 
     @Override
-    public void apply(ResourceManager manager) {
+    public void reload(ResourceManager manager) {
         PropertyImage pi;
         try {
             pi = PropertyUtil.loadColormap(manager, id, false);
@@ -83,6 +86,6 @@ public class BiomeColormapResource implements SimpleSynchronousResourceReloadLis
                 pi = null;
             }
         }
-        colormap = pi == null ? null : new BiomeColormap(pi.properties, pi.image);
+        colormap = pi == null ? null : new BiomeColormap(pi.properties(), pi.image());
     }
 }

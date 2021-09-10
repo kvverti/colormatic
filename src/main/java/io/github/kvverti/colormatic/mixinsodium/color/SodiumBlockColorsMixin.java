@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -19,6 +23,7 @@ package io.github.kvverti.colormatic.mixinsodium.color;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.iface.SodiumColorProviderCompat;
+import me.jellysquid.mods.sodium.client.model.quad.ModelQuadColorProvider;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
@@ -26,22 +31,21 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.client.color.block.BlockColors;
 
-@Mixin(value = BlockColors.class, priority = 1001)
+@Mixin(value = BlockColors.class, priority = 2000)
 @Implements(@Interface(iface = SodiumColorProviderCompat.class, prefix = "i$", remap = Interface.Remap.NONE))
 public abstract class SodiumBlockColorsMixin implements SodiumColorProviderCompat {
 
     @Unique
-    private static final BlockColorProvider COLORMATIC_PROVIDER =
+    private static final ModelQuadColorProvider<BlockState> COLORMATIC_PROVIDER =
         (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
 
     /**
      * Displace Sodium's implementation to first check Colormatic's custom block colors.
      */
     @Intrinsic(displace = true)
-    public BlockColorProvider i$getColorProvider(BlockState state) {
+    public ModelQuadColorProvider<BlockState> i$getColorProvider(BlockState state) {
         if(BiomeColormaps.isCustomColored(state)) {
             return COLORMATIC_PROVIDER;
         }

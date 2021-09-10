@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,6 +24,7 @@ package io.github.kvverti.colormatic.particle;
 import io.github.kvverti.colormatic.Colormatic;
 
 import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.util.math.Vec3f;
 
 /**
  * A redstone dust particle that takes its color from the custom colors
@@ -27,32 +32,20 @@ import net.minecraft.particle.DustParticleEffect;
  */
 public class CustomColoredRedDustParticle extends DustParticleEffect {
 
-    public CustomColoredRedDustParticle(float r, float g, float b, float a) {
-        super(r, g, b, a);
+    public CustomColoredRedDustParticle(Vec3f color, float a) {
+        super(color, a);
     }
 
     @Override
-    public float getRed() {
+    public Vec3f getColor() {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
-            return ((getFullColor() >> 16) & 0xff) / 255.0f;
+            var rgb = getFullColor();
+            var r = ((rgb >> 16) & 0xff) / 255.0f;
+            var g = ((rgb >> 8) & 0xff) / 255.0f;
+            var b = (rgb & 0xff) / 255.0f;
+            return new Vec3f(r, g, b);
         }
-        return super.getRed();
-    }
-
-    @Override
-    public float getGreen() {
-        if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
-            return ((getFullColor() >> 8) & 0xff) / 255.0f;
-        }
-        return super.getGreen();
-    }
-
-    @Override
-    public float getBlue() {
-        if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
-            return (getFullColor() & 0xff) / 255.0f;
-        }
-        return super.getBlue();
+        return super.getColor();
     }
 
     @Override

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -56,6 +60,32 @@ public abstract class BackgroundRendererMixin {
     @Shadow
     private static float blue;
 
+    @Redirect(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/biome/Biome;getWaterFogColor()I"
+        )
+    )
+    private static int proxyWaterFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+        if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
+            BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), Fluids.WATER, biome);
+            if(colormap != null) {
+                BlockPos pos = camera.getBlockPos();
+                return colormap.getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
+            } else {
+                return 0xffffffff;
+            }
+        } else if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
+            BlockPos pos = camera.getBlockPos();
+            return Colormatic.UNDERWATER_COLORS
+                .getColormap()
+                .getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
+        } else {
+            return biome.getWaterFogColor();
+        }
+    }
+
     @Unique
     private static int storedFogColor;
 
@@ -73,10 +103,10 @@ public abstract class BackgroundRendererMixin {
             storedFogColor = 0;
             return;
         }
-        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(dimType);
-        if(BiomeColormaps.isSkyFogCustomColored(dimType)) {
-            color = 0xff000000 | BiomeColormaps.getSkyFogColor(dimType, world, pos);
-        } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(dimType).equals(DimensionType.OVERWORLD_ID)) {
+        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(world);
+        if(BiomeColormaps.isSkyFogCustomColored(world)) {
+            color = 0xff000000 | BiomeColormaps.getSkyFogColor(world, pos);
+        } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(world).equals(DimensionType.OVERWORLD_ID)) {
             // overworld colors fog by biome
             color = 0xff000000 | BiomeColormap.getBiomeColor(
                 world,
@@ -119,7 +149,7 @@ public abstract class BackgroundRendererMixin {
     )
     private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
         if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-            Vec3d color = world.method_23777(camera.getBlockPos(), partialTicks);
+            Vec3d color = world.method_23777(camera.getPos(), partialTicks);
             BackgroundRendererMixin.red = (float)color.x;
             BackgroundRendererMixin.green = (float)color.y;
             BackgroundRendererMixin.blue = (float)color.z;
@@ -213,7 +243,7 @@ public abstract class BackgroundRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "FIELD",
-                target = "Lnet/minecraft/tag/FluidTags;LAVA:Lnet/minecraft/tag/Tag$Identified;"
+                target = "Lnet/minecraft/client/render/CameraSubmersionType;LAVA:Lnet/minecraft/client/render/CameraSubmersionType;"
             )
         ),
         at = @At(
@@ -228,7 +258,7 @@ public abstract class BackgroundRendererMixin {
             int color = BiomeColormaps.getFluidFogColor(Fluids.LAVA, world, camera.getBlockPos());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
             BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
         } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
             int color = BiomeColormap.getBiomeColor(
                 world,
@@ -236,7 +266,7 @@ public abstract class BackgroundRendererMixin {
                 Colormatic.UNDERLAVA_COLORS.getColormap());
             BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
             BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = ((color >> 0) & 0xff) / 255.0f;
+            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
         }
     }
 }

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -90,15 +94,20 @@ public class Lightmap {
             if(lightmap.getHeight() != 64) {
                 // night vision is calculated as
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
+                // But if max(r, g, b) is 0, We will use just white. (divide 0 exception)
                 int color = lightmap.getPixelColor(x, y);
                 int r = (color >> 16) & 0xff;
                 int g = (color >> 8) & 0xff;
                 int b = (color >> 0) & 0xff;
                 int scale = Math.max(Math.max(r, g), b);
                 int ret = 0xff000000;
-                ret |= (255 * r / scale) << 16;
-                ret |= (255 * g / scale) << 8;
-                ret |= (255 * b / scale) << 0;
+                if (scale != 0) {
+                    ret |= (255 * r / scale) << 16;
+                    ret |= (255 * g / scale) << 8;
+                    ret |= (255 * b / scale) << 0;
+                } else {
+                    ret |= 0x00ffffff; // white :)
+                }
                 nightVisionColor = ret;
             } else {
                 nightVisionColor = lightmap.getPixelColor(x, y + 32);

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,7 +27,7 @@ import java.util.Map;
 import io.github.kvverti.colormatic.colormap.Lightmap;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 
 /**
  * Container class for lightmap resource associations.
@@ -32,8 +36,8 @@ public final class Lightmaps {
 
     private static final Map<Identifier, Lightmap> lightmaps = new HashMap<>();
 
-    public static Lightmap get(DimensionType type) {
-        return lightmaps.get(Colormatic.getDimId(type));
+    public static Lightmap get(World world) {
+        return lightmaps.get(Colormatic.getDimId(world));
     }
 
     public static void addLightmap(Identifier id, Lightmap lightmap) {

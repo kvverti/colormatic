@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -17,13 +21,15 @@
  */
 package io.github.kvverti.colormatic.mixin.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.LeverBlock;
-import net.minecraft.particle.DustParticleEffect;
-
+import io.github.kvverti.colormatic.particle.CustomColoredRedDustParticle;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.LeverBlock;
+import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.util.math.Vec3f;
 
 /**
  * For some reason, levers don't use DustParticleEffect.RED, so we have to
@@ -44,9 +50,7 @@ public abstract class LeverBlockMixin extends Block {
             ordinal = 0
         )
     )
-    private static DustParticleEffect proxyRedDust(float r, float g, float b, float a) {
-        // levers don't take advantage of alpha other than 1.0f, so we save
-        // the object creation that vanilla takes
-        return DustParticleEffect.RED;
+    private static DustParticleEffect proxyRedDust(Vec3f color, float a) {
+        return new CustomColoredRedDustParticle(color, a);
     }
 }

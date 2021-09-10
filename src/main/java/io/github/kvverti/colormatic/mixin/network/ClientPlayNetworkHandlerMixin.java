@@ -19,39 +19,43 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin.compat;
+package io.github.kvverti.colormatic.mixin.network;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-import net.minecraft.util.Identifier;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.dimension.DimensionType;
 
-@Mixin(Identifier.class)
-public abstract class IdentifierMixin {
+@Mixin(ClientPlayNetworkHandler.class)
+public abstract class ClientPlayNetworkHandlerMixin {
 
     @Shadow
-    public abstract String getNamespace();
-
-    @Shadow
-    public abstract String getPath();
+    private DynamicRegistryManager registryManager;
 
     /**
-     * Allow arbitrary characters in path names for Optifine files
+     * We loop through and make the instances identical since we want to be able to get the ID for a given dimension
+     * type.
      */
-    @ModifyArg(
-        method = "<init>([Ljava/lang/String;)V",
-        index = 0,
+    @ModifyVariable(
+        method = "onPlayerRespawn",
+        ordinal = 0,
         at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/Identifier;isPathValid(Ljava/lang/String;)Z"
+            value = "STORE",
+            ordinal = 0
         )
     )
-    private String skipValidationForColormatic(String path) {
-        if(this.getNamespace().equals("minecraft") && this.getPath().startsWith("optifine/")) {
-            path = "safe_id_for_allowing_invalid_chars";
+    private DimensionType fixDimensionTypeOnPlayerRespawn(DimensionType target) {
+        Registry<DimensionType> registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
+        for(DimensionType dimType : registry) {
+            if(dimType.equals(target)) {
+                return dimType;
+            }
         }
-        return path;
+        return target;
     }
 }

@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -61,7 +65,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
         if(Colormatic.EXPERIENCE_ORB_COLORS.hasCustomColormap()) {
             custom = true;
             float ticksPerCycle = Colormatic.COLOR_PROPS.getProperties().getXpOrbTime() / 50.0f;
-            float frac = (1 - MathHelper.cos((entity.renderTicks + partialTicks) * (float)(2 * Math.PI) / ticksPerCycle)) / 2;
+            float frac = (1 - MathHelper.cos((entity.age + partialTicks) * (float)(2 * Math.PI) / ticksPerCycle)) / 2;
             int color = Colormatic.EXPERIENCE_ORB_COLORS.getColorFraction(frac);
             customRed = (color >> 16) & 0xff;
             customGreen = (color >> 8) & 0xff;
@@ -72,7 +76,7 @@ public abstract class ExperienceOrbEntityRendererMixin extends EntityRenderer<Ex
     }
 
     @Redirect(
-        method = "method_23171",
+        method = "vertex",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/client/render/VertexConsumer;color(IIII)Lnet/minecraft/client/render/VertexConsumer;"

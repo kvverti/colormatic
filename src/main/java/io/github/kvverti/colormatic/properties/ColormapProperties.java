@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -31,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.JsonSyntaxException;
-import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -67,7 +70,7 @@ public class ColormapProperties {
      */
     private final Collection<ApplicableBlockStates> blocks;
 
-    /**
+    /**s
      * The colormap image. If not specified, it is taken from the file name
      * of the properties file.
      */
@@ -250,7 +253,7 @@ public class ColormapProperties {
             format,
             blocks,
             source,
-            color == null ? 0 : color.get(),
+            color == null ? 0 : color.rgb(),
             yVariance,
             yOffset);
     }
@@ -272,14 +275,11 @@ public class ColormapProperties {
         }
 
         public static Format byName(String name) {
-            switch(name) {
-                case "fixed":
-                    return FIXED;
-                case "grid":
-                    return GRID;
-                default:
-                    return VANILLA;
-            }
+            return switch(name) {
+                case "fixed" -> FIXED;
+                case "grid" -> GRID;
+                default -> VANILLA;
+            };
         }
     }
 

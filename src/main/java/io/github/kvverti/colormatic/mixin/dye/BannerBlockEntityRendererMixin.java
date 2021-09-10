@@ -1,11 +1,15 @@
 /*
  * Colormatic
- * Copyright (C) 2019-2020  Thalia Nero
+ * Copyright (C) 2021  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
+ *
+ * As an additional permission, when conveying the Corresponding Source of an
+ * object code form of this work, you may exclude the Corresponding Source for
+ * "Minecraft" by Mojang Studios, AB.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -18,29 +22,22 @@
 package io.github.kvverti.colormatic.mixin.dye;
 
 import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.block.entity.BannerBlockEntity;
-import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
-import net.minecraft.util.DyeColor;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
+
+import net.minecraft.client.render.block.entity.BannerBlockEntityRenderer;
+import net.minecraft.util.DyeColor;
 
 /**
  * Applies custom colors to banner textures. This requires colors.json
  * to be reloaded beforehand. See TextureManagerMixin.
  */
 @Mixin(BannerBlockEntityRenderer.class)
-public abstract class BannerBlockEntityRendererMixin extends BlockEntityRenderer<BannerBlockEntity> {
-
-    private BannerBlockEntityRendererMixin() {
-        super(null);
-    }
+public abstract class BannerBlockEntityRendererMixin {
 
     @Redirect(
-        method = "renderCanvas",
+        method = "renderCanvas(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;IILnet/minecraft/client/model/ModelPart;Lnet/minecraft/client/util/SpriteIdentifier;ZLjava/util/List;Z)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/DyeColor;getColorComponents()[F"
