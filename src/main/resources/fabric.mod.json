@@ -37,6 +37,7 @@
     "cloth-config2": "^5.0.34"
   },
   "recommends": {
+    "quilt-loader": "*",
     "modmenu": "^2.0.0"
   },
   "suggests": {
