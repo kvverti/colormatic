@@ -52,7 +52,7 @@ public abstract class ItemRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
-                target = "Lnet/minecraft/item/ItemStack;isDamaged()Z"
+                target = "Lnet/minecraft/item/ItemStack;isItemBarVisible()Z"
             )
         )
     )
