@@ -66,9 +66,19 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
 
     private static void addColormaps(ResourceManager manager, Identifier dir, boolean json) {
         String ext = json ? ".json" : ".properties";
-        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext))
+        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext) || s.endsWith(".png"))
             .stream()
             .filter(id -> id.getNamespace().equals(dir.getNamespace()))
+            .map(id -> {
+                // count plain source images as properties so they're found
+                var path = id.getPath();
+                if(path.endsWith(".png")) {
+                    var newPath = path.substring(0, path.length() - 4) + ext;
+                    return new Identifier(id.getNamespace(), newPath);
+                } else {
+                    return id;
+                }
+            })
             .distinct()
             .collect(toList());
         for(Identifier id : files) {
