@@ -27,9 +27,12 @@ import io.github.kvverti.colormatic.resource.GlobalColorResource;
 import io.github.kvverti.colormatic.resource.GlobalLightmapResource;
 import io.github.kvverti.colormatic.resource.LightmapsResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
@@ -41,6 +44,8 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionType;
 
 public class Colormatic implements ClientModInitializer {
+
+    private static final Logger logger = LogManager.getLogger(Colormatic.class);
 
     public static final String MODID = "colormatic";
 
@@ -111,6 +116,12 @@ public class Colormatic implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ColormaticConfigController.load(config);
+
+        if(FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
+            logger.warn("Sodium is present, but Indium is not!");
+            logger.warn("Indium is recommend for use with Sodium, or certain features will not work properly.");
+        }
+
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);
