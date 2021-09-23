@@ -126,7 +126,11 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(LAVA_DROP_COLORS);
         client.registerReloadListener(DURABILITY_COLORS);
         client.registerReloadListener(EXPERIENCE_ORB_COLORS);
-        client.registerReloadListener(CUSTOM_BLOCK_COLORS);
+        // Note: we don't register this as a reload listener here because it
+        // has to be loaded before block models. In order to do this, we mix
+        // into BakedModelManager's prepare() method to reload this before
+        // the ModelLoader is constructed.
+        // client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
         client.registerReloadListener(LIGHTMAPS);
         // Note: we don't register this as a reload listener here because it
