@@ -5,5 +5,7 @@
     "colormatic.config.option.clearSky": "Clear Skies",
     "colormatic.config.option.clearVoid": "Clear Void",
     "colormatic.config.option.blendSkyLight": "Smooth Transitions",
-    "colormatic.config.option.flickerBlockLight": "Block Light Flicker"
+    "colormatic.config.option.flickerBlockLight": "Block Light Flicker",
+    "colormatic.sodium_dependency_warning": "Indium is required to fully work with Sodium, but it is not installed. Some features may not work.",
+    "colormatic.sodium_dependency_warning.hover": "Go to Indium's Modrinth page"
 }
