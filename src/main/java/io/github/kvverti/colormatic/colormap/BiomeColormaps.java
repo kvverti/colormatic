@@ -100,6 +100,14 @@ public final class BiomeColormaps {
         return colormapsByBlock.contains(state.getBlock()) || colormapsByState.contains(state);
     }
 
+    /**
+     * Items don't have a world position, so the corresponding block state takes default values,
+     * which may not be present even if the block state has custom coloring.
+     */
+    public static boolean isItemCustomColored(BlockState state) {
+        return colormapsByBlock.getFallback(state.getBlock()) != null || colormapsByState.getFallback(state) != null;
+    }
+
     public static boolean isSkyCustomColored(World world) {
         return skyColormaps.contains(Colormatic.getDimId(world));
     }
@@ -123,7 +131,6 @@ public final class BiomeColormaps {
             }
             return resolver.resolveExtendedColor(world, pos);
         } else {
-            // todo figure out held item colors
             BiomeColormap colormap = colormapsByState.getFallback(state);
             if(colormap == null) {
                 colormap = colormapsByBlock.getFallback(state.getBlock());

@@ -22,16 +22,15 @@
 package io.github.kvverti.colormatic.mixin.color;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.color.item.ItemColors;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Provides item color customization capability.
@@ -39,12 +38,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemColors.class)
 public abstract class ItemColorsMixin {
 
-    // todo: perhaps modify this to more accurately determine if we have a custom color
     @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(ItemStack stack, int tintIdx, CallbackInfoReturnable<Integer> info) {
         if(stack.getItem() instanceof BlockItem) {
             BlockState state = ((BlockItem)stack.getItem()).getBlock().getDefaultState();
-            if(BiomeColormaps.isCustomColored(state)) {
+            if(BiomeColormaps.isItemCustomColored(state)) {
                 int color = BiomeColormaps.getBiomeColor(state, null, null);
                 info.setReturnValue(color);
             }

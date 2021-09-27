@@ -24,20 +24,19 @@ package io.github.kvverti.colormatic.mixin.color;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.StemBlock;
-import net.minecraft.client.color.block.BlockColors;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockRenderView;
-
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.StemBlock;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 
 /**
  * Provides block color customization capability.
@@ -98,7 +97,8 @@ public abstract class BlockColorsMixin {
 
     @Inject(method = "getColor(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/BlockRenderView;Lnet/minecraft/util/math/BlockPos;I)I", at = @At("HEAD"), cancellable = true)
     private void onColorMultiplier(BlockState state, BlockRenderView world, BlockPos pos, int tintIdx, CallbackInfoReturnable<Integer> info) {
-        if(BiomeColormaps.isCustomColored(state)) {
+        // item colors are already taken care of in ItemColorsMixin
+        if(world != null && pos != null && BiomeColormaps.isCustomColored(state)) {
             int color = BiomeColormaps.getBiomeColor(state, world, pos);
             info.setReturnValue(color);
         }
