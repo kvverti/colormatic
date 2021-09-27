@@ -79,7 +79,7 @@ public final class BiomeColormaps {
                 case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes, DefaultColormaticResolverProviders.SKY_FOG);
                 case "colormatic:fluid_fog" -> {
                     Collection<Fluid> fluids = entry.getValue().stream().map(Registry.FLUID::get).collect(Collectors.toList());
-                    fluidFogColormaps.addColormap(colormap, fluids, biomes, DefaultColormaticResolverProviders::none);
+                    fluidFogColormaps.addColormap(colormap, fluids, biomes, DefaultColormaticResolverProviders.FLUID_FOG);
                 }
             }
         }
