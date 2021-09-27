@@ -74,7 +74,7 @@ public abstract class ClientWorldMixin extends World {
             BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
             skyColor = BiomeColormap.getBiomeColor(this, blockPos, colormap);
         } else {
-            skyColor = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(this);
+            skyColor = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(Colormatic.getDimId(this));
         }
         if(skyColor != 0) {
             var skyColorVec = Vec3d.unpackRgb(skyColor);

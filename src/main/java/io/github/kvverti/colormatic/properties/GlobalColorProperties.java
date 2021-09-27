@@ -191,12 +191,12 @@ public class GlobalColorProperties {
         return getColor(part, particle);
     }
 
-    public int getDimensionFog(World world) {
-        return getColor(Colormatic.getDimId(world), dimensionFog);
+    public int getDimensionFog(Identifier dimId) {
+        return getColor(dimId, dimensionFog);
     }
 
-    public int getDimensionSky(World world) {
-        return getColor(Colormatic.getDimId(world), dimensionSky);
+    public int getDimensionSky(Identifier dimId) {
+        return getColor(dimId, dimensionSky);
     }
 
     public int getLilypad() {

@@ -34,7 +34,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockRenderView;
@@ -72,15 +71,15 @@ public final class BiomeColormaps {
     public static void add(BiomeColormap colormap) {
         ColormapProperties props = colormap.getProperties();
         Set<Identifier> biomes = props.getApplicableBiomes();
-        colormapsByState.addColormap(colormap, props.getApplicableBlockStates(), biomes);
-        colormapsByBlock.addColormap(colormap, props.getApplicableBlocks(), biomes);
+        colormapsByState.addColormap(colormap, props.getApplicableBlockStates(), biomes, DefaultColormaticResolverProviders.BLOCK_STATE);
+        colormapsByBlock.addColormap(colormap, props.getApplicableBlocks(), biomes, DefaultColormaticResolverProviders.BLOCK);
         for(Map.Entry<Identifier, Collection<Identifier>> entry : props.getApplicableSpecialIds().entrySet()) {
             switch(entry.getKey().toString()) {
-                case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes);
-                case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes);
+                case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes, DefaultColormaticResolverProviders.SKY);
+                case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes, DefaultColormaticResolverProviders.SKY_FOG);
                 case "colormatic:fluid_fog" -> {
                     Collection<Fluid> fluids = entry.getValue().stream().map(Registry.FLUID::get).collect(Collectors.toList());
-                    fluidFogColormaps.addColormap(colormap, fluids, biomes);
+                    fluidFogColormaps.addColormap(colormap, fluids, biomes, DefaultColormaticResolverProviders::none);
                 }
             }
         }
