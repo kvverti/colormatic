@@ -90,7 +90,7 @@ public abstract class ClientPlayNetworkHandlerMixin {
         if(!notified && FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
             var text = new LiteralText("")
                 .append(new LiteralText("Colormatic: ")
-                    .setStyle(Style.EMPTY.withColor(Formatting.YELLOW)))
+                    .setStyle(Style.EMPTY.withFormatting(Formatting.YELLOW, Formatting.BOLD)))
                 .append(new TranslatableText("colormatic.sodium_dependency_warning")
                     .setStyle(Style.EMPTY
                         .withClickEvent(new ClickEvent(
