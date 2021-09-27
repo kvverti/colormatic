@@ -22,6 +22,7 @@
 package io.github.kvverti.colormatic.resource;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -42,7 +43,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class CustomBiomeColormapsResource implements SimpleSynchronousResourceReloadListener {
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger("Colormatic");
+    private static final Pattern ID_PATTERN = Pattern.compile("[a-z0-9_/.-]+");
 
     private final Identifier id;
     private final Identifier optifineId;
@@ -82,12 +84,15 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
             .distinct()
             .collect(toList());
         for(Identifier id : files) {
+            if(!ID_PATTERN.matcher(id.getPath()).matches()) {
+                log.error("Non-ASCII colormap definition file {}. Please contact resource pack author to fix.", id);
+            }
             try {
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id, true);
                 BiomeColormap colormap = new BiomeColormap(pi.properties(), pi.image());
                 BiomeColormaps.add(colormap);
             } catch(InvalidColormapException e) {
-                log.warn("Error parsing {}: {}", id, e.getMessage());
+                log.error("Error parsing {}: {}", id, e.getMessage());
             }
         }
     }
