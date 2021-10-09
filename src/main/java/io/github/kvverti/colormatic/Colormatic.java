@@ -27,9 +27,12 @@ import io.github.kvverti.colormatic.resource.GlobalColorResource;
 import io.github.kvverti.colormatic.resource.GlobalLightmapResource;
 import io.github.kvverti.colormatic.resource.LightmapsResource;
 import io.github.kvverti.colormatic.resource.LinearColormapResource;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
@@ -41,6 +44,8 @@ import net.minecraft.world.biome.BiomeKeys;
 import net.minecraft.world.dimension.DimensionType;
 
 public class Colormatic implements ClientModInitializer {
+
+    private static final Logger logger = LogManager.getLogger(Colormatic.class);
 
     public static final String MODID = "colormatic";
 
@@ -111,6 +116,12 @@ public class Colormatic implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ColormaticConfigController.load(config);
+
+        if(FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
+            logger.warn("Sodium is present, but Indium is not!");
+            logger.warn("Indium is recommend for use with Sodium, or certain features will not work properly.");
+        }
+
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);
@@ -126,7 +137,11 @@ public class Colormatic implements ClientModInitializer {
         client.registerReloadListener(LAVA_DROP_COLORS);
         client.registerReloadListener(DURABILITY_COLORS);
         client.registerReloadListener(EXPERIENCE_ORB_COLORS);
-        client.registerReloadListener(CUSTOM_BLOCK_COLORS);
+        // Note: we don't register this as a reload listener here because it
+        // has to be loaded before block models. In order to do this, we mix
+        // into BakedModelManager's prepare() method to reload this before
+        // the ModelLoader is constructed.
+        // client.registerReloadListener(CUSTOM_BLOCK_COLORS);
         client.registerReloadListener(LIGHTMAP_PROPS);
         client.registerReloadListener(LIGHTMAPS);
         // Note: we don't register this as a reload listener here because it

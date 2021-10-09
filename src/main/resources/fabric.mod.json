@@ -32,11 +32,13 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.4.0",
-    "fabric": ">=0.3.0"
+    "fabricloader": ">=0.11.0",
+    "fabric": ">=0.37.1",
+    "cloth-config2": "^5.0.34"
   },
   "recommends": {
-    "modmenu": ">=1.12.0"
+    "quilt-loader": "*",
+    "modmenu": "^2.0.0"
   },
   "suggests": {
     "flamingo": "*"

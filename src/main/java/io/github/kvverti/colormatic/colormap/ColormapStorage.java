@@ -81,18 +81,18 @@ final class ColormapStorage<K> {
         return !colormaps.row(key).isEmpty() || fallbackColormaps.containsKey(key);
     }
 
-    public void addColormap(BiomeColormap colormap, Collection<? extends K> keys, Set<? extends Identifier> biomes) {
+    public void addColormap(BiomeColormap colormap, Collection<? extends K> keys, Set<? extends Identifier> biomes, ColormaticResolverProvider<K> fallbackProvider) {
         if(biomes.isEmpty()) {
             for(K key : keys) {
                 fallbackColormaps.put(key, colormap);
-                resolvers.put(key, new ExtendedColorResolver(this, key));
+                resolvers.put(key, new ExtendedColorResolver(this, key, fallbackProvider.create(key)));
             }
         } else {
             for(K key : keys) {
                 for(Identifier b : biomes) {
                     colormaps.put(key, b, colormap);
                 }
-                resolvers.put(key, new ExtendedColorResolver(this, key));
+                resolvers.put(key, new ExtendedColorResolver(this, key, fallbackProvider.create(key)));
             }
         }
     }

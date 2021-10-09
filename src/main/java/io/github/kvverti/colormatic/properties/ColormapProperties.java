@@ -70,7 +70,8 @@ public class ColormapProperties {
      */
     private final Collection<ApplicableBlockStates> blocks;
 
-    /**s
+    /**
+     * s
      * The colormap image. If not specified, it is taken from the file name
      * of the properties file.
      */
@@ -196,13 +197,21 @@ public class ColormapProperties {
                     }
                     return cb;
                 } else {
-                    return defaultColumns.get(id);
+                    ColumnBounds defaultForBiome = defaultColumns.get(id);
+                    if(defaultForBiome == null) {
+                        // mod-added biomes just get the default without an override
+                        // another fix is not to modify mod-added biomes colors at all with the standard
+                        // grid format - which will be a much better fix when color stacking works properly
+                        return DEFAULT_BOUNDS;
+                    }
+                    return defaultForBiome;
                 }
             } else {
                 return DEFAULT_BOUNDS;
             }
+        } else {
+            throw new IllegalStateException(format.toString());
         }
-        throw new IllegalStateException(format.toString());
     }
 
     /**

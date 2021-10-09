@@ -19,26 +19,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.iface;
+package io.github.kvverti.colormatic.mixin.color;
 
-import me.jellysquid.mods.sodium.client.model.quad.ModelQuadColorProvider;
-import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.client.color.block.BlockColorProvider;
+import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.util.collection.IdList;
 
-/**
- * Compatibility interface for mixing into Sodium. This interface effectively "forward declares" the methods
- * declared in {@link BlockColorsExtended} in order to prevent a non-fatal exception from being thrown within
- * mixin when Sodium is not installed.
- */
-public interface SodiumColorProviderCompat {
-    ModelQuadColorProvider<BlockState> getColorProvider(BlockState state);
-}
-
-@SuppressWarnings("unused")
-final class EnsureCorrectSignatures implements SodiumColorProviderCompat, BlockColorsExtended {
-    @Override
-    public ModelQuadColorProvider<BlockState> getColorProvider(BlockState state) {
-        throw new AssertionError("this class should not be instantiated");
-    }
+@Mixin(BlockColors.class)
+public interface BlockColorsAccessor {
+    @Accessor
+    IdList<BlockColorProvider> getProviders();
 }

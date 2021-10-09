@@ -22,8 +22,8 @@
 package io.github.kvverti.colormatic.mixinsodium.color;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import io.github.kvverti.colormatic.iface.SodiumColorProviderCompat;
 import me.jellysquid.mods.sodium.client.model.quad.ModelQuadColorProvider;
+import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Intrinsic;
@@ -34,8 +34,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.color.block.BlockColors;
 
 @Mixin(value = BlockColors.class, priority = 2000)
-@Implements(@Interface(iface = SodiumColorProviderCompat.class, prefix = "i$", remap = Interface.Remap.NONE))
-public abstract class SodiumBlockColorsMixin implements SodiumColorProviderCompat {
+@Implements(@Interface(iface = BlockColorsExtended.class, prefix = "i$", remap = Interface.Remap.NONE))
+public abstract class SodiumBlockColorsMixin implements BlockColorsExtended {
 
     @Unique
     private static final ModelQuadColorProvider<BlockState> COLORMATIC_PROVIDER =

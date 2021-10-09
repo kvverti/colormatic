@@ -68,22 +68,25 @@ public abstract class BackgroundRendererMixin {
         )
     )
     private static int proxyWaterFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+        int color = 0;
         if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
             BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), Fluids.WATER, biome);
             if(colormap != null) {
                 BlockPos pos = camera.getBlockPos();
-                return colormap.getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
-            } else {
-                return 0xffffffff;
+                color = colormap.getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
             }
-        } else if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
-            BlockPos pos = camera.getBlockPos();
-            return Colormatic.UNDERWATER_COLORS
-                .getColormap()
-                .getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
-        } else {
-            return biome.getWaterFogColor();
         }
+        if(color == 0) {
+            if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
+                BlockPos pos = camera.getBlockPos();
+                color = Colormatic.UNDERWATER_COLORS
+                    .getColormap()
+                    .getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
+            } else {
+                color = biome.getWaterFogColor();
+            }
+        }
+        return color;
     }
 
     @Unique
@@ -103,7 +106,7 @@ public abstract class BackgroundRendererMixin {
             storedFogColor = 0;
             return;
         }
-        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(world);
+        int color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(Colormatic.getDimId(world));
         if(BiomeColormaps.isSkyFogCustomColored(world)) {
             color = 0xff000000 | BiomeColormaps.getSkyFogColor(world, pos);
         } else if(Colormatic.FOG_COLORS.hasCustomColormap() && Colormatic.getDimId(world).equals(DimensionType.OVERWORLD_ID)) {

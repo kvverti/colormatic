@@ -22,6 +22,7 @@
 package io.github.kvverti.colormatic.resource;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -42,7 +43,8 @@ import static java.util.stream.Collectors.toList;
  */
 public class CustomBiomeColormapsResource implements SimpleSynchronousResourceReloadListener {
 
-    private static final Logger log = LogManager.getLogger();
+    private static final Logger log = LogManager.getLogger("Colormatic");
+    private static final Pattern ID_PATTERN = Pattern.compile("[a-z0-9_/.-]+");
 
     private final Identifier id;
     private final Identifier optifineId;
@@ -66,18 +68,31 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
 
     private static void addColormaps(ResourceManager manager, Identifier dir, boolean json) {
         String ext = json ? ".json" : ".properties";
-        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext))
+        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext) || s.endsWith(".png"))
             .stream()
             .filter(id -> id.getNamespace().equals(dir.getNamespace()))
+            .map(id -> {
+                // count plain source images as properties so they're found
+                var path = id.getPath();
+                if(path.endsWith(".png")) {
+                    var newPath = path.substring(0, path.length() - 4) + ext;
+                    return new Identifier(id.getNamespace(), newPath);
+                } else {
+                    return id;
+                }
+            })
             .distinct()
             .collect(toList());
         for(Identifier id : files) {
+            if(!ID_PATTERN.matcher(id.getPath()).matches()) {
+                log.error("Non-ASCII colormap definition file {}. Please contact resource pack author to fix.", id);
+            }
             try {
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id, true);
                 BiomeColormap colormap = new BiomeColormap(pi.properties(), pi.image());
                 BiomeColormaps.add(colormap);
             } catch(InvalidColormapException e) {
-                log.warn("Error parsing {}: {}", id, e.getMessage());
+                log.error("Error parsing {}: {}", id, e.getMessage());
             }
         }
     }

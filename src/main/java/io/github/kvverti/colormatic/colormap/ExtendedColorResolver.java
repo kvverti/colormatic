@@ -40,9 +40,9 @@ public final class ExtendedColorResolver implements ColorResolver {
     // private final ThreadLocal<CoordinateY> posY;
     private final ColormaticResolver wrappedResolver;
 
-    <K> ExtendedColorResolver(ColormapStorage<K> storage, K key) {
+    <K> ExtendedColorResolver(ColormapStorage<K> storage, K key, ColormaticResolver fallback) {
         // this.posY = ThreadLocal.withInitial(CoordinateY::new);
-        this.wrappedResolver = createResolver(storage, key);
+        this.wrappedResolver = createResolver(storage, key, fallback);
     }
 
     ExtendedColorResolver(ColormaticResolver wrappedResolver) {
@@ -71,7 +71,7 @@ public final class ExtendedColorResolver implements ColorResolver {
         registryManager = manager;
     }
 
-    private static <K> ColormaticResolver createResolver(ColormapStorage<K> storage, K key) {
+    private static <K> ColormaticResolver createResolver(ColormapStorage<K> storage, K key, ColormaticResolver fallback) {
         final class StoredData {
             @Nullable
             Biome lastBiome;
@@ -86,7 +86,8 @@ public final class ExtendedColorResolver implements ColorResolver {
                 storedData.lastBiome = biome;
             }
             var colormap = storedData.lastColormap;
-            return colormap != null ? colormap.getColor(manager, biome, posX, posY, posZ) : 0xffffff;
+            return colormap != null ? colormap.getColor(manager, biome, posX, posY, posZ)
+                : fallback.getColor(manager, biome, posX, posY, posZ);
         };
     }
 
