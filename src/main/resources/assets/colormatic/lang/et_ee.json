@@ -5,5 +5,7 @@
     "colormatic.config.option.clearSky": "Selge taevas",
     "colormatic.config.option.clearVoid": "Selge tühjus",
     "colormatic.config.option.blendSkyLight": "Sujuvad üleminekud",
-    "colormatic.config.option.flickerBlockLight": "Ploki valgusvärelus"
+    "colormatic.config.option.flickerBlockLight": "Ploki valgusvärelus",
+    "colormatic.sodium_dependency_warning": "Indium on vajalik Sodiumiga täielikuks toimimiseks, kuid see ei ole paigaldatud. Mõned funktsioonid ei pruugi töötada.",
+    "colormatic.sodium_dependency_warning.hover": "Mine Indiumi Modrinthi lehele"
 }
