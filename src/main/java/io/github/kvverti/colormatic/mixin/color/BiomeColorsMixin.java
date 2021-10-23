@@ -21,22 +21,16 @@
  */
 package io.github.kvverti.colormatic.mixin.color;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.fluid.FluidState;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
-import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.client.color.world.BiomeColors;
-import net.minecraft.tag.FluidTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockRenderView;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.client.color.world.BiomeColors;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 
 /**
  * Provides water color customization capability.
@@ -45,15 +39,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class BiomeColorsMixin {
 
     /**
-     * The FluidRenderer calls BiomeColors#getWaterColor directly, instead of
-     * going through BlockColors. So, we must check for custom water color here.
+     * The FluidRenderer (including the fluid rendering APIs) calls BiomeColors#getWaterColor directly, instead of
+     * going through BlockColors. So, we must check for provided custom water color here instead of in BiomeColors.
+     * Note that we already apply custom biome colors to fluids via
+     * {@link io.github.kvverti.colormatic.iface.ColormaticFluidRenderHandler}. Also note that the provided water
+     * colors apply to water cauldrons in addition to the water fluid.
      */
     @Inject(method = "getWaterColor", at = @At("HEAD"), cancellable = true)
     private static void onWaterColorPre(BlockRenderView world, BlockPos pos, CallbackInfoReturnable<Integer> info) {
-        BlockState state = Blocks.WATER.getDefaultState();
-        if(BiomeColormaps.isCustomColored(state)) {
-            info.setReturnValue(BiomeColormaps.getBiomeColor(state, world, pos));
-        } else if(Colormatic.WATER_COLORS.hasCustomColormap()) {
+        if(Colormatic.WATER_COLORS.hasCustomColormap()) {
             BiomeColormap colormap = Colormatic.WATER_COLORS.getColormap();
             info.setReturnValue(BiomeColormap.getBiomeColor(world, pos, colormap));
         }

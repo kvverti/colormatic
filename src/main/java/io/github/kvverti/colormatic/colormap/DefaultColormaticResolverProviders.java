@@ -26,9 +26,7 @@ import io.github.kvverti.colormatic.mixin.color.BlockColorsAccessor;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.color.world.BiomeColors;
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Identifier;
@@ -50,19 +48,7 @@ final class DefaultColormaticResolverProviders {
     private DefaultColormaticResolverProviders() {
     }
 
-    private static final ColormaticResolver WATER = (manager, biome, posX, posY, posZ) -> {
-        if(Colormatic.WATER_COLORS.hasCustomColormap()) {
-            return Colormatic.WATER_COLORS.getColormap().getColor(manager, biome, posX, posY, posZ);
-        } else {
-            return BiomeColors.WATER_COLOR.getColor(biome, posX, posZ);
-        }
-    };
-
     private static ColormaticResolver byBlockState(BlockState key) {
-        // note: we cannot use the water block color provider as a fallback, because that calls this method!
-        if(key.getBlock() == Blocks.WATER) {
-            return WATER;
-        }
         return (manager, biome, posX, posY, posZ) -> {
             // we can't access anything more granular than color resolvers, in general
             // therefore we pay the potential penalty of running through the biome blending twice

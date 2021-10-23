@@ -39,7 +39,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
 
 /**
- * Provides block color customization capability.
+ * Provides block color customization capability. This enables Colormatic custom colors for rendered blocks.
  */
 @Mixin(BlockColors.class)
 public abstract class BlockColorsMixin {
