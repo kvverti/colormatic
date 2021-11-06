@@ -44,6 +44,8 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 
@@ -186,10 +188,10 @@ public class ColormapProperties {
      *                                  given biome
      * @throws IllegalStateException    if the format is not grid format
      */
-    public ColumnBounds getColumn(RegistryKey<Biome> biome) {
+    public ColumnBounds getColumn(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
         if(format == Format.GRID) {
-            if(biome != null) {
-                Identifier id = biome.getValue();
+            if(biomeKey != null) {
+                Identifier id = biomeKey.getValue();
                 if(columnsByBiome != null) {
                     ColumnBounds cb = columnsByBiome.get(id);
                     if(cb == null) {
@@ -199,10 +201,14 @@ public class ColormapProperties {
                 } else {
                     ColumnBounds defaultForBiome = defaultColumns.get(id);
                     if(defaultForBiome == null) {
-                        // mod-added biomes just get the default without an override
-                        // another fix is not to modify mod-added biomes colors at all with the standard
-                        // grid format - which will be a much better fix when color stacking works properly
-                        return DEFAULT_BOUNDS;
+                        if(this.id.getPath().endsWith(".properties")) {
+                            // Optifine computes grid colors using the raw ID
+                            int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
+                            return new ColumnBounds(rawID, 1);
+                        } else {
+                            // Colormatic computes grid colors using temperature-humidity distance
+                            return computeClosestDefaultBiome(biomeKey, biomeRegistry);
+                        }
                     }
                     return defaultForBiome;
                 }
@@ -212,6 +218,39 @@ public class ColormapProperties {
         } else {
             throw new IllegalStateException(format.toString());
         }
+    }
+
+    /**
+     * Given a custom biome, finds the vanilla biome closest in temperature and humidity to the given
+     * biome and returns its bounds.
+     *
+     * @param biomeKey      The key of the custom biome.
+     * @param biomeRegistry The biome registry.
+     * @return The bounds of the vanilla biome closest to the given biome.
+     */
+    private static ColumnBounds computeClosestDefaultBiome(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
+        var customBiome = biomeRegistry.get(biomeKey);
+        if(customBiome == null) {
+            throw new IllegalStateException("Biome is not registered: " + biomeKey.getValue());
+        }
+        double temperature = customBiome.getTemperature();
+        double humidity = MathHelper.clamp(customBiome.getDownfall(), 0.0, 1.0);
+        double minDistanceSq = Double.POSITIVE_INFINITY;
+        ColumnBounds minBounds = null;
+        for(var entry : defaultColumns.entrySet()) {
+            var vanillaBiome = biomeRegistry.get(entry.getKey());
+            if(vanillaBiome == null) {
+                throw new IllegalStateException("Vanilla biome is not registered????? : " + entry.getKey());
+            }
+            var dTemperature = temperature - vanillaBiome.getTemperature();
+            var dHumidity = humidity - MathHelper.clamp(vanillaBiome.getDownfall(), 0.0, 1.0);
+            var thisDistanceSq = dTemperature * dTemperature + dHumidity * dHumidity;
+            if(thisDistanceSq < minDistanceSq) {
+                minDistanceSq = thisDistanceSq;
+                minBounds = entry.getValue();
+            }
+        }
+        return minBounds;
     }
 
     /**
