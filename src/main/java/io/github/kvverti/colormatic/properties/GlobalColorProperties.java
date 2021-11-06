@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.JsonParseException;
-import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,7 +43,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.registry.Registry;
-import net.minecraft.world.World;
 
 /**
  * The global color.json file. It's a monster.
@@ -71,6 +69,7 @@ public class GlobalColorProperties {
     private final Map<Formatting, TextColor> textColor;
     private final TextColorSettings text;
     private final int xpOrbTime;
+    private final ColormapProperties.Format defaultFormat;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -108,6 +107,7 @@ public class GlobalColorProperties {
             this.textColor = Collections.emptyMap();
             this.text = new TextColorSettings();
         }
+        this.defaultFormat = settings.palette.format;
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
         HexColor water = settings.potion.get("water");
@@ -268,6 +268,10 @@ public class GlobalColorProperties {
         return xpOrbTime;
     }
 
+    public ColormapProperties.Format getDefaultFormat() {
+        return defaultFormat;
+    }
+
     public enum ColoredParticle implements StringIdentifiable {
         WATER("water"),
         LAVA("lava"),
@@ -353,6 +357,7 @@ public class GlobalColorProperties {
         LegacyEggColor egg;
         TextColorSettings text;
         XpOrb xporb = XpOrb.DEFAULT;
+        Palette palette = Palette.DEFAULT;
     }
 
     /**
@@ -381,5 +386,11 @@ public class GlobalColorProperties {
         static XpOrb DEFAULT = new XpOrb();
 
         int time = 628; // milliseconds
+    }
+
+    private static class Palette {
+        static Palette DEFAULT = new Palette();
+
+        ColormapProperties.Format format = ColormapProperties.Format.VANILLA;
     }
 }

@@ -148,6 +148,8 @@ public class Colormatic implements ClientModInitializer {
         // has to be loaded before vanilla resources (namely banner textures).
         // In order to do this, we mix in to TextureManager and directly call
         // its reloading method before any textures are loaded.
+        // If custom biome colormaps aren't getting default palette formats
+        // in time, then this method likely isn't getting called early enough.
         // client.registerReloadListener(COLOR_PROPS);
     }
 }

@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.JsonSyntaxException;
+import io.github.kvverti.colormatic.Colormatic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -357,6 +358,9 @@ public class ColormapProperties {
             log.error("Error parsing {}: {}", id, e.getMessage());
             settings = new Settings();
         }
+        if(settings.format == null) {
+            settings.format = Colormatic.COLOR_PROPS.getProperties().getDefaultFormat();
+        }
         if(custom) {
             if(settings.blocks == null) {
                 String blockId = id.getPath();
@@ -385,7 +389,7 @@ public class ColormapProperties {
 
     private static class Settings {
 
-        Format format = Format.VANILLA;
+        Format format = null;
         Collection<ApplicableBlockStates> blocks = null;
         String source = null;
         HexColor color = null;
