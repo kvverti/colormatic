@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
 import net.fabricmc.fabric.impl.client.rendering.fluid.FluidRenderHandlerRegistryImpl;
 
-@Mixin(FluidRenderHandlerRegistryImpl.class)
+@Mixin(value = FluidRenderHandlerRegistryImpl.class, remap = false)
 public abstract class FluidRendererHandlerRegistryImplMixin {
 
     /**
