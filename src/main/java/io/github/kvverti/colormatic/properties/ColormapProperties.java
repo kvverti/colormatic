@@ -322,14 +322,6 @@ public class ColormapProperties {
         public String asString() {
             return name;
         }
-
-        public static Format byName(String name) {
-            return switch(name) {
-                case "fixed" -> FIXED;
-                case "grid" -> GRID;
-                default -> VANILLA;
-            };
-        }
     }
 
     /**
@@ -395,7 +387,6 @@ public class ColormapProperties {
         HexColor color = null;
         int yVariance = 0;
         int yOffset = 0;
-        @Deprecated
         Map<Identifier, Integer> biomes = null;
         List<GridEntry> grid = null;
     }

@@ -43,7 +43,7 @@ public abstract class WorldRendererMixin {
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
-                target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight()D"
+                target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight(Lnet/minecraft/world/HeightLimitView;)D"
             )
         )
     )
