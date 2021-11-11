@@ -85,7 +85,7 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
             .collect(toList());
         for(Identifier id : files) {
             if(!ID_PATTERN.matcher(id.getPath()).matches()) {
-                log.error("Non-ASCII colormap definition file {}. Please contact resource pack author to fix.", id);
+                log.error("Colormap definition file '{}' does not name a valid resource location. Please contact resource pack author to fix.", id);
             }
             try {
                 PropertyImage pi = PropertyUtil.loadColormap(manager, id, true);
