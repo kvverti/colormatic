@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'fabric-loom' version '0.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -37,7 +37,7 @@ dependencies {
 		transitive = false
 	}
 	modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
-	modRuntime "maven.modrinth:sodium:${project.sodium_version}"
+//	modRuntime "maven.modrinth:sodium:${project.sodium_version}"
 }
 
 processResources {
@@ -73,13 +73,7 @@ jar {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			// add all the jars that should be included when publishing to maven
-			artifact(jar) {
-				builtBy remapJar
-			}
-			artifact(sourcesJar) {
-				builtBy remapSourcesJar
-			}
+			from components.java
 		}
 	}
 

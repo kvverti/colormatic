@@ -179,12 +179,12 @@ public class PropertyUtil {
                     if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
                         // swap the red and blue channels of every pixel, because the biome
                         // colormap expects ARGB, but NativeImage is ABGR
-                        int pix = image.getPixelColor(x, y);
+                        int pix = image.getColor(x, y);
                         int tmp = (pix & 0xff0000) >> 16;
                         tmp |= (pix & 0x0000ff) << 16;
                         pix &= ~(0xff0000 | 0x0000ff);
                         pix |= tmp;
-                        image.setPixelColor(x, y, pix);
+                        image.setColor(x, y, pix);
                     }
                 }
             }

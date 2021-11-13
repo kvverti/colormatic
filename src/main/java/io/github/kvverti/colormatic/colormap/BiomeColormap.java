@@ -62,12 +62,12 @@ public class BiomeColormap implements ColormaticResolver {
     private int computeDefaultColor(ColormapProperties props) {
         switch(props.getFormat()) {
             case VANILLA:
-                return colormap.getPixelColor(128, 128);
+                return colormap.getColor(128, 128);
             case GRID:
                 try {
                     int x = props.getColumn(BiomeKeys.PLAINS, BuiltinRegistries.BIOME).column;
                     int y = MathHelper.clamp(63 - props.getOffset(), 0, colormap.getHeight() - 1);
-                    return colormap.getPixelColor(x, y);
+                    return colormap.getColor(x, y);
                 } catch(IllegalArgumentException e) {
                     return 0xffffffff;
                 }
@@ -92,7 +92,7 @@ public class BiomeColormap implements ColormaticResolver {
         if(x >= colormap.getWidth() || y >= colormap.getHeight()) {
             return 0xffff00ff;
         }
-        return colormap.getPixelColor(x, y);
+        return colormap.getColor(x, y);
     }
 
     /**
@@ -108,6 +108,8 @@ public class BiomeColormap implements ColormaticResolver {
                 return getColor(temp, rain);
             case GRID:
                 ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome), manager.get(Registry.BIOME_KEY));
+                // mojang uses this still so I don't know why they marked it for removal
+                @SuppressWarnings("removal")
                 double frac = Biome.FOLIAGE_NOISE.sample(posX * 0.0225, posZ * 0.0225, false);
                 frac = (frac + 1.0) / 2; // normalize
                 int x = cb.column + (int)(frac * cb.count);
@@ -117,7 +119,7 @@ public class BiomeColormap implements ColormaticResolver {
                 y += GRID_RANDOM.nextInt(variance * 2 + 1) - variance;
                 x %= colormap.getWidth();
                 y = MathHelper.clamp(y, 0, colormap.getHeight() - 1);
-                return colormap.getPixelColor(x, y);
+                return colormap.getColor(x, y);
             case FIXED:
                 return getDefaultColor();
         }

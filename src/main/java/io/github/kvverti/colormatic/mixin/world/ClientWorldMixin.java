@@ -54,6 +54,9 @@ public abstract class ClientWorldMixin extends World {
     @Final
     private Object2ObjectArrayMap<ColorResolver, BiomeColorCache> colorCache;
 
+    @Shadow
+    public abstract int calculateColor(BlockPos pos, ColorResolver colorResolver);
+
     private ClientWorldMixin() {
         super(null, null, null, null, false, false, 0L);
     }
@@ -91,7 +94,7 @@ public abstract class ClientWorldMixin extends World {
     private void fixVanillaColorCache(BlockPos pos, ColorResolver resolver, CallbackInfoReturnable<Integer> info) {
         // todo: cache vertically differentiated color properly. Apparently broken since 1.16.x
         if(this.colorCache.get(resolver) == null) {
-            this.colorCache.put(resolver, new BiomeColorCache());
+            this.colorCache.put(resolver, new BiomeColorCache(pos1 -> this.calculateColor(pos1, resolver)));
         }
     }
 

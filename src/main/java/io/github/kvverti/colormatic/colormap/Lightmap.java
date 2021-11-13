@@ -95,7 +95,7 @@ public class Lightmap {
                 // night vision is calculated as
                 // newColor[r, g, b] = oldColor[r, g, b] / max(r, g, b)
                 // But if max(r, g, b) is 0, We will use just white. (divide 0 exception)
-                int color = lightmap.getPixelColor(x, y);
+                int color = lightmap.getColor(x, y);
                 int r = (color >> 16) & 0xff;
                 int g = (color >> 8) & 0xff;
                 int b = (color >> 0) & 0xff;
@@ -110,16 +110,16 @@ public class Lightmap {
                 }
                 nightVisionColor = ret;
             } else {
-                nightVisionColor = lightmap.getPixelColor(x, y + 32);
+                nightVisionColor = lightmap.getColor(x, y + 32);
             }
             if(nightVision >= 1.0f) {
                 return nightVisionColor;
             } else {
-                int normalColor = lightmap.getPixelColor(x, y);
+                int normalColor = lightmap.getColor(x, y);
                 return mergeColors(normalColor, nightVisionColor, nightVision);
             }
         } else {
-            return lightmap.getPixelColor(x, y);
+            return lightmap.getColor(x, y);
         }
     }
 
