@@ -45,7 +45,6 @@ import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
@@ -104,15 +103,6 @@ public class ColormapProperties {
      * uses the default mechanism of mapping the biome to a column via its raw ID.
      */
     private final Map<Identifier, ColumnBounds> columnsByBiome;
-
-    /**
-     * The default mapping of biomes to columns.
-     */
-    private static final Map<Identifier, ColumnBounds> defaultColumns = new HashMap<>();
-
-    static {
-        initDefaultColumnBounds(defaultColumns);
-    }
 
     /**
      * Represents a column or columns assigned to a partcular biome.
@@ -200,18 +190,7 @@ public class ColormapProperties {
                     }
                     return cb;
                 } else {
-                    ColumnBounds defaultForBiome = defaultColumns.get(id);
-                    if(defaultForBiome == null) {
-                        if(this.id.getPath().endsWith(".properties")) {
-                            // Optifine computes grid colors using the raw ID
-                            int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
-                            return new ColumnBounds(rawID, 1);
-                        } else {
-                            // Colormatic computes grid colors using temperature-humidity distance
-                            return computeClosestDefaultBiome(biomeKey, biomeRegistry);
-                        }
-                    }
-                    return defaultForBiome;
+                    return DefaultColumns.getBounds(biomeKey, biomeRegistry, this.id.getPath().endsWith(".properties"));
                 }
             } else {
                 return DEFAULT_BOUNDS;
@@ -219,39 +198,6 @@ public class ColormapProperties {
         } else {
             throw new IllegalStateException(format.toString());
         }
-    }
-
-    /**
-     * Given a custom biome, finds the vanilla biome closest in temperature and humidity to the given
-     * biome and returns its bounds.
-     *
-     * @param biomeKey      The key of the custom biome.
-     * @param biomeRegistry The biome registry.
-     * @return The bounds of the vanilla biome closest to the given biome.
-     */
-    private static ColumnBounds computeClosestDefaultBiome(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
-        var customBiome = biomeRegistry.get(biomeKey);
-        if(customBiome == null) {
-            throw new IllegalStateException("Biome is not registered: " + biomeKey.getValue());
-        }
-        double temperature = customBiome.getTemperature();
-        double humidity = MathHelper.clamp(customBiome.getDownfall(), 0.0, 1.0);
-        double minDistanceSq = Double.POSITIVE_INFINITY;
-        ColumnBounds minBounds = null;
-        for(var entry : defaultColumns.entrySet()) {
-            var vanillaBiome = biomeRegistry.get(entry.getKey());
-            if(vanillaBiome == null) {
-                throw new IllegalStateException("Vanilla biome is not registered????? : " + entry.getKey());
-            }
-            var dTemperature = temperature - vanillaBiome.getTemperature();
-            var dHumidity = humidity - MathHelper.clamp(vanillaBiome.getDownfall(), 0.0, 1.0);
-            var thisDistanceSq = dTemperature * dTemperature + dHumidity * dHumidity;
-            if(thisDistanceSq < minDistanceSq) {
-                minDistanceSq = thisDistanceSq;
-                minBounds = entry.getValue();
-            }
-        }
-        return minBounds;
     }
 
     /**
@@ -395,90 +341,5 @@ public class ColormapProperties {
         List<Identifier> biomes = Collections.emptyList();
         int column = 0;
         int width = 1;
-    }
-
-    private static void initDefaultColumnBounds(Map<Identifier, ColumnBounds> map) {
-        // see the Minecraft Wiki (https://minecraft.gamepedia.com/Biome#Biome_IDs)
-        // circa July 31, 2020
-        map.put(new Identifier("ocean"), new ColumnBounds(0, 1));
-        map.put(new Identifier("plains"), new ColumnBounds(1, 1));
-        map.put(new Identifier("desert"), new ColumnBounds(2, 1));
-        map.put(new Identifier("mountains"), new ColumnBounds(3, 1));
-        map.put(new Identifier("forest"), new ColumnBounds(4, 1));
-        map.put(new Identifier("taiga"), new ColumnBounds(5, 1));
-        map.put(new Identifier("swamp"), new ColumnBounds(6, 1));
-        map.put(new Identifier("river"), new ColumnBounds(7, 1));
-        map.put(new Identifier("nether_wastes"), new ColumnBounds(8, 1));
-        map.put(new Identifier("the_end"), new ColumnBounds(9, 1));
-        map.put(new Identifier("frozen_ocean"), new ColumnBounds(10, 1));
-        map.put(new Identifier("frozen_river"), new ColumnBounds(11, 1));
-        map.put(new Identifier("snowy_tundra"), new ColumnBounds(12, 1));
-        map.put(new Identifier("snowy_mountains"), new ColumnBounds(13, 1));
-        map.put(new Identifier("mushroom_fields"), new ColumnBounds(14, 1));
-        map.put(new Identifier("mushroom_field_shore"), new ColumnBounds(15, 1));
-        map.put(new Identifier("beach"), new ColumnBounds(16, 1));
-        map.put(new Identifier("desert_hills"), new ColumnBounds(17, 1));
-        map.put(new Identifier("wooded_hills"), new ColumnBounds(18, 1));
-        map.put(new Identifier("taiga_hills"), new ColumnBounds(19, 1));
-        map.put(new Identifier("mountain_edge"), new ColumnBounds(20, 1));
-        map.put(new Identifier("jungle"), new ColumnBounds(21, 1));
-        map.put(new Identifier("jungle_hills"), new ColumnBounds(22, 1));
-        map.put(new Identifier("jungle_edge"), new ColumnBounds(23, 1));
-        map.put(new Identifier("deep_ocean"), new ColumnBounds(24, 1));
-        map.put(new Identifier("stone_shore"), new ColumnBounds(25, 1));
-        map.put(new Identifier("snowy_beach"), new ColumnBounds(26, 1));
-        map.put(new Identifier("birch_forest"), new ColumnBounds(27, 1));
-        map.put(new Identifier("birch_forest_hills"), new ColumnBounds(28, 1));
-        map.put(new Identifier("dark_forest"), new ColumnBounds(29, 1));
-        map.put(new Identifier("snowy_taiga"), new ColumnBounds(30, 1));
-        map.put(new Identifier("snowy_taiga_hills"), new ColumnBounds(31, 1));
-        map.put(new Identifier("giant_tree_taiga"), new ColumnBounds(32, 1));
-        map.put(new Identifier("giant_tree_taiga_hills"), new ColumnBounds(33, 1));
-        map.put(new Identifier("wooded_mountains"), new ColumnBounds(34, 1));
-        map.put(new Identifier("savanna"), new ColumnBounds(35, 1));
-        map.put(new Identifier("savanna_plateau"), new ColumnBounds(36, 1));
-        map.put(new Identifier("badlands"), new ColumnBounds(37, 1));
-        map.put(new Identifier("wooded_badlands_plateau"), new ColumnBounds(38, 1));
-        map.put(new Identifier("badlands_plateau"), new ColumnBounds(39, 1));
-        map.put(new Identifier("small_end_islands"), new ColumnBounds(40, 1));
-        map.put(new Identifier("end_midlands"), new ColumnBounds(41, 1));
-        map.put(new Identifier("end_highlands"), new ColumnBounds(42, 1));
-        map.put(new Identifier("end_barrens"), new ColumnBounds(43, 1));
-        map.put(new Identifier("warm_ocean"), new ColumnBounds(44, 1));
-        map.put(new Identifier("lukewarm_ocean"), new ColumnBounds(45, 1));
-        map.put(new Identifier("cold_ocean"), new ColumnBounds(46, 1));
-        map.put(new Identifier("deep_warm_ocean"), new ColumnBounds(47, 1));
-        map.put(new Identifier("deep_lukewarm_ocean"), new ColumnBounds(48, 1));
-        map.put(new Identifier("deep_cold_ocean"), new ColumnBounds(49, 1));
-        map.put(new Identifier("deep_frozen_ocean"), new ColumnBounds(50, 1));
-        // formerly "mutated" variants of biomes, normal biome ID + 128, except for
-        // the post-1.7 biome additions.
-        map.put(new Identifier("the_void"), new ColumnBounds(127, 1));
-        map.put(new Identifier("sunflower_plains"), new ColumnBounds(129, 1));
-        map.put(new Identifier("desert_lakes"), new ColumnBounds(130, 1));
-        map.put(new Identifier("gravelly_mountains"), new ColumnBounds(131, 1));
-        map.put(new Identifier("flower_forest"), new ColumnBounds(132, 1));
-        map.put(new Identifier("swamp_hills"), new ColumnBounds(133, 1));
-        map.put(new Identifier("ice_spikes"), new ColumnBounds(140, 1));
-        map.put(new Identifier("modified_jungle"), new ColumnBounds(149, 1));
-        map.put(new Identifier("modified_jungle_edge"), new ColumnBounds(151, 1));
-        map.put(new Identifier("tall_birch_forest"), new ColumnBounds(155, 1));
-        map.put(new Identifier("tall_birch_hills"), new ColumnBounds(156, 1));
-        map.put(new Identifier("dark_forest_hills"), new ColumnBounds(157, 1));
-        map.put(new Identifier("snowy_taiga_mountains"), new ColumnBounds(158, 1));
-        map.put(new Identifier("giant_spruce_taiga"), new ColumnBounds(160, 1));
-        map.put(new Identifier("giant_spruce_taiga_hills"), new ColumnBounds(161, 1));
-        map.put(new Identifier("modified_gravelly_mountains"), new ColumnBounds(162, 1));
-        map.put(new Identifier("shattered_savanna"), new ColumnBounds(163, 1));
-        map.put(new Identifier("shattered_savanna_plateau"), new ColumnBounds(164, 1));
-        map.put(new Identifier("eroded_badlands"), new ColumnBounds(165, 1));
-        map.put(new Identifier("modified_wooded_badlands_plateau"), new ColumnBounds(166, 1));
-        map.put(new Identifier("modified_badlands_plateau"), new ColumnBounds(167, 1));
-        map.put(new Identifier("bamboo_jungle"), new ColumnBounds(168, 1));
-        map.put(new Identifier("bamboo_jungle_hills"), new ColumnBounds(169, 1));
-        map.put(new Identifier("soul_sand_valley"), new ColumnBounds(170, 1));
-        map.put(new Identifier("crimson_forest"), new ColumnBounds(171, 1));
-        map.put(new Identifier("warped_forest"), new ColumnBounds(172, 1));
-        map.put(new Identifier("basalt_deltas"), new ColumnBounds(173, 1));
     }
 }

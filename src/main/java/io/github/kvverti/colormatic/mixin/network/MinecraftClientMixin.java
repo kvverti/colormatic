@@ -22,6 +22,7 @@
 package io.github.kvverti.colormatic.mixin.network;
 
 import io.github.kvverti.colormatic.colormap.ExtendedColorResolver;
+import io.github.kvverti.colormatic.properties.DefaultColumns;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -41,5 +42,6 @@ public abstract class MinecraftClientMixin {
     private void propagateDynamicRegistry(@Nullable ClientWorld world, CallbackInfo info) {
         var manager = world == null ? null : world.getRegistryManager();
         ExtendedColorResolver.setRegistryManager(manager);
+        DefaultColumns.reloadDefaultColumnBounds(manager);
     }
 }
