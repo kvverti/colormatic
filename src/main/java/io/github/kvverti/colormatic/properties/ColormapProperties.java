@@ -62,6 +62,11 @@ public class ColormapProperties {
     private final Identifier id;
 
     /**
+     * Whether these colormap properties came from an Optifine colormap file.
+     */
+    private transient final boolean optifine;
+
+    /**
      * The format of the corresponding colormap.
      */
     private final Format format;
@@ -120,6 +125,7 @@ public class ColormapProperties {
 
     private ColormapProperties(Identifier id, Settings settings) {
         this.id = id;
+        this.optifine = this.id.getPath().endsWith(".properties");
         this.format = settings.format;
         this.blocks = settings.blocks;
         this.source = new Identifier(settings.source);
@@ -196,7 +202,7 @@ public class ColormapProperties {
                     }
                     return cb;
                 } else {
-                    return DefaultColumns.getBounds(biomeKey, biomeRegistry, this.id.getPath().endsWith(".properties"));
+                    return DefaultColumns.getBounds(biomeKey, biomeRegistry, this.optifine);
                 }
             } else {
                 return DEFAULT_BOUNDS;

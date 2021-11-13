@@ -41,7 +41,11 @@ public final class DefaultColumns {
                 // Colormatic computes grid colors using temperature-humidity distance
                 bounds = dynamicColumns.get(biomeKey.getValue());
                 if(bounds == null) {
-                    throw new IllegalArgumentException("No column bounds for dynamic biome: " + biomeKey.getValue());
+                    // this exception tends to trigger a crash in the crash report generator due to it
+                    // happening off-thread, so we log before bailing
+                    var msg = "No column bounds for dynamic biome: " + biomeKey.getValue();
+                    log.error(msg);
+                    throw new IllegalArgumentException(msg);
                 }
             }
         }
@@ -164,8 +168,8 @@ public final class DefaultColumns {
         map.put(new Identifier("soul_sand_valley"), new ColormapProperties.ColumnBounds(170, 1));
         map.put(new Identifier("crimson_forest"), new ColormapProperties.ColumnBounds(171, 1));
         map.put(new Identifier("warped_forest"), new ColormapProperties.ColumnBounds(172, 1));
-        // 1.17 cave biomes
         map.put(new Identifier("basalt_deltas"), new ColormapProperties.ColumnBounds(173, 1));
+        // 1.17 cave biomes
         map.put(new Identifier("dripstone_caves"), new ColormapProperties.ColumnBounds(174, 1));
         map.put(new Identifier("lush_caves"), new ColormapProperties.ColumnBounds(175, 1));
         // 1.18 highland biomes (1.18 raw IDs 28-33, but these were already used)
