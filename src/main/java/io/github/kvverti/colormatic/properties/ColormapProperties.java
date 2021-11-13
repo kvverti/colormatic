@@ -131,13 +131,19 @@ public class ColormapProperties {
             for(GridEntry entry : settings.grid) {
                 ColumnBounds bounds = new ColumnBounds(entry.column, entry.width);
                 for(Identifier biomeId : entry.biomes) {
-                    columnsByBiome.put(biomeId, bounds);
+                    Identifier updated = BiomeRenaming.updateName(biomeId, this.id);
+                    if(updated != null) {
+                        columnsByBiome.put(updated, bounds);
+                    }
                 }
             }
         } else if(settings.biomes != null) {
             this.columnsByBiome = new HashMap<>();
             for(Map.Entry<Identifier, Integer> entry : settings.biomes.entrySet()) {
-                columnsByBiome.put(entry.getKey(), new ColumnBounds(entry.getValue(), 1));
+                Identifier updated = BiomeRenaming.updateName(entry.getKey(), this.id);
+                if(updated != null) {
+                    columnsByBiome.put(updated, new ColumnBounds(entry.getValue(), 1));
+                }
             }
         } else {
             this.columnsByBiome = null;

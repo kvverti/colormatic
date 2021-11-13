@@ -106,13 +106,13 @@ public final class DefaultColumns {
      */
     private static Map<Identifier, ColormapProperties.ColumnBounds> createVanillaColumnBounds() {
         // see the Minecraft Wiki (https://minecraft.gamepedia.com/Biome#Biome_IDs)
-        // circa July 31, 2020
-        // todo: update this to include the new biome IDs and add a migration aid
+        // circa November 12, 2021
+        // we keep the legacy column associations where possible, renaming biomes as appropriate
         var map = new HashMap<Identifier, ColormapProperties.ColumnBounds>();
         map.put(new Identifier("ocean"), new ColormapProperties.ColumnBounds(0, 1));
         map.put(new Identifier("plains"), new ColormapProperties.ColumnBounds(1, 1));
         map.put(new Identifier("desert"), new ColormapProperties.ColumnBounds(2, 1));
-        map.put(new Identifier("mountains"), new ColormapProperties.ColumnBounds(3, 1));
+        map.put(new Identifier("windswept_hills"), new ColormapProperties.ColumnBounds(3, 1));
         map.put(new Identifier("forest"), new ColormapProperties.ColumnBounds(4, 1));
         map.put(new Identifier("taiga"), new ColormapProperties.ColumnBounds(5, 1));
         map.put(new Identifier("swamp"), new ColormapProperties.ColumnBounds(6, 1));
@@ -121,34 +121,23 @@ public final class DefaultColumns {
         map.put(new Identifier("the_end"), new ColormapProperties.ColumnBounds(9, 1));
         map.put(new Identifier("frozen_ocean"), new ColormapProperties.ColumnBounds(10, 1));
         map.put(new Identifier("frozen_river"), new ColormapProperties.ColumnBounds(11, 1));
-        map.put(new Identifier("snowy_tundra"), new ColormapProperties.ColumnBounds(12, 1));
-        map.put(new Identifier("snowy_mountains"), new ColormapProperties.ColumnBounds(13, 1));
+        map.put(new Identifier("snowy_plains"), new ColormapProperties.ColumnBounds(12, 1));
         map.put(new Identifier("mushroom_fields"), new ColormapProperties.ColumnBounds(14, 1));
-        map.put(new Identifier("mushroom_field_shore"), new ColormapProperties.ColumnBounds(15, 1));
         map.put(new Identifier("beach"), new ColormapProperties.ColumnBounds(16, 1));
-        map.put(new Identifier("desert_hills"), new ColormapProperties.ColumnBounds(17, 1));
-        map.put(new Identifier("wooded_hills"), new ColormapProperties.ColumnBounds(18, 1));
-        map.put(new Identifier("taiga_hills"), new ColormapProperties.ColumnBounds(19, 1));
-        map.put(new Identifier("mountain_edge"), new ColormapProperties.ColumnBounds(20, 1));
         map.put(new Identifier("jungle"), new ColormapProperties.ColumnBounds(21, 1));
-        map.put(new Identifier("jungle_hills"), new ColormapProperties.ColumnBounds(22, 1));
-        map.put(new Identifier("jungle_edge"), new ColormapProperties.ColumnBounds(23, 1));
+        map.put(new Identifier("sparse_jungle"), new ColormapProperties.ColumnBounds(23, 1));
         map.put(new Identifier("deep_ocean"), new ColormapProperties.ColumnBounds(24, 1));
-        map.put(new Identifier("stone_shore"), new ColormapProperties.ColumnBounds(25, 1));
+        map.put(new Identifier("stony_shore"), new ColormapProperties.ColumnBounds(25, 1));
         map.put(new Identifier("snowy_beach"), new ColormapProperties.ColumnBounds(26, 1));
         map.put(new Identifier("birch_forest"), new ColormapProperties.ColumnBounds(27, 1));
-        map.put(new Identifier("birch_forest_hills"), new ColormapProperties.ColumnBounds(28, 1));
         map.put(new Identifier("dark_forest"), new ColormapProperties.ColumnBounds(29, 1));
         map.put(new Identifier("snowy_taiga"), new ColormapProperties.ColumnBounds(30, 1));
-        map.put(new Identifier("snowy_taiga_hills"), new ColormapProperties.ColumnBounds(31, 1));
-        map.put(new Identifier("giant_tree_taiga"), new ColormapProperties.ColumnBounds(32, 1));
-        map.put(new Identifier("giant_tree_taiga_hills"), new ColormapProperties.ColumnBounds(33, 1));
-        map.put(new Identifier("wooded_mountains"), new ColormapProperties.ColumnBounds(34, 1));
+        map.put(new Identifier("old_growth_pine_taiga"), new ColormapProperties.ColumnBounds(32, 1));
+        map.put(new Identifier("windswept_forest"), new ColormapProperties.ColumnBounds(34, 1));
         map.put(new Identifier("savanna"), new ColormapProperties.ColumnBounds(35, 1));
         map.put(new Identifier("savanna_plateau"), new ColormapProperties.ColumnBounds(36, 1));
         map.put(new Identifier("badlands"), new ColormapProperties.ColumnBounds(37, 1));
-        map.put(new Identifier("wooded_badlands_plateau"), new ColormapProperties.ColumnBounds(38, 1));
-        map.put(new Identifier("badlands_plateau"), new ColormapProperties.ColumnBounds(39, 1));
+        map.put(new Identifier("wooded_badlands"), new ColormapProperties.ColumnBounds(38, 1));
         map.put(new Identifier("small_end_islands"), new ColormapProperties.ColumnBounds(40, 1));
         map.put(new Identifier("end_midlands"), new ColormapProperties.ColumnBounds(41, 1));
         map.put(new Identifier("end_highlands"), new ColormapProperties.ColumnBounds(42, 1));
@@ -156,7 +145,6 @@ public final class DefaultColumns {
         map.put(new Identifier("warm_ocean"), new ColormapProperties.ColumnBounds(44, 1));
         map.put(new Identifier("lukewarm_ocean"), new ColormapProperties.ColumnBounds(45, 1));
         map.put(new Identifier("cold_ocean"), new ColormapProperties.ColumnBounds(46, 1));
-        map.put(new Identifier("deep_warm_ocean"), new ColormapProperties.ColumnBounds(47, 1));
         map.put(new Identifier("deep_lukewarm_ocean"), new ColormapProperties.ColumnBounds(48, 1));
         map.put(new Identifier("deep_cold_ocean"), new ColormapProperties.ColumnBounds(49, 1));
         map.put(new Identifier("deep_frozen_ocean"), new ColormapProperties.ColumnBounds(50, 1));
@@ -164,31 +152,29 @@ public final class DefaultColumns {
         // the post-1.7 biome additions.
         map.put(new Identifier("the_void"), new ColormapProperties.ColumnBounds(127, 1));
         map.put(new Identifier("sunflower_plains"), new ColormapProperties.ColumnBounds(129, 1));
-        map.put(new Identifier("desert_lakes"), new ColormapProperties.ColumnBounds(130, 1));
-        map.put(new Identifier("gravelly_mountains"), new ColormapProperties.ColumnBounds(131, 1));
+        map.put(new Identifier("windswept_gravelly_hills"), new ColormapProperties.ColumnBounds(131, 1));
         map.put(new Identifier("flower_forest"), new ColormapProperties.ColumnBounds(132, 1));
-        map.put(new Identifier("swamp_hills"), new ColormapProperties.ColumnBounds(133, 1));
         map.put(new Identifier("ice_spikes"), new ColormapProperties.ColumnBounds(140, 1));
-        map.put(new Identifier("modified_jungle"), new ColormapProperties.ColumnBounds(149, 1));
-        map.put(new Identifier("modified_jungle_edge"), new ColormapProperties.ColumnBounds(151, 1));
-        map.put(new Identifier("tall_birch_forest"), new ColormapProperties.ColumnBounds(155, 1));
-        map.put(new Identifier("tall_birch_hills"), new ColormapProperties.ColumnBounds(156, 1));
-        map.put(new Identifier("dark_forest_hills"), new ColormapProperties.ColumnBounds(157, 1));
-        map.put(new Identifier("snowy_taiga_mountains"), new ColormapProperties.ColumnBounds(158, 1));
-        map.put(new Identifier("giant_spruce_taiga"), new ColormapProperties.ColumnBounds(160, 1));
-        map.put(new Identifier("giant_spruce_taiga_hills"), new ColormapProperties.ColumnBounds(161, 1));
-        map.put(new Identifier("modified_gravelly_mountains"), new ColormapProperties.ColumnBounds(162, 1));
-        map.put(new Identifier("shattered_savanna"), new ColormapProperties.ColumnBounds(163, 1));
-        map.put(new Identifier("shattered_savanna_plateau"), new ColormapProperties.ColumnBounds(164, 1));
+        map.put(new Identifier("old_growth_birch_forest"), new ColormapProperties.ColumnBounds(155, 1));
+        map.put(new Identifier("old_growth_spruce_taiga"), new ColormapProperties.ColumnBounds(160, 1));
+        map.put(new Identifier("windswept_savanna"), new ColormapProperties.ColumnBounds(163, 1));
         map.put(new Identifier("eroded_badlands"), new ColormapProperties.ColumnBounds(165, 1));
-        map.put(new Identifier("modified_wooded_badlands_plateau"), new ColormapProperties.ColumnBounds(166, 1));
-        map.put(new Identifier("modified_badlands_plateau"), new ColormapProperties.ColumnBounds(167, 1));
         map.put(new Identifier("bamboo_jungle"), new ColormapProperties.ColumnBounds(168, 1));
-        map.put(new Identifier("bamboo_jungle_hills"), new ColormapProperties.ColumnBounds(169, 1));
+        // 1.16 nether biomes
         map.put(new Identifier("soul_sand_valley"), new ColormapProperties.ColumnBounds(170, 1));
         map.put(new Identifier("crimson_forest"), new ColormapProperties.ColumnBounds(171, 1));
         map.put(new Identifier("warped_forest"), new ColormapProperties.ColumnBounds(172, 1));
+        // 1.17 cave biomes
         map.put(new Identifier("basalt_deltas"), new ColormapProperties.ColumnBounds(173, 1));
+        map.put(new Identifier("dripstone_caves"), new ColormapProperties.ColumnBounds(174, 1));
+        map.put(new Identifier("lush_caves"), new ColormapProperties.ColumnBounds(175, 1));
+        // 1.18 highland biomes (1.18 raw IDs 28-33, but these were already used)
+        map.put(new Identifier("meadow"), new ColormapProperties.ColumnBounds(176, 1));
+        map.put(new Identifier("grove"), new ColormapProperties.ColumnBounds(177, 1));
+        map.put(new Identifier("snowy_slopes"), new ColormapProperties.ColumnBounds(178, 1));
+        map.put(new Identifier("frozen_peaks"), new ColormapProperties.ColumnBounds(179, 1));
+        map.put(new Identifier("jagged_peaks"), new ColormapProperties.ColumnBounds(180, 1));
+        map.put(new Identifier("stony_peaks"), new ColormapProperties.ColumnBounds(181, 1));
         return map;
     }
 }
