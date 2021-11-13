@@ -24,6 +24,7 @@ package io.github.kvverti.colormatic.resource;
 import java.util.Collection;
 import java.util.regex.Pattern;
 
+import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.properties.InvalidColormapException;
@@ -48,10 +49,12 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
 
     private final Identifier id;
     private final Identifier optifineId;
+    private final Identifier otherOptifineId;
 
-    public CustomBiomeColormapsResource(Identifier id) {
-        this.id = id;
-        this.optifineId = new Identifier("minecraft", "optifine/" + id.getPath());
+    public CustomBiomeColormapsResource() {
+        this.id = new Identifier(Colormatic.MODID, "colormap/custom");
+        this.optifineId = new Identifier("minecraft", "optifine/colormap/custom");
+        this.otherOptifineId = new Identifier("minecraft", "optifine/colormap/blocks");
     }
 
     @Override
@@ -62,6 +65,7 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
     @Override
     public void reload(ResourceManager manager) {
         BiomeColormaps.reset();
+        addColormaps(manager, otherOptifineId, false);
         addColormaps(manager, optifineId, false);
         addColormaps(manager, id, true);
     }

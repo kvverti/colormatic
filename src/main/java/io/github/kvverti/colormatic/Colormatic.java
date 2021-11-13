@@ -77,8 +77,7 @@ public class Colormatic implements ClientModInitializer {
         new LinearColormapResource(new Identifier(MODID, "colormap/durability.png"));
     public static final LinearColormapResource EXPERIENCE_ORB_COLORS =
         new LinearColormapResource(new Identifier(MODID, "colormap/xporb.png"));
-    public static final CustomBiomeColormapsResource CUSTOM_BLOCK_COLORS =
-        new CustomBiomeColormapsResource(new Identifier(MODID, "colormap/custom"));
+    public static final CustomBiomeColormapsResource CUSTOM_BLOCK_COLORS = new CustomBiomeColormapsResource();
     public static final GlobalLightmapResource LIGHTMAP_PROPS =
         new GlobalLightmapResource(new Identifier(MODID, "lightmap.json"));
     public static final LightmapsResource LIGHTMAPS =
