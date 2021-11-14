@@ -140,29 +140,4 @@ public final class BiomeColormaps {
             }
         }
     }
-
-    public static int getFluidFogColor(Fluid fluid, BlockRenderView world, BlockPos pos) {
-        return getBiomeColor(fluidFogColormaps, fluid, world, pos);
-    }
-
-    /**
-     * Retrieves the biome coloring for the given block position, taking into
-     * account the client's biome blend options.
-     */
-    private static <K> int getBiomeColor(ColormapStorage<K> storage, K key, BlockRenderView world, BlockPos pos) {
-        if(world != null && pos != null) {
-            var resolver = storage.getResolver(key);
-            if(resolver == null) {
-                throw new IllegalStateException("Resolver for existing colormap cannot be null: " + key);
-            }
-            return resolver.resolveExtendedColor(world, pos);
-        } else {
-            BiomeColormap colormap = storage.getFallback(key);
-            if(colormap != null) {
-                return colormap.getDefaultColor();
-            } else {
-                return 0xffffff;
-            }
-        }
-    }
 }

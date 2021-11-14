@@ -25,6 +25,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.colormap.ColormaticResolver;
+import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,7 +40,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.CameraSubmersionType;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -62,6 +65,27 @@ public abstract class BackgroundRendererMixin {
     @Shadow
     private static float blue;
 
+    /**
+     * If Colormatic has a color for lava, redirect the submersion type to water so we can reuse water
+     * fog blending.
+     */
+    @ModifyVariable(
+        method = "render",
+        at = @At(
+            value = "LOAD",
+            ordinal = 0
+        ),
+        ordinal = 0
+    )
+    private static CameraSubmersionType detectShouldColormaticFluidBlend(CameraSubmersionType submersionType) {
+        if(submersionType == CameraSubmersionType.LAVA) {
+            if(BiomeColormaps.isFluidFogCustomColored(Fluids.LAVA) || Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
+                return CameraSubmersionType.WATER;
+            }
+        }
+        return submersionType;
+    }
+
     @Redirect(
         method = "render",
         at = @At(
@@ -69,23 +93,37 @@ public abstract class BackgroundRendererMixin {
             target = "Lnet/minecraft/world/biome/Biome;getWaterFogColor()I"
         )
     )
-    private static int proxyWaterFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+    private static int proxyWaterLavaFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+        Fluid fluid;
+        BiomeColormapResource colormapResource;
+        var submersionType = camera.getSubmersionType();
+        if(submersionType == CameraSubmersionType.LAVA) {
+            fluid = Fluids.LAVA;
+            colormapResource = Colormatic.UNDERLAVA_COLORS;
+        } else {
+            fluid = Fluids.WATER;
+            colormapResource = Colormatic.UNDERWATER_COLORS;
+        }
         int color = 0;
-        if(BiomeColormaps.isFluidFogCustomColored(Fluids.WATER)) {
-            BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), Fluids.WATER, biome);
+        if(BiomeColormaps.isFluidFogCustomColored(fluid)) {
+            BiomeColormap colormap = BiomeColormaps.getFluidFog(world.getRegistryManager(), fluid, biome);
             if(colormap != null) {
                 BlockPos pos = camera.getBlockPos();
                 color = colormap.getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
             }
         }
         if(color == 0) {
-            if(Colormatic.UNDERWATER_COLORS.hasCustomColormap()) {
+            if(colormapResource.hasCustomColormap()) {
                 BlockPos pos = camera.getBlockPos();
-                color = Colormatic.UNDERWATER_COLORS
+                color = colormapResource
                     .getColormap()
                     .getColor(world.getRegistryManager(), biome, pos.getX(), pos.getY(), pos.getZ());
             } else {
-                color = biome.getWaterFogColor();
+                if(submersionType == CameraSubmersionType.LAVA) {
+                    color = 0x991900;
+                } else {
+                    color = biome.getWaterFogColor();
+                }
             }
         }
         return color;
@@ -202,51 +240,5 @@ public abstract class BackgroundRendererMixin {
             scale = 1.0;
         }
         return scale;
-    }
-
-    /* Relevant bytecode:
-     *  50: ldc           #122                // float 0.6f
-     *  52: putfield      #124                // Field red:F
-     *  55: aload_0
-     *  56: ldc           #125                // float 0.1f
-     *  58: putfield      #127                // Field green:F
-     *  61: aload_0
-     *  62: fconst_0
-     *  63: putfield      #129                // Field blue:F
-     *  <injection point>
-     *  66: aload_0
-     *  67: ldc2_w        #60                 // long -1l
-     *  70: putfield      #63                 // Field lastWaterFogColorUpdateTime:J
-     */
-    @Inject(
-        method = "render",
-        slice = @Slice(
-            from = @At(
-                value = "FIELD",
-                target = "Lnet/minecraft/client/render/CameraSubmersionType;LAVA:Lnet/minecraft/client/render/CameraSubmersionType;"
-            )
-        ),
-        at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/render/BackgroundRenderer;blue:F",
-            ordinal = 0,
-            shift = At.Shift.AFTER
-        )
-    )
-    private static void onRenderLavaFog(Camera camera, float partialTicks, ClientWorld world, int int1, float float1, CallbackInfo info) {
-        if(BiomeColormaps.isFluidFogCustomColored(Fluids.LAVA)) {
-            int color = BiomeColormaps.getFluidFogColor(Fluids.LAVA, world, camera.getBlockPos());
-            BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
-            BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
-        } else if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
-            int color = BiomeColormap.getBiomeColor(
-                world,
-                camera.getBlockPos(),
-                Colormatic.UNDERLAVA_COLORS.getColormap());
-            BackgroundRendererMixin.red = ((color >> 16) & 0xff) / 255.0f;
-            BackgroundRendererMixin.green = ((color >> 8) & 0xff) / 255.0f;
-            BackgroundRendererMixin.blue = (color & 0xff) / 255.0f;
-        }
     }
 }
