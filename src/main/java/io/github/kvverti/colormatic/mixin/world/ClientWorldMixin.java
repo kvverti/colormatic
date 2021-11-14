@@ -22,7 +22,6 @@
 package io.github.kvverti.colormatic.mixin.world;
 
 import io.github.kvverti.colormatic.Colormatic;
-import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.colormap.ExtendedColorResolver;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -31,7 +30,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -40,8 +39,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.level.ColorResolver;
 
 /**
@@ -57,34 +57,30 @@ public abstract class ClientWorldMixin extends World {
     @Shadow
     public abstract int calculateColor(BlockPos pos, ColorResolver colorResolver);
 
+    @Shadow
+    public abstract DynamicRegistryManager getRegistryManager();
+
     private ClientWorldMixin() {
         super(null, null, null, null, false, false, 0L);
     }
 
-    @Redirect(
+    @ModifyArg(
         method = "method_23777",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
-        )
+        ),
+        index = 1
     )
-    private Vec3d proxySkyColor(Vec3d noisePos, CubicSampler.RgbFetcher fetcher, Vec3d pos, float partial) {
-        BlockPos blockPos = new BlockPos(pos);
-        int skyColor;
-        if(BiomeColormaps.isSkyCustomColored(this)) {
-            skyColor = BiomeColormaps.getSkyColor(this, blockPos);
-        } else if(Colormatic.SKY_COLORS.hasCustomColormap() && Colormatic.getDimId(this).equals(DimensionType.OVERWORLD_ID)) {
-            BiomeColormap colormap = Colormatic.SKY_COLORS.getColormap();
-            skyColor = BiomeColormap.getBiomeColor(this, blockPos, colormap);
-        } else {
-            skyColor = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(Colormatic.getDimId(this));
-        }
-        if(skyColor != 0) {
-            var skyColorVec = Vec3d.unpackRgb(skyColor);
-            return CubicSampler.sampleColor(noisePos, (x, y, z) -> skyColorVec);
-        } else {
-            return CubicSampler.sampleColor(noisePos, fetcher);
-        }
+    private CubicSampler.RgbFetcher proxySkyColor(CubicSampler.RgbFetcher fetcher) {
+        var dimId = Colormatic.getDimId(this);
+        var resolver = BiomeColormaps.getTotalSky(dimId);
+        var biomeAccess = this.getBiomeAccess();
+        var manager = this.getRegistryManager();
+        return (x, y, z) -> {
+            var biome = biomeAccess.getBiomeForNoiseGen(x, y, z);
+            return Vec3d.unpackRgb(resolver.getColor(manager, biome, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z)));
+        };
     }
 
     /**
@@ -92,7 +88,6 @@ public abstract class ClientWorldMixin extends World {
      */
     @Inject(method = "getColor", at = @At("HEAD"))
     private void fixVanillaColorCache(BlockPos pos, ColorResolver resolver, CallbackInfoReturnable<Integer> info) {
-        // todo: cache vertically differentiated color properly. Apparently broken since 1.16.x
         if(this.colorCache.get(resolver) == null) {
             this.colorCache.put(resolver, new BiomeColorCache(pos1 -> this.calculateColor(pos1, resolver)));
         }

@@ -62,6 +62,10 @@ public final class ExtendedColorResolver implements ColorResolver {
         return world.getColor(pos, this);
     }
 
+    public ColormaticResolver getWrappedResolver() {
+        return wrappedResolver;
+    }
+
     @Override
     public int getColor(Biome biome, double x, double z) {
         return wrappedResolver.getColor(registryManager, biome, (int)x, this.posY.get().y, (int)z);

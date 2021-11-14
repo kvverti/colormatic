@@ -26,7 +26,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.properties.ColormapProperties;
 
 import net.minecraft.block.Block;
@@ -37,7 +36,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockRenderView;
-import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 
 /**
@@ -50,18 +48,26 @@ public final class BiomeColormaps {
     /**
      * Stores colormaps primarily by block.
      */
-    private static final ColormapStorage<Block> colormapsByBlock = new ColormapStorage<>();
+    private static final ColormapStorage<Block> colormapsByBlock = new ColormapStorage<>(DefaultColormaticResolverProviders.BLOCK);
 
     /**
      * Stores colormaps primarily by block state.
      */
-    private static final ColormapStorage<BlockState> colormapsByState = new ColormapStorage<>();
+    private static final ColormapStorage<BlockState> colormapsByState = new ColormapStorage<>(DefaultColormaticResolverProviders.BLOCK_STATE);
 
-    private static final ColormapStorage<Identifier> skyColormaps = new ColormapStorage<>();
-    private static final ColormapStorage<Identifier> skyFogColormaps = new ColormapStorage<>();
-    private static final ColormapStorage<Fluid> fluidFogColormaps = new ColormapStorage<>();
+    private static final ColormapStorage<Identifier> skyColormaps = new ColormapStorage<>(DefaultColormaticResolverProviders.SKY);
+    private static final ColormapStorage<Identifier> skyFogColormaps = new ColormapStorage<>(DefaultColormaticResolverProviders.SKY_FOG);
+    private static final ColormapStorage<Fluid> fluidFogColormaps = new ColormapStorage<>(DefaultColormaticResolverProviders.FLUID_FOG);
 
     private BiomeColormaps() {
+    }
+
+    public static ColormaticResolver getTotalSky(Identifier dimId) {
+        return skyColormaps.getColormaticResolver(dimId);
+    }
+
+    public static ColormaticResolver getTotalSkyFog(Identifier dimId) {
+        return skyFogColormaps.getColormaticResolver(dimId);
     }
 
     public static BiomeColormap getFluidFog(DynamicRegistryManager manager, Fluid fluid, Biome biome) {
@@ -71,15 +77,15 @@ public final class BiomeColormaps {
     public static void add(BiomeColormap colormap) {
         ColormapProperties props = colormap.getProperties();
         Set<Identifier> biomes = props.getApplicableBiomes();
-        colormapsByState.addColormap(colormap, props.getApplicableBlockStates(), biomes, DefaultColormaticResolverProviders.BLOCK_STATE);
-        colormapsByBlock.addColormap(colormap, props.getApplicableBlocks(), biomes, DefaultColormaticResolverProviders.BLOCK);
+        colormapsByState.addColormap(colormap, props.getApplicableBlockStates(), biomes);
+        colormapsByBlock.addColormap(colormap, props.getApplicableBlocks(), biomes);
         for(Map.Entry<Identifier, Collection<Identifier>> entry : props.getApplicableSpecialIds().entrySet()) {
             switch(entry.getKey().toString()) {
-                case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes, DefaultColormaticResolverProviders.SKY);
-                case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes, DefaultColormaticResolverProviders.SKY_FOG);
+                case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes);
+                case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes);
                 case "colormatic:fluid_fog" -> {
                     Collection<Fluid> fluids = entry.getValue().stream().map(Registry.FLUID::get).collect(Collectors.toList());
-                    fluidFogColormaps.addColormap(colormap, fluids, biomes, DefaultColormaticResolverProviders.FLUID_FOG);
+                    fluidFogColormaps.addColormap(colormap, fluids, biomes);
                 }
             }
         }
@@ -108,14 +114,6 @@ public final class BiomeColormaps {
         return colormapsByBlock.getFallback(state.getBlock()) != null || colormapsByState.getFallback(state) != null;
     }
 
-    public static boolean isSkyCustomColored(World world) {
-        return skyColormaps.contains(Colormatic.getDimId(world));
-    }
-
-    public static boolean isSkyFogCustomColored(World world) {
-        return skyFogColormaps.contains(Colormatic.getDimId(world));
-    }
-
     public static boolean isFluidFogCustomColored(Fluid fluid) {
         return fluidFogColormaps.contains(fluid);
     }
@@ -141,16 +139,6 @@ public final class BiomeColormaps {
                 return 0xffffff;
             }
         }
-    }
-
-    public static int getSkyColor(World world, BlockPos pos) {
-        Identifier id = Colormatic.getDimId(world);
-        return getBiomeColor(skyColormaps, id, world, pos);
-    }
-
-    public static int getSkyFogColor(World world, BlockPos pos) {
-        Identifier id = Colormatic.getDimId(world);
-        return getBiomeColor(skyFogColormaps, id, world, pos);
     }
 
     public static int getFluidFogColor(Fluid fluid, BlockRenderView world, BlockPos pos) {
