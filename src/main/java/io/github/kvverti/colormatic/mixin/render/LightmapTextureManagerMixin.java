@@ -140,7 +140,7 @@ public abstract class LightmapTextureManagerMixin {
             if(world.getLightningTicksLeft() > 0) {
                 ambience = -1.0f;
             } else {
-                ambience = world.method_23783(partialTicks);
+                ambience = world.getStarBrightness(partialTicks);
                 // ambience is a value between 0.2 and 1.0, inclusive.
                 // we want it to be between 0.0 and 1.0, inclusive.
                 // Note: the overworld ambience ranges between 0.2 and 1.0

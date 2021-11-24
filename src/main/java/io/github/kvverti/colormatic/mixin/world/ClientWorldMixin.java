@@ -65,7 +65,7 @@ public abstract class ClientWorldMixin extends World {
     }
 
     @ModifyArg(
-        method = "method_23777",
+        method = "getSkyColor",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"

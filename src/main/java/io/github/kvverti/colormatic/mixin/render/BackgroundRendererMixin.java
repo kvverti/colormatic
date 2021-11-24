@@ -167,7 +167,7 @@ public abstract class BackgroundRendererMixin {
     )
     private static void setFogColorToSkyColor(Camera camera, float partialTicks, ClientWorld world, int i, float f, CallbackInfo info) {
         if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-            Vec3d color = world.method_23777(camera.getPos(), partialTicks);
+            Vec3d color = world.getSkyColor(camera.getPos(), partialTicks);
             BackgroundRendererMixin.red = (float)color.x;
             BackgroundRendererMixin.green = (float)color.y;
             BackgroundRendererMixin.blue = (float)color.z;

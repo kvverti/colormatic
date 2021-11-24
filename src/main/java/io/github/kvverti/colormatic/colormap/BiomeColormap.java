@@ -102,7 +102,7 @@ public class BiomeColormap implements ColormaticResolver {
     public int getColor(DynamicRegistryManager manager, Biome biome, int posX, int posY, int posZ) {
         switch(properties.getFormat()) {
             case VANILLA:
-                double temp = biome.getTemperature(new BlockPos(posX, posY, posZ));
+                double temp = biome.getTemperature();
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
                 double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
