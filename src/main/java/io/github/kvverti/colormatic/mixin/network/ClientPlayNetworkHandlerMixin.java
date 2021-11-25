@@ -21,25 +21,12 @@
  */
 package io.github.kvverti.colormatic.mixin.network;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Style;
-import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
@@ -49,10 +36,6 @@ public abstract class ClientPlayNetworkHandlerMixin {
 
     @Shadow
     private DynamicRegistryManager registryManager;
-
-    @Shadow
-    @Final
-    private MinecraftClient client;
 
     /**
      * We loop through and make the instances identical since we want to be able to get the ID for a given dimension
@@ -74,33 +57,5 @@ public abstract class ClientPlayNetworkHandlerMixin {
             }
         }
         return target;
-    }
-
-    /**
-     * Whether we've displayed the warning already.
-     */
-    @Unique
-    private static boolean notified;
-
-    /**
-     * Add a warning for players who install Sodium without Indium.
-     */
-    @Inject(method = "onGameJoin", at = @At("RETURN"))
-    private void warnColormaticIndiumOnce(CallbackInfo info) {
-        if(!notified && FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
-            var text = new LiteralText("")
-                .append(new LiteralText("Colormatic: ")
-                    .setStyle(Style.EMPTY.withFormatting(Formatting.YELLOW, Formatting.BOLD)))
-                .append(new TranslatableText("colormatic.sodium_dependency_warning")
-                    .setStyle(Style.EMPTY
-                        .withClickEvent(new ClickEvent(
-                            ClickEvent.Action.OPEN_URL,
-                            "https://modrinth.com/mod/indium"))
-                        .withHoverEvent(new HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
-                            new TranslatableText("colormatic.sodium_dependency_warning.hover")))));
-            this.client.player.sendSystemMessage(text, Util.NIL_UUID);
-        }
-        notified = true;
     }
 }

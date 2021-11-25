@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_16",
   "plugin": "io.github.kvverti.colormatic.mixinsodium.SodiumMixinFilterPlugin",
   "client": [
-    "color.SodiumBlockColorsMixin"
+    "color.SodiumBlockColorsMixin",
+    "color.SodiumItemColorsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

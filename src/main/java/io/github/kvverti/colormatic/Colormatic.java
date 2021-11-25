@@ -116,11 +116,6 @@ public class Colormatic implements ClientModInitializer {
     public void onInitializeClient() {
         ColormaticConfigController.load(config);
 
-        if(FabricLoader.getInstance().isModLoaded("sodium") && !FabricLoader.getInstance().isModLoaded("indium")) {
-            logger.warn("Sodium is present, but Indium is not!");
-            logger.warn("Indium is recommend for use with Sodium, or certain features will not work properly.");
-        }
-
         ResourceManagerHelper client = ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES);
         client.registerReloadListener(WATER_COLORS);
         client.registerReloadListener(UNDERWATER_COLORS);

@@ -17,6 +17,7 @@
     "dye.WolfCollarFeatureRendererMixin",
     "item.SpawnEggItemMixin",
     "model.BakedModelManagerMixin",
+    "model.BakedQuadFactoryMixin",
     "model.ModelLoaderMixin",
     "network.ClientPlayNetworkHandlerMixin",
     "network.GameJoinS2CPacketMixin",
