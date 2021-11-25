@@ -44,7 +44,7 @@ import static java.util.stream.Collectors.toList;
  */
 public class CustomBiomeColormapsResource implements SimpleSynchronousResourceReloadListener {
 
-    private static final Logger log = LogManager.getLogger("Colormatic");
+    private static final Logger log = LogManager.getLogger(Colormatic.MODID);
     private static final Pattern ID_PATTERN = Pattern.compile("[a-z0-9_/.-]+");
 
     private final Identifier id;
