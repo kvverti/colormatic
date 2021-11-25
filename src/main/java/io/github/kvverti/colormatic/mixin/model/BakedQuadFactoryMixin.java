@@ -21,24 +21,12 @@
  */
 package io.github.kvverti.colormatic.mixin.model;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.iface.ModelIdContext;
-import io.github.kvverti.colormatic.mixin.color.BlockColorsAccessor;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.BakedQuadFactory;
-import net.minecraft.client.render.model.json.ModelElementFace;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.command.argument.BlockStateArgumentType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 /**
  * Wrap block state models that are Colormatic custom colored in a baked model that enables the tint index
@@ -47,51 +35,19 @@ import net.minecraft.util.registry.Registry;
 @Mixin(BakedQuadFactory.class)
 public abstract class BakedQuadFactoryMixin {
 
-    @Unique
-    private static final BlockStateArgumentType BLOCK_STATE_PARSER = BlockStateArgumentType.blockState();
-
     /**
      * Replaces non-tinted quads with tinted quads when baked if the block has no color provider.
-     * We parse the block state from the model ID. It is important that custom biome colormaps are
-     * reloaded <em>before</em> this callback is run.
-     *
-     * @param self The model element face that defines the tint index.
      */
-    @Redirect(
+    @ModifyArg(
         method = "bake",
         at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/client/render/model/json/ModelElementFace;tintIndex:I"
-        )
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/render/model/BakedQuad;<init>([IILnet/minecraft/util/math/Direction;Lnet/minecraft/client/texture/Sprite;Z)V"
+        ),
+        index = 1
     )
-    private int addTintToCustomColoredModel(ModelElementFace self) {
-        ModelIdentifier modelId = ModelIdContext.currentModelId;
-        if(modelId != null) {
-            BlockState blockState;
-            if(modelId.getVariant().equals("inventory")) {
-                // we're using the block color providers for detecting non-custom item tinting for now
-                var blockId = new Identifier(modelId.getNamespace(), modelId.getPath());
-                blockState = Registry.BLOCK.get(blockId).getDefaultState();
-            } else {
-                var blockStateDesc = modelId.getNamespace() + ":" + modelId.getPath() + "[" + modelId.getVariant() + "]";
-                try {
-                    blockState = BLOCK_STATE_PARSER.parse(new StringReader(blockStateDesc)).getBlockState();
-                } catch(CommandSyntaxException e) {
-                    return self.tintIndex;
-                }
-            }
-            // set up tint index replacement if
-            //  - Colormatic has custom colors for the block state
-            //  - the block does not already have a color provider
-            // note: we're calling a custom biome colors method. Re-evaluate if we combine custom biome colors
-            // with provided biome colors.
-            if(self.tintIndex == -1 && BiomeColormaps.isCustomColored(blockState)) {
-                var colorProviders = ((BlockColorsAccessor)MinecraftClient.getInstance().getBlockColors()).getProviders();
-                if(!colorProviders.containsKey(Registry.BLOCK.getRawId(blockState.getBlock()))) {
-                    return 0;
-                }
-            }
-        }
-        return self.tintIndex;
+    private int addTintToCustomColoredModel(int tintIndex) {
+        // customTintCurrentModel implies that all quads are untinted
+        return ModelIdContext.customTintCurrentModel ? 0 : tintIndex;
     }
 }

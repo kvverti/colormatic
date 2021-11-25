@@ -21,10 +21,6 @@
  */
 package io.github.kvverti.colormatic.iface;
 
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.util.ModelIdentifier;
-
 /**
  * Context for {@link io.github.kvverti.colormatic.mixin.model.BakedQuadFactoryMixin} so that the callback knows
  * which model is being loaded.
@@ -32,9 +28,12 @@ import net.minecraft.client.util.ModelIdentifier;
 public final class ModelIdContext {
 
     /**
-     * The current model ID.
+     * Whether the current model should be custom tinted, which is the case if and only if
+     * - Colormatic has custom colors for the block state, and
+     * - the block does not already have a color provider, and
+     * - the model does not define tint index for any faces
      */
-    public static @Nullable ModelIdentifier currentModelId;
+    public static boolean customTintCurrentModel;
 
     private ModelIdContext() {
     }

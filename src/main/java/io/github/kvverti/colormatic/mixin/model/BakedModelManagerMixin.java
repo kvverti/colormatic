@@ -40,7 +40,7 @@ import net.minecraft.util.profiler.Profiler;
 abstract class BakedModelManagerMixin {
 
     @Inject(
-        method = "prepare",
+        method = "prepare(Lnet/minecraft/resource/ResourceManager;Lnet/minecraft/util/profiler/Profiler;)Lnet/minecraft/client/render/model/ModelLoader;",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/profiler/Profiler;startTick()V",

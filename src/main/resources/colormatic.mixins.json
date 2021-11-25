@@ -18,6 +18,7 @@
     "item.SpawnEggItemMixin",
     "model.BakedModelManagerMixin",
     "model.BakedQuadFactoryMixin",
+    "model.JsonUnbakedModelMixin",
     "model.ModelLoaderMixin",
     "network.ClientPlayNetworkHandlerMixin",
     "network.GameJoinS2CPacketMixin",

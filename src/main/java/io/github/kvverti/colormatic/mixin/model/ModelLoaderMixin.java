@@ -21,22 +21,36 @@
  */
 package io.github.kvverti.colormatic.mixin.model;
 
+import com.mojang.brigadier.StringReader;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.iface.ModelIdContext;
+import io.github.kvverti.colormatic.mixin.color.BlockColorsAccessor;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 @Mixin(ModelLoader.class)
-abstract class ModelLoaderMixin {
+public abstract class ModelLoaderMixin {
+
+    @Unique
+    private static final BlockStateArgumentType BLOCK_STATE_PARSER = BlockStateArgumentType.blockState();
 
     /**
-     * Sets model ID context for the baked quad factory. Must be set before UnbakedModel#back is called.
+     * Partially determines whether Colormatic should replace the tint on a model.
+     * We parse the block state from the model ID. It is important that custom biome colormaps are
+     * reloaded <em>before</em> this callback is run.
      */
     @Dynamic("Model baking lambda in upload()")
     @Inject(
@@ -47,8 +61,34 @@ abstract class ModelLoaderMixin {
         )
     )
     private void setModelIdContext(Identifier id, CallbackInfo info) {
+        ModelIdContext.customTintCurrentModel = false;
         if(id instanceof ModelIdentifier modelId) {
-            ModelIdContext.currentModelId = modelId;
+            BlockState blockState;
+            if(modelId.getVariant().equals("inventory")) {
+                // we're using the block color providers for detecting non-custom item tinting for now
+                var blockId = new Identifier(modelId.getNamespace(), modelId.getPath());
+                blockState = Registry.BLOCK.get(blockId).getDefaultState();
+            } else {
+                var blockStateDesc = modelId.getNamespace() + ":" + modelId.getPath() + "[" + modelId.getVariant() + "]";
+                try {
+                    blockState = BLOCK_STATE_PARSER.parse(new StringReader(blockStateDesc)).getBlockState();
+                } catch(CommandSyntaxException e) {
+                    // don't custom tint block state models that aren't real blocks
+                    return;
+                }
+            }
+            // test first two criteria
+            //  - Colormatic has custom colors for the block state
+            //  - the block does not already have a color provider
+            // note: we're calling a custom biome colors method. Re-evaluate if we combine custom biome colors
+            // with provided biome colors.
+            if(BiomeColormaps.isCustomColored(blockState)) {
+                var colorProviders = ((BlockColorsAccessor)MinecraftClient.getInstance().getBlockColors()).getProviders();
+                if(!colorProviders.containsKey(Registry.BLOCK.getRawId(blockState.getBlock()))) {
+                    // tentatively set to true - further checking in JsonUnbakedModelMixin
+                    ModelIdContext.customTintCurrentModel = true;
+                }
+            }
         }
     }
 }
