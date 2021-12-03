@@ -28,7 +28,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.Fluids;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
@@ -43,7 +42,9 @@ final class DefaultColormaticResolverProviders {
     public static final ColormaticResolverProvider<Block> BLOCK = DefaultColormaticResolverProviders::byBlock;
     public static final ColormaticResolverProvider<Identifier> SKY = DefaultColormaticResolverProviders::bySky;
     public static final ColormaticResolverProvider<Identifier> SKY_FOG = DefaultColormaticResolverProviders::byFog;
-    public static final ColormaticResolverProvider<Fluid> FLUID_FOG = DefaultColormaticResolverProviders::byFluidFog;
+    // currently unused because Minecraft doesn't have a unified framework for fluid fog
+    // also, fluid fog is not blended so resolvers are not used anyway
+    public static final ColormaticResolverProvider<Fluid> FLUID_FOG = key -> (manager, biome, posX, posY, posZ) -> -1;
 
     private DefaultColormaticResolverProviders() {
     }
@@ -96,25 +97,5 @@ final class DefaultColormaticResolverProviders {
             }
             return color;
         };
-    }
-
-    private static final ColormaticResolver WHITE = (manager, biome, posX, posY, posZ) -> -1;
-    private static final ColormaticResolver LAVA_FOG = (manager, biome, posX, posY, posZ) -> {
-        int color;
-        if(Colormatic.UNDERLAVA_COLORS.hasCustomColormap()) {
-            color = Colormatic.UNDERLAVA_COLORS.getColormap().getColor(manager, biome, posX, posY, posZ);
-        } else {
-            color = 0x991900;
-        }
-        return color;
-    };
-
-    private static ColormaticResolver byFluidFog(Fluid key) {
-        // we only need to do lava here. The algorithm is different from water fog,
-        // but hey, who's going to be swimming under lava for extended periods of time?
-        if(key.matchesType(Fluids.LAVA)) {
-            return LAVA_FOG;
-        }
-        return WHITE;
     }
 }
