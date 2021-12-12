@@ -68,7 +68,8 @@ public final class ExtendedColorResolver implements ColorResolver {
 
     @Override
     public int getColor(Biome biome, double x, double z) {
-        return wrappedResolver.getColor(registryManager, biome, (int)x, this.posY.get().y, (int)z);
+        // work-around for Sodium treating pure white as a "no-cache" sentinel
+        return 0xfffefefe & wrappedResolver.getColor(registryManager, biome, (int)x, this.posY.get().y, (int)z);
     }
 
     /**
