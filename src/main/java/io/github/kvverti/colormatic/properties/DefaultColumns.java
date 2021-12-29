@@ -29,10 +29,12 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeKeys;
 
 public final class DefaultColumns {
 
@@ -41,36 +43,107 @@ public final class DefaultColumns {
     /**
      * Mapping of dynamic biomes to nearest vanilla columns.
      */
-    private static final Map<Identifier, ColormapProperties.ColumnBounds> dynamicColumns = new HashMap<>();
+    private static final Map<Identifier, Identifier> dynamicColumns = new HashMap<>();
 
     /**
-     * The default mapping of biomes to columns.
+     * The default mapping of biomes to columns (based on vanilla biome raw ID).
      */
-    private static final Map<Identifier, ColormapProperties.ColumnBounds> vanillaColumns = createVanillaColumnBounds();
+    private static final Map<Identifier, ColormapProperties.ColumnBounds> currentColumns = createCurrentColumnBounds();
+
+    /**
+     * The 1.17 mapping of biomes to columns. Uses the 1.17 column equivalents for custom biomes and doubles up
+     * columns for new vanilla biomes.
+     */
+    private static final Map<Identifier, ColormapProperties.ColumnBounds> legacyColumns = createLegacyColumnBounds();
+
+    /**
+     * A stable mapping of biomes to columns. Never uses biome raw IDs to determine column.
+     */
+    private static final Map<Identifier, ColormapProperties.ColumnBounds> stableColumns = createStableColumnBounds();
+
+    private static final int VANILLA_BIOME_COUNT = BuiltinRegistries.BIOME.size();
+    private static final int LEGACY_1_17_BIOME_COUNT = 176;
 
     private DefaultColumns() {
     }
 
-    public static ColormapProperties.ColumnBounds getBounds(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry, boolean optifine) {
-        var bounds = vanillaColumns.get(biomeKey.getValue());
+    public static ColormapProperties.ColumnBounds getDefaultBounds(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry, boolean optifine) {
+        var bounds = currentColumns.get(biomeKey.getValue());
         if(bounds == null) {
             if(optifine) {
                 // Optifine computes grid colors using the raw ID
                 int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
                 return new ColormapProperties.ColumnBounds(rawID, 1);
             } else {
-                // Colormatic computes grid colors using temperature-humidity distance
-                bounds = dynamicColumns.get(biomeKey.getValue());
+                bounds = currentColumns.get(approximateToVanilla(biomeKey));
                 if(bounds == null) {
-                    // this exception tends to trigger a crash in the crash report generator due to it
-                    // happening off-thread, so we log before bailing
-                    var msg = "No column bounds for dynamic biome: " + biomeKey.getValue();
+                    // see comment in approximateToVanilla()
+                    var msg = "Custom biome has no approximate: " + biomeKey.getValue();
                     log.error(msg);
-                    throw new IllegalArgumentException(msg);
+                    throw new IllegalStateException(msg);
                 }
             }
         }
         return bounds;
+    }
+
+    /**
+     * The 1.17 vanilla biome column bounds, with new vanilla biomes assigned to an approximate.
+     * Custom biomes are offset so that the first custom biome takes column 176.
+     */
+    public static ColormapProperties.ColumnBounds getLegacyBounds(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry, boolean optifine) {
+        var bounds = legacyColumns.get(biomeKey.getValue());
+        if(bounds == null) {
+            if(optifine) {
+                // Optifine computes grid colors using the raw ID
+                int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
+                return new ColormapProperties.ColumnBounds(rawID - VANILLA_BIOME_COUNT + LEGACY_1_17_BIOME_COUNT, 1);
+            } else {
+                bounds = legacyColumns.get(approximateToVanilla(biomeKey));
+                if(bounds == null) {
+                    // see comment in approximateToVanilla()
+                    var msg = "Custom biome has no approximate: " + biomeKey.getValue();
+                    log.error(msg);
+                    throw new IllegalStateException(msg);
+                }
+            }
+        }
+        return bounds;
+    }
+
+    /**
+     * Returns the stable column bounds for the given biome. Vanilla biome columns are guaranteed to be stable
+     * across versions, and custom biomes are always approximated with a vanilla biome.
+     */
+    public static ColormapProperties.ColumnBounds getStableBounds(RegistryKey<Biome> biomeKey) {
+        var bounds = stableColumns.get(biomeKey.getValue());
+        if(bounds == null) {
+            bounds = stableColumns.get(approximateToVanilla(biomeKey));
+            if(bounds == null) {
+                // see comment in approximateToVanilla()
+                var msg = "Custom biome has no approximate: " + biomeKey.getValue();
+                log.error(msg);
+                throw new IllegalStateException(msg);
+            }
+        }
+        return bounds;
+    }
+
+    /**
+     * Retrieves the vanilla approximation for a custom biome.
+     */
+    private static Identifier approximateToVanilla(RegistryKey<Biome> biomeKey) {
+        Identifier id;
+        // Colormatic computes grid colors using temperature-humidity distance
+        id = dynamicColumns.get(biomeKey.getValue());
+        if(id == null) {
+            // this exception tends to trigger a crash in the crash report generator due to it
+            // happening off-thread, so we log before bailing
+            var msg = "No column bounds for dynamic biome: " + biomeKey.getValue();
+            log.error(msg);
+            throw new IllegalArgumentException(msg);
+        }
+        return id;
     }
 
     /**
@@ -85,7 +158,7 @@ public final class DefaultColumns {
             var biomeRegistry = manager.get(Registry.BIOME_KEY);
             for(var entry : biomeRegistry.getEntries()) {
                 var key = entry.getKey();
-                if(!vanillaColumns.containsKey(key.getValue())) {
+                if(!currentColumns.containsKey(key.getValue())) {
                     dynamicColumns.put(key.getValue(), computeClosestDefaultBiome(key, biomeRegistry));
                 }
             }
@@ -98,9 +171,9 @@ public final class DefaultColumns {
      *
      * @param biomeKey      The key of the custom biome.
      * @param biomeRegistry The biome registry.
-     * @return The bounds of the vanilla biome closest to the given biome.
+     * @return The ID of the vanilla biome closest to the given biome.
      */
-    private static ColormapProperties.ColumnBounds computeClosestDefaultBiome(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
+    private static Identifier computeClosestDefaultBiome(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
         var customBiome = biomeRegistry.get(biomeKey);
         if(customBiome == null) {
             throw new IllegalStateException("Biome is not registered: " + biomeKey.getValue());
@@ -108,8 +181,8 @@ public final class DefaultColumns {
         double temperature = customBiome.getTemperature();
         double humidity = MathHelper.clamp(customBiome.getDownfall(), 0.0, 1.0);
         double minDistanceSq = Double.POSITIVE_INFINITY;
-        ColormapProperties.ColumnBounds minBounds = null;
-        for(var entry : vanillaColumns.entrySet()) {
+        Identifier minBiomeId = null;
+        for(var entry : currentColumns.entrySet()) {
             var vanillaBiome = biomeRegistry.get(entry.getKey());
             if(vanillaBiome == null) {
                 log.error("Vanilla biome is not registered????? : {}", entry.getKey());
@@ -120,86 +193,165 @@ public final class DefaultColumns {
             var thisDistanceSq = dTemperature * dTemperature + dHumidity * dHumidity;
             if(thisDistanceSq < minDistanceSq) {
                 minDistanceSq = thisDistanceSq;
-                minBounds = entry.getValue();
+                minBiomeId = entry.getKey();
             }
         }
-        return minBounds;
+        return minBiomeId;
     }
 
-    /**
-     * The vanilla biome column bounds, based on their raw IDs.
-     */
-    private static Map<Identifier, ColormapProperties.ColumnBounds> createVanillaColumnBounds() {
-        // see the Minecraft Wiki (https://minecraft.gamepedia.com/Biome#Biome_IDs)
-        // circa November 12, 2021
-        // we keep the legacy column associations where possible, renaming biomes as appropriate
+    private static Map<Identifier, ColormapProperties.ColumnBounds> createCurrentColumnBounds() {
+        // based on the raw IDs in current Minecraft code
         var map = new HashMap<Identifier, ColormapProperties.ColumnBounds>();
-        map.put(new Identifier("ocean"), new ColormapProperties.ColumnBounds(0, 1));
-        map.put(new Identifier("plains"), new ColormapProperties.ColumnBounds(1, 1));
-        map.put(new Identifier("desert"), new ColormapProperties.ColumnBounds(2, 1));
-        map.put(new Identifier("windswept_hills"), new ColormapProperties.ColumnBounds(3, 1));
-        map.put(new Identifier("forest"), new ColormapProperties.ColumnBounds(4, 1));
-        map.put(new Identifier("taiga"), new ColormapProperties.ColumnBounds(5, 1));
-        map.put(new Identifier("swamp"), new ColormapProperties.ColumnBounds(6, 1));
-        map.put(new Identifier("river"), new ColormapProperties.ColumnBounds(7, 1));
-        map.put(new Identifier("nether_wastes"), new ColormapProperties.ColumnBounds(8, 1));
-        map.put(new Identifier("the_end"), new ColormapProperties.ColumnBounds(9, 1));
-        map.put(new Identifier("frozen_ocean"), new ColormapProperties.ColumnBounds(10, 1));
-        map.put(new Identifier("frozen_river"), new ColormapProperties.ColumnBounds(11, 1));
-        map.put(new Identifier("snowy_plains"), new ColormapProperties.ColumnBounds(12, 1));
-        map.put(new Identifier("mushroom_fields"), new ColormapProperties.ColumnBounds(14, 1));
-        map.put(new Identifier("beach"), new ColormapProperties.ColumnBounds(16, 1));
-        map.put(new Identifier("jungle"), new ColormapProperties.ColumnBounds(21, 1));
-        map.put(new Identifier("sparse_jungle"), new ColormapProperties.ColumnBounds(23, 1));
-        map.put(new Identifier("deep_ocean"), new ColormapProperties.ColumnBounds(24, 1));
-        map.put(new Identifier("stony_shore"), new ColormapProperties.ColumnBounds(25, 1));
-        map.put(new Identifier("snowy_beach"), new ColormapProperties.ColumnBounds(26, 1));
-        map.put(new Identifier("birch_forest"), new ColormapProperties.ColumnBounds(27, 1));
-        map.put(new Identifier("dark_forest"), new ColormapProperties.ColumnBounds(29, 1));
-        map.put(new Identifier("snowy_taiga"), new ColormapProperties.ColumnBounds(30, 1));
-        map.put(new Identifier("old_growth_pine_taiga"), new ColormapProperties.ColumnBounds(32, 1));
-        map.put(new Identifier("windswept_forest"), new ColormapProperties.ColumnBounds(34, 1));
-        map.put(new Identifier("savanna"), new ColormapProperties.ColumnBounds(35, 1));
-        map.put(new Identifier("savanna_plateau"), new ColormapProperties.ColumnBounds(36, 1));
-        map.put(new Identifier("badlands"), new ColormapProperties.ColumnBounds(37, 1));
-        map.put(new Identifier("wooded_badlands"), new ColormapProperties.ColumnBounds(38, 1));
-        map.put(new Identifier("small_end_islands"), new ColormapProperties.ColumnBounds(40, 1));
-        map.put(new Identifier("end_midlands"), new ColormapProperties.ColumnBounds(41, 1));
-        map.put(new Identifier("end_highlands"), new ColormapProperties.ColumnBounds(42, 1));
-        map.put(new Identifier("end_barrens"), new ColormapProperties.ColumnBounds(43, 1));
-        map.put(new Identifier("warm_ocean"), new ColormapProperties.ColumnBounds(44, 1));
-        map.put(new Identifier("lukewarm_ocean"), new ColormapProperties.ColumnBounds(45, 1));
-        map.put(new Identifier("cold_ocean"), new ColormapProperties.ColumnBounds(46, 1));
-        map.put(new Identifier("deep_lukewarm_ocean"), new ColormapProperties.ColumnBounds(48, 1));
-        map.put(new Identifier("deep_cold_ocean"), new ColormapProperties.ColumnBounds(49, 1));
-        map.put(new Identifier("deep_frozen_ocean"), new ColormapProperties.ColumnBounds(50, 1));
+        for(var biome : BuiltinRegistries.BIOME) {
+            var id = BuiltinRegistries.BIOME.getId(biome);
+            var rawId = BuiltinRegistries.BIOME.getRawId(biome);
+            map.put(id, new ColormapProperties.ColumnBounds(rawId, 1));
+        }
+        return map;
+    }
+
+    private static Map<Identifier, ColormapProperties.ColumnBounds> createLegacyColumnBounds() {
+        // taken from the vanilla raw ID assignments in 1.17
+        var map = new HashMap<Identifier, ColormapProperties.ColumnBounds>();
+        map.put(BiomeKeys.OCEAN.getValue(), new ColormapProperties.ColumnBounds(0, 1));
+        map.put(BiomeKeys.PLAINS.getValue(), new ColormapProperties.ColumnBounds(1, 1));
+        map.put(BiomeKeys.DESERT.getValue(), new ColormapProperties.ColumnBounds(2, 1));
+        map.put(BiomeKeys.WINDSWEPT_HILLS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
+        map.put(BiomeKeys.FOREST.getValue(), new ColormapProperties.ColumnBounds(4, 1));
+        map.put(BiomeKeys.TAIGA.getValue(), new ColormapProperties.ColumnBounds(5, 1));
+        map.put(BiomeKeys.SWAMP.getValue(), new ColormapProperties.ColumnBounds(6, 1));
+        map.put(BiomeKeys.RIVER.getValue(), new ColormapProperties.ColumnBounds(7, 1));
+        map.put(BiomeKeys.NETHER_WASTES.getValue(), new ColormapProperties.ColumnBounds(8, 1));
+        map.put(BiomeKeys.THE_END.getValue(), new ColormapProperties.ColumnBounds(9, 1));
+        map.put(BiomeKeys.FROZEN_OCEAN.getValue(), new ColormapProperties.ColumnBounds(10, 1));
+        map.put(BiomeKeys.FROZEN_RIVER.getValue(), new ColormapProperties.ColumnBounds(11, 1));
+        map.put(BiomeKeys.SNOWY_PLAINS.getValue(), new ColormapProperties.ColumnBounds(12, 1));
+        map.put(BiomeKeys.MUSHROOM_FIELDS.getValue(), new ColormapProperties.ColumnBounds(14, 1));
+        map.put(BiomeKeys.BEACH.getValue(), new ColormapProperties.ColumnBounds(16, 1));
+        map.put(BiomeKeys.JUNGLE.getValue(), new ColormapProperties.ColumnBounds(21, 1));
+        map.put(BiomeKeys.SPARSE_JUNGLE.getValue(), new ColormapProperties.ColumnBounds(23, 1));
+        map.put(BiomeKeys.DEEP_OCEAN.getValue(), new ColormapProperties.ColumnBounds(24, 1));
+        map.put(BiomeKeys.STONY_SHORE.getValue(), new ColormapProperties.ColumnBounds(25, 1));
+        map.put(BiomeKeys.SNOWY_BEACH.getValue(), new ColormapProperties.ColumnBounds(26, 1));
+        map.put(BiomeKeys.BIRCH_FOREST.getValue(), new ColormapProperties.ColumnBounds(27, 1));
+        map.put(BiomeKeys.DARK_FOREST.getValue(), new ColormapProperties.ColumnBounds(29, 1));
+        map.put(BiomeKeys.SNOWY_TAIGA.getValue(), new ColormapProperties.ColumnBounds(30, 1));
+        map.put(BiomeKeys.OLD_GROWTH_PINE_TAIGA.getValue(), new ColormapProperties.ColumnBounds(32, 1));
+        map.put(BiomeKeys.WINDSWEPT_FOREST.getValue(), new ColormapProperties.ColumnBounds(34, 1));
+        map.put(BiomeKeys.SAVANNA.getValue(), new ColormapProperties.ColumnBounds(35, 1));
+        map.put(BiomeKeys.SAVANNA_PLATEAU.getValue(), new ColormapProperties.ColumnBounds(36, 1));
+        map.put(BiomeKeys.BADLANDS.getValue(), new ColormapProperties.ColumnBounds(37, 1));
+        map.put(BiomeKeys.WOODED_BADLANDS.getValue(), new ColormapProperties.ColumnBounds(38, 1));
+        map.put(BiomeKeys.SMALL_END_ISLANDS.getValue(), new ColormapProperties.ColumnBounds(40, 1));
+        map.put(BiomeKeys.END_MIDLANDS.getValue(), new ColormapProperties.ColumnBounds(41, 1));
+        map.put(BiomeKeys.END_HIGHLANDS.getValue(), new ColormapProperties.ColumnBounds(42, 1));
+        map.put(BiomeKeys.END_BARRENS.getValue(), new ColormapProperties.ColumnBounds(43, 1));
+        map.put(BiomeKeys.WARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(44, 1));
+        map.put(BiomeKeys.LUKEWARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(45, 1));
+        map.put(BiomeKeys.COLD_OCEAN.getValue(), new ColormapProperties.ColumnBounds(46, 1));
+        map.put(BiomeKeys.DEEP_LUKEWARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(48, 1));
+        map.put(BiomeKeys.DEEP_COLD_OCEAN.getValue(), new ColormapProperties.ColumnBounds(49, 1));
+        map.put(BiomeKeys.DEEP_FROZEN_OCEAN.getValue(), new ColormapProperties.ColumnBounds(50, 1));
         // formerly "mutated" variants of biomes, normal biome ID + 128, except for
         // the post-1.7 biome additions.
-        map.put(new Identifier("the_void"), new ColormapProperties.ColumnBounds(127, 1));
-        map.put(new Identifier("sunflower_plains"), new ColormapProperties.ColumnBounds(129, 1));
-        map.put(new Identifier("windswept_gravelly_hills"), new ColormapProperties.ColumnBounds(131, 1));
-        map.put(new Identifier("flower_forest"), new ColormapProperties.ColumnBounds(132, 1));
-        map.put(new Identifier("ice_spikes"), new ColormapProperties.ColumnBounds(140, 1));
-        map.put(new Identifier("old_growth_birch_forest"), new ColormapProperties.ColumnBounds(155, 1));
-        map.put(new Identifier("old_growth_spruce_taiga"), new ColormapProperties.ColumnBounds(160, 1));
-        map.put(new Identifier("windswept_savanna"), new ColormapProperties.ColumnBounds(163, 1));
-        map.put(new Identifier("eroded_badlands"), new ColormapProperties.ColumnBounds(165, 1));
-        map.put(new Identifier("bamboo_jungle"), new ColormapProperties.ColumnBounds(168, 1));
+        map.put(BiomeKeys.THE_VOID.getValue(), new ColormapProperties.ColumnBounds(127, 1));
+        map.put(BiomeKeys.SUNFLOWER_PLAINS.getValue(), new ColormapProperties.ColumnBounds(129, 1));
+        map.put(BiomeKeys.WINDSWEPT_GRAVELLY_HILLS.getValue(), new ColormapProperties.ColumnBounds(131, 1));
+        map.put(BiomeKeys.FLOWER_FOREST.getValue(), new ColormapProperties.ColumnBounds(132, 1));
+        map.put(BiomeKeys.ICE_SPIKES.getValue(), new ColormapProperties.ColumnBounds(140, 1));
+        map.put(BiomeKeys.OLD_GROWTH_BIRCH_FOREST.getValue(), new ColormapProperties.ColumnBounds(155, 1));
+        map.put(BiomeKeys.OLD_GROWTH_SPRUCE_TAIGA.getValue(), new ColormapProperties.ColumnBounds(160, 1));
+        map.put(BiomeKeys.WINDSWEPT_SAVANNA.getValue(), new ColormapProperties.ColumnBounds(163, 1));
+        map.put(BiomeKeys.ERODED_BADLANDS.getValue(), new ColormapProperties.ColumnBounds(165, 1));
+        map.put(BiomeKeys.BAMBOO_JUNGLE.getValue(), new ColormapProperties.ColumnBounds(168, 1));
         // 1.16 nether biomes
-        map.put(new Identifier("soul_sand_valley"), new ColormapProperties.ColumnBounds(170, 1));
-        map.put(new Identifier("crimson_forest"), new ColormapProperties.ColumnBounds(171, 1));
-        map.put(new Identifier("warped_forest"), new ColormapProperties.ColumnBounds(172, 1));
-        map.put(new Identifier("basalt_deltas"), new ColormapProperties.ColumnBounds(173, 1));
+        map.put(BiomeKeys.SOUL_SAND_VALLEY.getValue(), new ColormapProperties.ColumnBounds(170, 1));
+        map.put(BiomeKeys.CRIMSON_FOREST.getValue(), new ColormapProperties.ColumnBounds(171, 1));
+        map.put(BiomeKeys.WARPED_FOREST.getValue(), new ColormapProperties.ColumnBounds(172, 1));
+        map.put(BiomeKeys.BASALT_DELTAS.getValue(), new ColormapProperties.ColumnBounds(173, 1));
         // 1.17 cave biomes
-        map.put(new Identifier("dripstone_caves"), new ColormapProperties.ColumnBounds(174, 1));
-        map.put(new Identifier("lush_caves"), new ColormapProperties.ColumnBounds(175, 1));
-        // 1.18 highland biomes (1.18 raw IDs 28-33, but these were already used)
-        map.put(new Identifier("meadow"), new ColormapProperties.ColumnBounds(176, 1));
-        map.put(new Identifier("grove"), new ColormapProperties.ColumnBounds(177, 1));
-        map.put(new Identifier("snowy_slopes"), new ColormapProperties.ColumnBounds(178, 1));
-        map.put(new Identifier("frozen_peaks"), new ColormapProperties.ColumnBounds(179, 1));
-        map.put(new Identifier("jagged_peaks"), new ColormapProperties.ColumnBounds(180, 1));
-        map.put(new Identifier("stony_peaks"), new ColormapProperties.ColumnBounds(181, 1));
+        map.put(BiomeKeys.DRIPSTONE_CAVES.getValue(), new ColormapProperties.ColumnBounds(174, 1));
+        map.put(BiomeKeys.LUSH_CAVES.getValue(), new ColormapProperties.ColumnBounds(175, 1));
+        // 1.18 highland biomes
+        // meadow -> plains
+        map.put(BiomeKeys.MEADOW.getValue(), new ColormapProperties.ColumnBounds(1, 1));
+        // grove -> snowy taiga
+        map.put(BiomeKeys.GROVE.getValue(), new ColormapProperties.ColumnBounds(30, 1));
+        // snowy slopes -> snowy plains
+        map.put(BiomeKeys.SNOWY_SLOPES.getValue(), new ColormapProperties.ColumnBounds(12, 1));
+        map.put(BiomeKeys.FROZEN_PEAKS.getValue(), new ColormapProperties.ColumnBounds(12, 1));
+        // non-snow peaks -> windswept hills
+        map.put(BiomeKeys.JAGGED_PEAKS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
+        map.put(BiomeKeys.STONY_PEAKS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
+        return map;
+    }
+
+
+    private static Map<Identifier, ColormapProperties.ColumnBounds> createStableColumnBounds() {
+        // taken from biome raw IDs but frozen in perpetuity
+        var map = new HashMap<Identifier, ColormapProperties.ColumnBounds>();
+        // 1.18
+        map.put(BiomeKeys.THE_VOID.getValue(), new ColormapProperties.ColumnBounds(0, 1));
+        map.put(BiomeKeys.PLAINS.getValue(), new ColormapProperties.ColumnBounds(1, 1));
+        map.put(BiomeKeys.SUNFLOWER_PLAINS.getValue(), new ColormapProperties.ColumnBounds(2, 1));
+        map.put(BiomeKeys.SNOWY_PLAINS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
+        map.put(BiomeKeys.ICE_SPIKES.getValue(), new ColormapProperties.ColumnBounds(4, 1));
+        map.put(BiomeKeys.DESERT.getValue(), new ColormapProperties.ColumnBounds(5, 1));
+        map.put(BiomeKeys.SWAMP.getValue(), new ColormapProperties.ColumnBounds(6, 1));
+        map.put(BiomeKeys.FOREST.getValue(), new ColormapProperties.ColumnBounds(7, 1));
+        map.put(BiomeKeys.FLOWER_FOREST.getValue(), new ColormapProperties.ColumnBounds(8, 1));
+        map.put(BiomeKeys.BIRCH_FOREST.getValue(), new ColormapProperties.ColumnBounds(9, 1));
+        map.put(BiomeKeys.DARK_FOREST.getValue(), new ColormapProperties.ColumnBounds(10, 1));
+        map.put(BiomeKeys.OLD_GROWTH_BIRCH_FOREST.getValue(), new ColormapProperties.ColumnBounds(11, 1));
+        map.put(BiomeKeys.OLD_GROWTH_PINE_TAIGA.getValue(), new ColormapProperties.ColumnBounds(12, 1));
+        map.put(BiomeKeys.OLD_GROWTH_SPRUCE_TAIGA.getValue(), new ColormapProperties.ColumnBounds(13, 1));
+        map.put(BiomeKeys.TAIGA.getValue(), new ColormapProperties.ColumnBounds(14, 1));
+        map.put(BiomeKeys.SNOWY_TAIGA.getValue(), new ColormapProperties.ColumnBounds(15, 1));
+        map.put(BiomeKeys.SAVANNA.getValue(), new ColormapProperties.ColumnBounds(16, 1));
+        map.put(BiomeKeys.SAVANNA_PLATEAU.getValue(), new ColormapProperties.ColumnBounds(17, 1));
+        map.put(BiomeKeys.WINDSWEPT_HILLS.getValue(), new ColormapProperties.ColumnBounds(18, 1));
+        map.put(BiomeKeys.WINDSWEPT_GRAVELLY_HILLS.getValue(), new ColormapProperties.ColumnBounds(19, 1));
+        map.put(BiomeKeys.WINDSWEPT_FOREST.getValue(), new ColormapProperties.ColumnBounds(20, 1));
+        map.put(BiomeKeys.WINDSWEPT_SAVANNA.getValue(), new ColormapProperties.ColumnBounds(21, 1));
+        map.put(BiomeKeys.JUNGLE.getValue(), new ColormapProperties.ColumnBounds(22, 1));
+        map.put(BiomeKeys.SPARSE_JUNGLE.getValue(), new ColormapProperties.ColumnBounds(23, 1));
+        map.put(BiomeKeys.BAMBOO_JUNGLE.getValue(), new ColormapProperties.ColumnBounds(24, 1));
+        map.put(BiomeKeys.BADLANDS.getValue(), new ColormapProperties.ColumnBounds(25, 1));
+        map.put(BiomeKeys.ERODED_BADLANDS.getValue(), new ColormapProperties.ColumnBounds(26, 1));
+        map.put(BiomeKeys.WOODED_BADLANDS.getValue(), new ColormapProperties.ColumnBounds(27, 1));
+        map.put(BiomeKeys.MEADOW.getValue(), new ColormapProperties.ColumnBounds(28, 1));
+        map.put(BiomeKeys.GROVE.getValue(), new ColormapProperties.ColumnBounds(29, 1));
+        map.put(BiomeKeys.SNOWY_SLOPES.getValue(), new ColormapProperties.ColumnBounds(30, 1));
+        map.put(BiomeKeys.FROZEN_PEAKS.getValue(), new ColormapProperties.ColumnBounds(31, 1));
+        map.put(BiomeKeys.JAGGED_PEAKS.getValue(), new ColormapProperties.ColumnBounds(32, 1));
+        map.put(BiomeKeys.STONY_PEAKS.getValue(), new ColormapProperties.ColumnBounds(33, 1));
+        map.put(BiomeKeys.RIVER.getValue(), new ColormapProperties.ColumnBounds(34, 1));
+        map.put(BiomeKeys.FROZEN_RIVER.getValue(), new ColormapProperties.ColumnBounds(35, 1));
+        map.put(BiomeKeys.BEACH.getValue(), new ColormapProperties.ColumnBounds(36, 1));
+        map.put(BiomeKeys.SNOWY_BEACH.getValue(), new ColormapProperties.ColumnBounds(37, 1));
+        map.put(BiomeKeys.STONY_SHORE.getValue(), new ColormapProperties.ColumnBounds(38, 1));
+        map.put(BiomeKeys.WARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(39, 1));
+        map.put(BiomeKeys.LUKEWARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(40, 1));
+        map.put(BiomeKeys.DEEP_LUKEWARM_OCEAN.getValue(), new ColormapProperties.ColumnBounds(41, 1));
+        map.put(BiomeKeys.OCEAN.getValue(), new ColormapProperties.ColumnBounds(42, 1));
+        map.put(BiomeKeys.DEEP_OCEAN.getValue(), new ColormapProperties.ColumnBounds(43, 1));
+        map.put(BiomeKeys.COLD_OCEAN.getValue(), new ColormapProperties.ColumnBounds(44, 1));
+        map.put(BiomeKeys.DEEP_COLD_OCEAN.getValue(), new ColormapProperties.ColumnBounds(45, 1));
+        map.put(BiomeKeys.FROZEN_OCEAN.getValue(), new ColormapProperties.ColumnBounds(46, 1));
+        map.put(BiomeKeys.DEEP_FROZEN_OCEAN.getValue(), new ColormapProperties.ColumnBounds(47, 1));
+        map.put(BiomeKeys.MUSHROOM_FIELDS.getValue(), new ColormapProperties.ColumnBounds(48, 1));
+        map.put(BiomeKeys.DRIPSTONE_CAVES.getValue(), new ColormapProperties.ColumnBounds(49, 1));
+        map.put(BiomeKeys.LUSH_CAVES.getValue(), new ColormapProperties.ColumnBounds(50, 1));
+        map.put(BiomeKeys.NETHER_WASTES.getValue(), new ColormapProperties.ColumnBounds(51, 1));
+        map.put(BiomeKeys.WARPED_FOREST.getValue(), new ColormapProperties.ColumnBounds(52, 1));
+        map.put(BiomeKeys.CRIMSON_FOREST.getValue(), new ColormapProperties.ColumnBounds(53, 1));
+        map.put(BiomeKeys.SOUL_SAND_VALLEY.getValue(), new ColormapProperties.ColumnBounds(54, 1));
+        map.put(BiomeKeys.BASALT_DELTAS.getValue(), new ColormapProperties.ColumnBounds(55, 1));
+        map.put(BiomeKeys.THE_END.getValue(), new ColormapProperties.ColumnBounds(56, 1));
+        map.put(BiomeKeys.END_HIGHLANDS.getValue(), new ColormapProperties.ColumnBounds(57, 1));
+        map.put(BiomeKeys.END_MIDLANDS.getValue(), new ColormapProperties.ColumnBounds(58, 1));
+        map.put(BiomeKeys.SMALL_END_ISLANDS.getValue(), new ColormapProperties.ColumnBounds(59, 1));
+        map.put(BiomeKeys.END_BARRENS.getValue(), new ColormapProperties.ColumnBounds(60, 1));
         return map;
     }
 }

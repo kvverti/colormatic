@@ -91,6 +91,11 @@ public class ColormapProperties {
     private final HexColor color;
 
     /**
+     * For format = grid only, the way in which to lay out biome columns by default.
+     */
+    private final ColumnLayout layout;
+
+    /**
      * For format = grid only, the amount of noise to add to the y coordinate
      * of the block position in order to determine the color.
      */
@@ -130,6 +135,7 @@ public class ColormapProperties {
         this.blocks = settings.blocks;
         this.source = new Identifier(settings.source);
         this.color = settings.color;
+        this.layout = settings.layout;
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
         if(settings.grid != null) {
@@ -202,7 +208,11 @@ public class ColormapProperties {
                     }
                     return cb;
                 } else {
-                    return DefaultColumns.getBounds(biomeKey, biomeRegistry, this.optifine);
+                    return switch(layout) {
+                        case DEFAULT -> DefaultColumns.getDefaultBounds(biomeKey, biomeRegistry, this.optifine);
+                        case LEGACY -> DefaultColumns.getLegacyBounds(biomeKey, biomeRegistry, this.optifine);
+                        case STABLE -> DefaultColumns.getStableBounds(biomeKey);
+                    };
                 }
             } else {
                 return DEFAULT_BOUNDS;
@@ -282,6 +292,23 @@ public class ColormapProperties {
         }
     }
 
+    public enum ColumnLayout implements StringIdentifiable {
+        DEFAULT("default"),
+        LEGACY("legacy"),
+        STABLE("stable");
+
+        private final String name;
+
+        ColumnLayout(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String asString() {
+            return name;
+        }
+    }
+
     /**
      * Loads the colormap properties defined by the given identifier. The properties
      * should be in JSON format. If not present, returns a default properties taken
@@ -310,6 +337,9 @@ public class ColormapProperties {
         }
         if(settings.format == null) {
             settings.format = Colormatic.COLOR_PROPS.getProperties().getDefaultFormat();
+        }
+        if(settings.layout == null) {
+            settings.layout = Colormatic.COLOR_PROPS.getProperties().getDefaultLayout();
         }
         if(custom) {
             if(settings.blocks == null) {
@@ -343,6 +373,7 @@ public class ColormapProperties {
         Collection<ApplicableBlockStates> blocks = null;
         String source = null;
         HexColor color = null;
+        ColumnLayout layout = null;
         int yVariance = 0;
         int yOffset = 0;
         Map<Identifier, Integer> biomes = null;

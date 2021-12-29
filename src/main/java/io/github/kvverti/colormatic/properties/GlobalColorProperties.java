@@ -70,6 +70,7 @@ public class GlobalColorProperties {
     private final TextColorSettings text;
     private final int xpOrbTime;
     private final ColormapProperties.Format defaultFormat;
+    private final ColormapProperties.ColumnLayout defaultLayout;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -108,6 +109,7 @@ public class GlobalColorProperties {
             this.text = new TextColorSettings();
         }
         this.defaultFormat = settings.palette.format;
+        this.defaultLayout = settings.palette.layout;
         // water potions' color does not correspond to a status effect
         // so we use `null` for the key
         HexColor water = settings.potion.get("water");
@@ -272,6 +274,10 @@ public class GlobalColorProperties {
         return defaultFormat;
     }
 
+    public ColormapProperties.ColumnLayout getDefaultLayout() {
+        return defaultLayout;
+    }
+
     public enum ColoredParticle implements StringIdentifiable {
         WATER("water"),
         LAVA("lava"),
@@ -392,5 +398,6 @@ public class GlobalColorProperties {
         static Palette DEFAULT = new Palette();
 
         ColormapProperties.Format format = ColormapProperties.Format.VANILLA;
+        ColormapProperties.ColumnLayout layout = ColormapProperties.ColumnLayout.DEFAULT;
     }
 }
