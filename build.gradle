@@ -37,7 +37,7 @@ dependencies {
 		transitive = false
 	}
 	modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
-//	modRuntime "maven.modrinth:sodium:${project.sodium_version}"
+	//modRuntime "maven.modrinth:sodium:${project.sodium_version}"
 }
 
 processResources {
