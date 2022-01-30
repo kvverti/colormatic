@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -48,10 +48,10 @@ public abstract class PortalParticleMixin extends SpriteBillboardParticle {
         if(color != 0) {
             // the random multiplier is assigned to this field
             // in the constructor, we retrieve it
-            float multi = this.colorBlue;
-            this.colorRed = multi * (((color >> 16) & 0xff) / 255.0f);
-            this.colorGreen = multi * (((color >> 8) & 0xff) / 255.0f);
-            this.colorBlue = multi * (((color >> 0) & 0xff) / 255.0f);
+            float multi = this.blue;
+            this.red = multi * (((color >> 16) & 0xff) / 255.0f);
+            this.green = multi * (((color >> 8) & 0xff) / 255.0f);
+            this.blue = multi * (((color >> 0) & 0xff) / 255.0f);
         }
     }
 }

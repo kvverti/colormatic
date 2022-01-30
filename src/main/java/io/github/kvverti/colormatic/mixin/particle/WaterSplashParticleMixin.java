@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -53,9 +53,9 @@ public abstract class WaterSplashParticleMixin extends SpriteBillboardParticle {
             BiomeColormap colormap = Colormatic.WATER_COLORS.getColormap();
             pos.set(this.x, this.y, this.z);
             int color = BiomeColormap.getBiomeColor(this.world, pos, colormap);
-            this.colorRed = ((color >> 16) & 0xff) / 255.0f;
-            this.colorGreen = ((color >> 8) & 0xff) / 255.0f;
-            this.colorBlue = ((color >> 0) & 0xff) / 255.0f;
+            this.red = ((color >> 16) & 0xff) / 255.0f;
+            this.green = ((color >> 8) & 0xff) / 255.0f;
+            this.blue = ((color >> 0) & 0xff) / 255.0f;
         }
     }
 }
