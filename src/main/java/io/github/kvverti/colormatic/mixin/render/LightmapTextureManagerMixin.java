@@ -177,9 +177,10 @@ public abstract class LightmapTextureManagerMixin {
                     gbright = 1.0f - gbright;
                     bbright = 1.0f - bbright;
                     float brightness = (float)this.client.options.gamma;
-                    r = r * (1.0f - brightness) + rbright * brightness;
-                    g = g * (1.0f - brightness) + gbright * brightness;
-                    b = b * (1.0f - brightness) + bbright * brightness;
+                    float brightnessAdditive = brightness > 1.0f ? 0 : (1.0f - brightness);
+                    r = r * brightnessAdditive + rbright * brightness;
+                    g = g * brightnessAdditive + gbright * brightness;
+                    b = b * brightnessAdditive + bbright * brightness;
                     int color = 0xff000000;
                     color |= (int)(r * 255.0f) << 16;
                     color |= (int)(g * 255.0f) <<  8;
