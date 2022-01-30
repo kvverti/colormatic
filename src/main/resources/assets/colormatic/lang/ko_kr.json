@@ -1,0 +1,11 @@
+{
+    "colormatic.config.title": "Colormatic 옵션",
+    "colormatic.config.category.fog": "안개 및 하늘",
+    "colormatic.config.category.light": "빛",
+    "colormatic.config.option.clearSky": "맑은 해안선",
+    "colormatic.config.option.clearVoid": "맑은 공허",
+    "colormatic.config.option.blendSkyLight": "부드러운 하늘 전환",
+    "colormatic.config.option.flickerBlockLight": "블록 빛 깜빡임",
+    "colormatic.sodium_dependency_warning": "Sodium을 완전히 사용하기 위해 Indium을 설치해야하지만, 설치되지 않았습니다. 일부 기능이 비활성화 됩니다.",
+    "colormatic.sodium_dependency_warning.hover": "Indium Modrinth 페이지로 "
+}
