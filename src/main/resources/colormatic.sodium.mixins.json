@@ -5,7 +5,9 @@
   "plugin": "io.github.kvverti.colormatic.mixinsodium.SodiumMixinFilterPlugin",
   "client": [
     "color.SodiumBlockColorsMixin",
-    "color.SodiumItemColorsMixin"
+    "color.SodiumItemColorsMixin",
+    "world.SodiumClientWorldMixin",
+    "world.SodiumBiomeAccessAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

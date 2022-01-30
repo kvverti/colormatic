@@ -22,7 +22,7 @@
 package io.github.kvverti.colormatic.mixinsodium.color;
 
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import me.jellysquid.mods.sodium.client.model.quad.ModelQuadColorProvider;
+import me.jellysquid.mods.sodium.client.model.quad.blender.ColorSampler;
 import me.jellysquid.mods.sodium.client.world.biome.BlockColorsExtended;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
@@ -38,14 +38,14 @@ import net.minecraft.client.color.block.BlockColors;
 public abstract class SodiumBlockColorsMixin implements BlockColorsExtended {
 
     @Unique
-    private static final ModelQuadColorProvider<BlockState> COLORMATIC_PROVIDER =
+    private static final ColorSampler<BlockState> COLORMATIC_PROVIDER =
         (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
 
     /**
      * Displace Sodium's implementation to first check Colormatic's custom block colors.
      */
     @Intrinsic(displace = true)
-    public ModelQuadColorProvider<BlockState> i$getColorProvider(BlockState state) {
+    public ColorSampler<BlockState> i$getColorProvider(BlockState state) {
         if(BiomeColormaps.isCustomColored(state)) {
             return COLORMATIC_PROVIDER;
         }
