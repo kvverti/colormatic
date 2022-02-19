@@ -22,6 +22,7 @@
 package io.github.kvverti.colormatic.mixin.render;
 
 import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.ColormaticConfig;
 import io.github.kvverti.colormatic.Lightmaps;
 import io.github.kvverti.colormatic.colormap.Lightmap;
 
@@ -76,6 +77,12 @@ public abstract class LightmapTextureManagerMixin {
     @Unique
     private int flickerTicksRemaining;
 
+    @Unique
+    private final int[] SKY_LIGHT_COLORS = new int[16];
+
+    @Unique
+    private final int[] BLOCK_LIGHT_COLORS = new int[16];
+
     @Inject(method = "tick", at = @At("RETURN"))
     private void onTickTickFlicker(CallbackInfo info) {
         if(Colormatic.config().flickerBlockLight) {
@@ -126,7 +133,6 @@ public abstract class LightmapTextureManagerMixin {
         }
         Lightmap map = Lightmaps.get(world);
         if(map != null) {
-            int wane = Colormatic.LIGHTMAP_PROPS.getProperties().blockWane();
             float nightVision;
             PlayerEntity player = this.client.player;
             if(player.isSubmergedInWater() && player.hasStatusEffect(StatusEffects.CONDUIT_POWER)) {
@@ -148,22 +154,22 @@ public abstract class LightmapTextureManagerMixin {
                 // 0.2, and the end ambience is always 1.0.
                 ambience = (ambience - 0.2f) * 1.25f;
             }
+            for(int i = 0; i < 16; i++) {
+                SKY_LIGHT_COLORS[i] = map.getSkyLight(i, ambience, nightVision);
+                BLOCK_LIGHT_COLORS[i] = map.getBlockLight(i, flickerPos, nightVision);
+            }
+            // relative intensity curve = exp2(ax)
+            double relativeIntensityExp = ambience * ColormaticConfig.scaled(Colormatic.config().relativeBlockLightIntensityExponent) / 16.0;
             for(int skyLight = 0; skyLight < 16; skyLight++) {
+                float blockIntensityScale = (float)Math.exp(relativeIntensityExp * skyLight);
                 for(int blockLight = 0; blockLight < 16; blockLight++) {
-                    int trueBlockLight = blockLight;
-                    if(wane < 15 && ambience >= 0) {
-                        // adjust block light levels
-                        int trueSkyLight = (int)(skyLight * ambience);
-                        if(trueSkyLight > wane) {
-                            trueBlockLight = Math.max(0, blockLight - (trueSkyLight - wane));
-                        }
-                    }
-                    int skyColor = map.getSkyLight(skyLight, ambience, nightVision);
-                    int blockColor = map.getBlockLight(trueBlockLight, flickerPos, nightVision);
-                    // color will merge the brightest channels
-                    float r = (Math.max(skyColor & 0xff0000, blockColor & 0xff0000) >> 16) / 255.0f;
-                    float g = (Math.max(skyColor & 0x00ff00, blockColor & 0x00ff00) >>  8) / 255.0f;
-                    float b = (Math.max(skyColor & 0x0000ff, blockColor & 0x0000ff) >>  0) / 255.0f;
+                    int skyColor = SKY_LIGHT_COLORS[skyLight];
+                    int blockColor = BLOCK_LIGHT_COLORS[blockLight];
+                    // color will add the channels and cap at white
+                    float scale = blockLight == 15 ? 1 : blockIntensityScale;
+                    float r = Math.min(255.0f, ((skyColor & 0xff0000) >> 16) + scale * ((blockColor & 0xff0000) >> 16)) / 255.0f;
+                    float g = Math.min(255.0f, ((skyColor & 0xff00) >> 8) + scale * ((blockColor & 0xff00) >> 8)) / 255.0f;
+                    float b = Math.min(255.0f, (skyColor & 0xff) + scale * (blockColor & 0xff)) / 255.0f;
                     float rbright = 1.0f - r;
                     float gbright = 1.0f - g;
                     float bbright = 1.0f - b;
@@ -183,7 +189,7 @@ public abstract class LightmapTextureManagerMixin {
                     int color = 0xff000000;
                     color |= (int)(r * 255.0f) << 16;
                     color |= (int)(g * 255.0f) <<  8;
-                    color |= (int)(b * 255.0f) <<  0;
+                    color |= (int)(b * 255.0f);
                     this.image.setColor(blockLight, skyLight, color);
                 }
             }

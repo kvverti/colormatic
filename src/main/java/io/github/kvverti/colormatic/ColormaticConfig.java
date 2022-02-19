@@ -30,4 +30,11 @@ public final class ColormaticConfig {
     public boolean blendSkyLight = true;
 
     public boolean flickerBlockLight = true;
+
+    public int relativeBlockLightIntensityExponent = 0;
+
+    public static double scaled(int relativeBlockLightIntensityExponent) {
+        final double LOG_2 = 0.69314718056;
+        return LOG_2 * 0.25 * relativeBlockLightIntensityExponent;
+    }
 }

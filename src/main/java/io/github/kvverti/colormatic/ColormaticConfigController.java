@@ -34,6 +34,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 
 /**
@@ -61,23 +62,36 @@ public final class ColormaticConfigController {
                 .startBooleanToggle(new TranslatableText("colormatic.config.option.clearSky"), config.clearSky)
                 .setDefaultValue(defaults.clearSky)
                 .setSaveConsumer(value -> config.clearSky = value)
+                .setTooltip(new TranslatableText("colormatic.config.option.clearSky.desc"))
                 .build())
             .addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(new TranslatableText("colormatic.config.option.clearVoid"), config.clearVoid)
                 .setDefaultValue(defaults.clearVoid)
                 .setSaveConsumer(value -> config.clearVoid = value)
+                .setTooltip(new TranslatableText("colormatic.config.option.clearVoid.desc"))
                 .build());
         builder.getOrCreateCategory(new TranslatableText("colormatic.config.category.light"))
             .addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(new TranslatableText("colormatic.config.option.blendSkyLight"), config.blendSkyLight)
                 .setDefaultValue(defaults.blendSkyLight)
                 .setSaveConsumer(value -> config.blendSkyLight = value)
+                .setTooltip(new TranslatableText("colormatic.config.option.blendSkyLight.desc"))
                 .build())
             .addEntry(ConfigEntryBuilder.create()
                 .startBooleanToggle(new TranslatableText("colormatic.config.option.flickerBlockLight"), config.flickerBlockLight)
                 .setDefaultValue(defaults.flickerBlockLight)
                 .setSaveConsumer(value -> config.flickerBlockLight = value)
-                .build());
+                .setTooltip(new TranslatableText("colormatic.config.option.flickerBlockLight.desc"))
+                .build())
+            .addEntry(ConfigEntryBuilder.create()
+                .startIntSlider(new TranslatableText("colormatic.config.option.relativeBlockLightIntensity"), config.relativeBlockLightIntensityExponent, -16, 0)
+                .setDefaultValue(defaults.relativeBlockLightIntensityExponent)
+                .setSaveConsumer(value -> config.relativeBlockLightIntensityExponent = value)
+                .setTextGetter(value -> new LiteralText(String.valueOf((int)(100 * Math.exp(ColormaticConfig.scaled(value))))).append("%"))
+                .setTooltip(
+                    new TranslatableText("colormatic.config.option.relativeBlockLightIntensity.desc.1"),
+                    new TranslatableText("colormatic.config.option.relativeBlockLightIntensity.desc.2")
+                ).build());
         return builder.build();
     }
 
@@ -89,6 +103,7 @@ public final class ColormaticConfigController {
             config.clearVoid = Boolean.parseBoolean(props.getProperty("fog.clearVoid"));
             config.blendSkyLight = Boolean.parseBoolean(props.getProperty("light.blendSkyLight"));
             config.flickerBlockLight = Boolean.parseBoolean(props.getProperty("light.flickerBlockLight"));
+            config.relativeBlockLightIntensityExponent = Integer.parseInt((String)props.getOrDefault("light.relativeBlockLightIntensity", String.valueOf(defaults.relativeBlockLightIntensityExponent)));
         } catch(IOException e) {
             log.warn("Could not load configuration settings");
         }
@@ -100,6 +115,7 @@ public final class ColormaticConfigController {
         props.setProperty("fog.clearVoid", String.valueOf(config.clearVoid));
         props.setProperty("light.blendSkyLight", String.valueOf(config.blendSkyLight));
         props.setProperty("light.flickerBlockLight", String.valueOf(config.flickerBlockLight));
+        props.setProperty("light.relativeBlockLightIntensity", String.valueOf(config.relativeBlockLightIntensityExponent));
         try {
             configFile.createNewFile();
             props.store(new FileOutputStream(configFile), "Colormatic Config");

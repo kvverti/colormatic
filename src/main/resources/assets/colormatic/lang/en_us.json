@@ -3,9 +3,14 @@
     "colormatic.config.category.fog": "Fog & Sky",
     "colormatic.config.category.light": "Lighting",
     "colormatic.config.option.clearSky": "Clear Skies",
+    "colormatic.config.option.clearSky.desc": "Use the sky color for fog.",
     "colormatic.config.option.clearVoid": "Clear Void",
+    "colormatic.config.option.clearVoid.desc": "Don't render the void, even when below sea level.",
     "colormatic.config.option.blendSkyLight": "Smooth Transitions",
+    "colormatic.config.option.blendSkyLight.desc": "Blend sky light smoothly during sunrise and sunset.",
     "colormatic.config.option.flickerBlockLight": "Block Light Flicker",
-    "colormatic.sodium_dependency_warning": "Indium is required to fully work with Sodium, but it is not installed. Some features may not work.",
-    "colormatic.sodium_dependency_warning.hover": "Go to Indium's Modrinth page"
+    "colormatic.config.option.flickerBlockLight.desc": "Allow block light to flicker.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Relative Block Light Intensity",
+    "colormatic.config.option.relativeBlockLightIntensity.desc.1": "The intensity of block light relative to sky light.",
+    "colormatic.config.option.relativeBlockLightIntensity.desc.2": "Lower values make block light dimmer in ambient light."
 }
