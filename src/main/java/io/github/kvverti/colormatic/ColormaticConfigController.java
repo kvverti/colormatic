@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.function.Function;
 
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
@@ -95,27 +96,41 @@ public final class ColormaticConfigController {
         return builder.build();
     }
 
+    private static final String CLEAR_SKY = "fog.clearSky";
+    private static final String CLEAR_VOID = "fog.clearVoid";
+    private static final String BLEND_SKY_LIGHT = "light.blendSkyLight";
+    private static final String FLICKER_BLOCK_LIGHT = "light.flickerBlockLight";
+    private static final String RELATIVE_BLOCK_LIGHT_INTENSITY = "light.relativeBlockLightIntensity";
+
     public static void load(ColormaticConfig config) {
         Properties props = new Properties();
         try {
             props.load(new FileInputStream(configFile));
-            config.clearSky = Boolean.parseBoolean(props.getProperty("fog.clearSky"));
-            config.clearVoid = Boolean.parseBoolean(props.getProperty("fog.clearVoid"));
-            config.blendSkyLight = Boolean.parseBoolean(props.getProperty("light.blendSkyLight"));
-            config.flickerBlockLight = Boolean.parseBoolean(props.getProperty("light.flickerBlockLight"));
-            config.relativeBlockLightIntensityExponent = Integer.parseInt((String)props.getOrDefault("light.relativeBlockLightIntensity", String.valueOf(defaults.relativeBlockLightIntensityExponent)));
+            config.clearSky = loadOrDefault(props, CLEAR_SKY, Boolean::valueOf, defaults.clearSky);
+            config.clearVoid = loadOrDefault(props, CLEAR_VOID, Boolean::valueOf, defaults.clearVoid);
+            config.blendSkyLight = loadOrDefault(props, BLEND_SKY_LIGHT, Boolean::valueOf, defaults.blendSkyLight);
+            config.flickerBlockLight = loadOrDefault(props, FLICKER_BLOCK_LIGHT, Boolean::valueOf, defaults.flickerBlockLight);
+            config.relativeBlockLightIntensityExponent = loadOrDefault(props, RELATIVE_BLOCK_LIGHT_INTENSITY, Integer::valueOf, defaults.relativeBlockLightIntensityExponent);
         } catch(IOException e) {
             log.warn("Could not load configuration settings");
         }
     }
 
+    private static <T> T loadOrDefault(Properties props, String key, Function<String, T> parse, T fallback) {
+        var value = props.getProperty(key);
+        if(value == null) {
+            return fallback;
+        }
+        return parse.apply(value);
+    }
+
     private static void persist(ColormaticConfig config) {
         Properties props = new Properties();
-        props.setProperty("fog.clearSky", String.valueOf(config.clearSky));
-        props.setProperty("fog.clearVoid", String.valueOf(config.clearVoid));
-        props.setProperty("light.blendSkyLight", String.valueOf(config.blendSkyLight));
-        props.setProperty("light.flickerBlockLight", String.valueOf(config.flickerBlockLight));
-        props.setProperty("light.relativeBlockLightIntensity", String.valueOf(config.relativeBlockLightIntensityExponent));
+        props.setProperty(CLEAR_SKY, String.valueOf(config.clearSky));
+        props.setProperty(CLEAR_VOID, String.valueOf(config.clearVoid));
+        props.setProperty(BLEND_SKY_LIGHT, String.valueOf(config.blendSkyLight));
+        props.setProperty(FLICKER_BLOCK_LIGHT, String.valueOf(config.flickerBlockLight));
+        props.setProperty(RELATIVE_BLOCK_LIGHT_INTENSITY, String.valueOf(config.relativeBlockLightIntensityExponent));
         try {
             configFile.createNewFile();
             props.store(new FileOutputStream(configFile), "Colormatic Config");
