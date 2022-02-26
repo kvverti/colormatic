@@ -28,15 +28,12 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.function.Function;
 
-import me.shedaniel.clothconfig2.api.ConfigBuilder;
-import me.shedaniel.clothconfig2.api.ConfigEntryBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
 
 /**
  * This class holds functions that control loading, opening, and persisting
@@ -54,46 +51,7 @@ public final class ColormaticConfigController {
     }
 
     public static Screen getConfigScreen(ColormaticConfig config, Screen parent) {
-        ConfigBuilder builder = ConfigBuilder.create()
-            .setParentScreen(parent)
-            .setTitle(new TranslatableText("colormatic.config.title"))
-            .setSavingRunnable(() -> persist(config));
-        builder.getOrCreateCategory(new TranslatableText("colormatic.config.category.fog"))
-            .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(new TranslatableText("colormatic.config.option.clearSky"), config.clearSky)
-                .setDefaultValue(defaults.clearSky)
-                .setSaveConsumer(value -> config.clearSky = value)
-                .setTooltip(new TranslatableText("colormatic.config.option.clearSky.desc"))
-                .build())
-            .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(new TranslatableText("colormatic.config.option.clearVoid"), config.clearVoid)
-                .setDefaultValue(defaults.clearVoid)
-                .setSaveConsumer(value -> config.clearVoid = value)
-                .setTooltip(new TranslatableText("colormatic.config.option.clearVoid.desc"))
-                .build());
-        builder.getOrCreateCategory(new TranslatableText("colormatic.config.category.light"))
-            .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(new TranslatableText("colormatic.config.option.blendSkyLight"), config.blendSkyLight)
-                .setDefaultValue(defaults.blendSkyLight)
-                .setSaveConsumer(value -> config.blendSkyLight = value)
-                .setTooltip(new TranslatableText("colormatic.config.option.blendSkyLight.desc"))
-                .build())
-            .addEntry(ConfigEntryBuilder.create()
-                .startBooleanToggle(new TranslatableText("colormatic.config.option.flickerBlockLight"), config.flickerBlockLight)
-                .setDefaultValue(defaults.flickerBlockLight)
-                .setSaveConsumer(value -> config.flickerBlockLight = value)
-                .setTooltip(new TranslatableText("colormatic.config.option.flickerBlockLight.desc"))
-                .build())
-            .addEntry(ConfigEntryBuilder.create()
-                .startIntSlider(new TranslatableText("colormatic.config.option.relativeBlockLightIntensity"), config.relativeBlockLightIntensityExponent, -16, 0)
-                .setDefaultValue(defaults.relativeBlockLightIntensityExponent)
-                .setSaveConsumer(value -> config.relativeBlockLightIntensityExponent = value)
-                .setTextGetter(value -> new LiteralText(String.valueOf((int)(100 * Math.exp(ColormaticConfig.scaled(value))))).append("%"))
-                .setTooltip(
-                    new TranslatableText("colormatic.config.option.relativeBlockLightIntensity.desc.1"),
-                    new TranslatableText("colormatic.config.option.relativeBlockLightIntensity.desc.2")
-                ).build());
-        return builder.build();
+        return new ColormaticConfigScreen(LiteralText.EMPTY, parent, config);
     }
 
     private static final String CLEAR_SKY = "fog.clearSky";
@@ -110,7 +68,7 @@ public final class ColormaticConfigController {
             config.clearVoid = loadOrDefault(props, CLEAR_VOID, Boolean::valueOf, defaults.clearVoid);
             config.blendSkyLight = loadOrDefault(props, BLEND_SKY_LIGHT, Boolean::valueOf, defaults.blendSkyLight);
             config.flickerBlockLight = loadOrDefault(props, FLICKER_BLOCK_LIGHT, Boolean::valueOf, defaults.flickerBlockLight);
-            config.relativeBlockLightIntensityExponent = loadOrDefault(props, RELATIVE_BLOCK_LIGHT_INTENSITY, Integer::valueOf, defaults.relativeBlockLightIntensityExponent);
+            config.relativeBlockLightIntensityExponent = loadOrDefault(props, RELATIVE_BLOCK_LIGHT_INTENSITY, Double::valueOf, defaults.relativeBlockLightIntensityExponent);
         } catch(IOException e) {
             log.warn("Could not load configuration settings");
         }
@@ -124,7 +82,7 @@ public final class ColormaticConfigController {
         return parse.apply(value);
     }
 
-    private static void persist(ColormaticConfig config) {
+    public static void persist(ColormaticConfig config) {
         Properties props = new Properties();
         props.setProperty(CLEAR_SKY, String.valueOf(config.clearSky));
         props.setProperty(CLEAR_VOID, String.valueOf(config.clearVoid));

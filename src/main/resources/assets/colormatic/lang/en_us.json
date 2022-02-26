@@ -10,7 +10,6 @@
     "colormatic.config.option.blendSkyLight.desc": "Blend sky light smoothly during sunrise and sunset.",
     "colormatic.config.option.flickerBlockLight": "Block Light Flicker",
     "colormatic.config.option.flickerBlockLight.desc": "Allow block light to flicker.",
-    "colormatic.config.option.relativeBlockLightIntensity": "Relative Block Light Intensity",
-    "colormatic.config.option.relativeBlockLightIntensity.desc.1": "The intensity of block light relative to sky light.",
-    "colormatic.config.option.relativeBlockLightIntensity.desc.2": "Lower values make block light dimmer in ambient light."
+    "colormatic.config.option.relativeBlockLightIntensity": "Block Light Intensity",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "The intensity of block light relative to sky light. Lower values make block light dimmer in ambient light."
 }

@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,9 +31,9 @@ public final class ColormaticConfig {
 
     public boolean flickerBlockLight = true;
 
-    public int relativeBlockLightIntensityExponent = -13;
+    public double relativeBlockLightIntensityExponent = -13.0;
 
-    public static double scaled(int relativeBlockLightIntensityExponent) {
+    public static double scaled(double relativeBlockLightIntensityExponent) {
         final double LOG_2 = 0.69314718056;
         return LOG_2 * 0.25 * relativeBlockLightIntensityExponent;
     }
