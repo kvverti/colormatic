@@ -154,19 +154,18 @@ public abstract class LightmapTextureManagerMixin {
         if(world == null) {
             return;
         }
-        float ambience;
-        if(world.getLightningTicksLeft() > 0) {
-            ambience = -1.0f;
-        } else {
-            // ambience is a value between 0.2 and 1.0, inclusive.
-            // we want it to be between 0.0 and 1.0, inclusive.
-            // Note: the overworld ambience ranges between 0.2 and 1.0
-            // depending on the time of day. The nether ambience is always
-            // 0.2, and the end ambience is always 1.0.
-            ambience = (world.getStarBrightness(partialTicks) - 0.2f) * 1.25f;
-        }
+        // ambience is a value between 0.2 and 1.0, inclusive.
+        // we want it to be between 0.0 and 1.0, inclusive.
+        // Note: the overworld ambience ranges between 0.2 and 1.0
+        // depending on the time of day. The nether ambience is always
+        // 0.2, and the end ambience is always 1.0.
+        float ambience = (world.getStarBrightness(partialTicks) - 0.2f) * 1.25f;
         // relative intensity curve = exp2(ax)
         relativeIntensityExpScale = ambience * ColormaticConfig.scaled(Colormatic.config().relativeBlockLightIntensityExponent) / 16.0;
+        // set this to -1.0 to signal a lightning strike. Relative intensity still follows the normal ambience.
+        if(world.getLightningTicksLeft() > 0) {
+            ambience = -1.0f;
+        }
         Lightmap map = Lightmaps.get(world);
         if(map != null) {
             float nightVision;
