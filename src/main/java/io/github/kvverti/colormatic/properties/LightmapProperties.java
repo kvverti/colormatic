@@ -34,16 +34,14 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
 /**
- * @param blockWane Specifies at what sky light level block light should start waning. If the sky
- *                  light level is greater than this value, block light is taken from
- *                  `blocklight - (skylight - wane)`, floored at 0.
+ * Properties that modify the behavior of all lightmaps. Currently nothing.
  */
-public record LightmapProperties(int blockWane) {
+public record LightmapProperties() {
 
     private static final Logger log = LogManager.getLogger();
 
     private LightmapProperties(Settings settings) {
-        this(settings.blockWane);
+        this();
     }
 
     /**
@@ -64,6 +62,5 @@ public record LightmapProperties(int blockWane) {
     }
 
     private static class Settings {
-        int blockWane = 15;
     }
 }
