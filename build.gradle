@@ -34,7 +34,10 @@ dependencies {
 		transitive = false
 	}
 	modCompileOnly "maven.modrinth:sodium:${project.sodium_version}"
-	//modRuntime "maven.modrinth:sodium:${project.sodium_version}"
+	modRuntime "maven.modrinth:sodium:${project.sodium_version}"
+
+	// because Loom doesn't load Sodium's included non-mod dependency
+	runtimeOnly "org.joml:joml:1.10.2"
 }
 
 processResources {

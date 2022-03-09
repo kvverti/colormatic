@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -156,7 +156,7 @@ public final class DefaultColumns {
         dynamicColumns.clear();
         if(manager != null) {
             var biomeRegistry = manager.get(Registry.BIOME_KEY);
-            for(var entry : biomeRegistry.getEntries()) {
+            for(var entry : biomeRegistry.getEntrySet()) {
                 var key = entry.getKey();
                 if(!currentColumns.containsKey(key.getValue())) {
                     dynamicColumns.put(key.getValue(), computeClosestDefaultBiome(key, biomeRegistry));

@@ -121,7 +121,7 @@ public class ColormaticConfigScreen extends Screen {
             STANDARD_WIDTH,
             STANDARD_HEIGHT,
             ScreenTexts.DONE,
-            button -> this.onClose()
+            button -> this.close()
         ));
     }
 
@@ -158,7 +158,7 @@ public class ColormaticConfigScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
         ColormaticConfigController.persist(config);
         this.client.setScreen(parent);
     }

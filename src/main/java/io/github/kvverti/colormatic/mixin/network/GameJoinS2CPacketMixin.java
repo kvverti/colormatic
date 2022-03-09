@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,8 @@
  */
 package io.github.kvverti.colormatic.mixin.network;
 
+import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.iface.DimensionTypeEquals;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.dimension.DimensionType;
 
 @Mixin(GameJoinS2CPacket.class)
@@ -41,32 +44,33 @@ public abstract class GameJoinS2CPacketMixin {
     @Final
     @Mutable
     @Shadow
-    private DimensionType dimensionType;
+    private RegistryEntry<DimensionType> dimensionType;
 
     @Final
     @Shadow
-    private DynamicRegistryManager.Impl registryManager;
+    private DynamicRegistryManager.Immutable registryManager;
 
     /**
      * We loop through and make the instances identical since we want to be able to get the ID for a given dimension
      * type.
      */
     @Inject(
-        method = "<init>(IZLnet/minecraft/world/GameMode;Lnet/minecraft/world/GameMode;Ljava/util/Set;Lnet/minecraft/util/registry/DynamicRegistryManager$Impl;Lnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/util/registry/RegistryKey;JIIIZZZZ)V",
+        method = "<init>(IZLnet/minecraft/world/GameMode;Lnet/minecraft/world/GameMode;Ljava/util/Set;Lnet/minecraft/util/registry/DynamicRegistryManager$Immutable;Lnet/minecraft/util/registry/RegistryEntry;Lnet/minecraft/util/registry/RegistryKey;JIIIZZZZ)V",
         at = @At(
             value = "FIELD",
-            target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;dimensionType:Lnet/minecraft/world/dimension/DimensionType;",
+            target = "Lnet/minecraft/network/packet/s2c/play/GameJoinS2CPacket;dimensionType:Lnet/minecraft/util/registry/RegistryEntry;",
             ordinal = 0,
             opcode = Opcodes.PUTFIELD,
             shift = At.Shift.AFTER
         )
     )
     private void fixDimensionType(CallbackInfo info) {
-        DimensionType target = this.dimensionType;
         Registry<DimensionType> registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
+        DimensionTypeEquals target = (DimensionTypeEquals)Colormatic.getRegistryValue(registry, this.dimensionType);
         for(DimensionType dimType : registry) {
-            if(dimType.equals(target)) {
-                this.dimensionType = dimType;
+            if(target.colormatic_equals(dimType)) {
+                // ClientWorld eventually expects a direct entry
+                this.dimensionType = RegistryEntry.of(dimType);
                 break;
             }
         }
