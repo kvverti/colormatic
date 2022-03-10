@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.JsonSyntaxException;
@@ -135,13 +136,18 @@ public class ColormapProperties {
         this.blocks = settings.blocks;
         this.source = new Identifier(settings.source);
         this.color = settings.color;
-        this.layout = settings.layout;
+        this.layout = Objects.requireNonNullElse(settings.layout, this.optifine ? ColumnLayout.OPTIFINE : ColumnLayout.DEFAULT);
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
         if(settings.grid != null) {
             this.columnsByBiome = new HashMap<>();
+            int nextColumn = 0;
             for(GridEntry entry : settings.grid) {
-                ColumnBounds bounds = new ColumnBounds(entry.column, entry.width);
+                if(entry.column >= 0) {
+                    nextColumn = entry.column;
+                }
+                ColumnBounds bounds = new ColumnBounds(nextColumn, entry.width);
+                nextColumn += entry.width;
                 for(Identifier biomeId : entry.biomes) {
                     Identifier updated = BiomeRenaming.updateName(biomeId, this.id);
                     if(updated != null) {
@@ -209,7 +215,8 @@ public class ColormapProperties {
                     return cb;
                 } else {
                     return switch(layout) {
-                        case DEFAULT -> DefaultColumns.getDefaultBounds(biomeKey, biomeRegistry, this.optifine);
+                        case DEFAULT -> DefaultColumns.getDefaultBounds(biomeKey);
+                        case OPTIFINE -> DefaultColumns.getOptifineBounds(biomeKey, biomeRegistry);
                         case LEGACY -> DefaultColumns.getLegacyBounds(biomeKey, biomeRegistry, this.optifine);
                         case STABLE -> DefaultColumns.getStableBounds(biomeKey);
                     };
@@ -294,6 +301,7 @@ public class ColormapProperties {
 
     public enum ColumnLayout implements StringIdentifiable {
         DEFAULT("default"),
+        OPTIFINE("optifine"),
         LEGACY("legacy"),
         STABLE("stable");
 
@@ -378,11 +386,5 @@ public class ColormapProperties {
         int yOffset = 0;
         Map<Identifier, Integer> biomes = null;
         List<GridEntry> grid = null;
-    }
-
-    private static class GridEntry {
-        List<Identifier> biomes = Collections.emptyList();
-        int column = 0;
-        int width = 1;
     }
 }

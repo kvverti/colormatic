@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.github.kvverti.colormatic.properties.adapter.ApplicableBlockStatesAdapter;
 import io.github.kvverti.colormatic.properties.adapter.ChatFormatAdapter;
+import io.github.kvverti.colormatic.properties.adapter.GridEntryAdapter;
 import io.github.kvverti.colormatic.properties.adapter.HexColorAdapter;
 import io.github.kvverti.colormatic.properties.adapter.IdentifierAdapter;
 import io.github.kvverti.colormatic.properties.adapter.MaterialColorAdapter;
@@ -61,6 +62,7 @@ public class PropertyUtil {
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .registerTypeAdapter(MapColor.class, new MaterialColorAdapter())
         .registerTypeAdapter(Formatting.class, new ChatFormatAdapter())
+        .registerTypeAdapter(GridEntry.class, new GridEntryAdapter())
         .create();
 
     /**
@@ -121,6 +123,7 @@ public class PropertyUtil {
                 // similar to mergeCompound() below, but the existing key is
                 // the non-map object rather than the map object.
                 if(tmp instanceof Map<?, ?>) {
+                    // noinspection unchecked
                     nest = (Map<String, Object>)tmp;
                 } else {
                     Map<String, Object> newNest = new HashMap<>();

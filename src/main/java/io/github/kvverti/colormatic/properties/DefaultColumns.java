@@ -67,22 +67,34 @@ public final class DefaultColumns {
     private DefaultColumns() {
     }
 
-    public static ColormapProperties.ColumnBounds getDefaultBounds(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry, boolean optifine) {
+    /**
+     * Returns columns based on vanilla biomes' raw IDs and datapack biomes' nearest temperature neighbors.
+     * The default for colormaps in the Colormatic namespace.
+     */
+    public static ColormapProperties.ColumnBounds getDefaultBounds(RegistryKey<Biome> biomeKey) {
         var bounds = currentColumns.get(biomeKey.getValue());
         if(bounds == null) {
-            if(optifine) {
-                // Optifine computes grid colors using the raw ID
-                int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
-                return new ColormapProperties.ColumnBounds(rawID, 1);
-            } else {
-                bounds = currentColumns.get(approximateToVanilla(biomeKey));
-                if(bounds == null) {
-                    // see comment in approximateToVanilla()
-                    var msg = "Custom biome has no approximate: " + biomeKey.getValue();
-                    log.error(msg);
-                    throw new IllegalStateException(msg);
-                }
+            bounds = currentColumns.get(approximateToVanilla(biomeKey));
+            if(bounds == null) {
+                // see comment in approximateToVanilla()
+                var msg = "Custom biome has no approximate: " + biomeKey.getValue();
+                log.error(msg);
+                throw new IllegalStateException(msg);
             }
+        }
+        return bounds;
+    }
+
+    /**
+     * Returns columns based on both vanilla biomes' and datapack biomes' raw IDs.
+     * The default for colormaps in the Optifine namespace.
+     */
+    public static ColormapProperties.ColumnBounds getOptifineBounds(RegistryKey<Biome> biomeKey, Registry<Biome> biomeRegistry) {
+        var bounds = currentColumns.get(biomeKey.getValue());
+        if(bounds == null) {
+            // Optifine computes grid colors using the raw ID
+            int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
+            return new ColormapProperties.ColumnBounds(rawID, 1);
         }
         return bounds;
     }
