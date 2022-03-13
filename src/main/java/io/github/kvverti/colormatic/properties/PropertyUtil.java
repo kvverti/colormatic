@@ -177,11 +177,11 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.read(in);
-            for(int x = 0; x < image.getWidth(); x++) {
-                for(int y = 0; y < image.getHeight(); y++) {
-                    if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-                        // swap the red and blue channels of every pixel, because the biome
-                        // colormap expects ARGB, but NativeImage is ABGR
+            if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+                // swap the red and blue channels of every pixel, because the biome
+                // colormap expects ARGB, but NativeImage is ABGR
+                for(int x = 0; x < image.getWidth(); x++) {
+                    for(int y = 0; y < image.getHeight(); y++) {
                         int pix = image.getColor(x, y);
                         int tmp = (pix & 0xff0000) >> 16;
                         tmp |= (pix & 0x0000ff) << 16;

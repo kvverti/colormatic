@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
@@ -43,7 +44,8 @@ public class GridEntryAdapter extends TypeAdapter<GridEntry> {
     public GridEntry read(JsonReader in) throws IOException {
         switch(in.peek()) {
             case NULL -> {
-                return null;
+                in.nextNull();
+                throw new JsonSyntaxException("required nonnull");
             }
             case STRING -> {
                 var biomeId = this.idAdapter.read(in);
@@ -66,6 +68,7 @@ public class GridEntryAdapter extends TypeAdapter<GridEntry> {
                         }
                         case "column" -> gridEntry.column = in.nextInt();
                         case "width" -> gridEntry.width = in.nextInt();
+                        default -> in.skipValue();
                     }
                 }
                 in.endObject();

@@ -339,8 +339,9 @@ public class ColormapProperties {
             if(settings == null) {
                 settings = new Settings();
             }
-        } catch(JsonSyntaxException e) {
-            log.error("Error parsing {}: {}", id, e.getMessage());
+        } catch(Exception e) {
+            // any one of a number of exceptions could have been thrown during deserialization
+            log.error("Error loading {}: {}", id, e.getMessage());
             settings = new Settings();
         }
         if(settings.format == null) {
@@ -361,7 +362,10 @@ public class ColormapProperties {
                 }
             }
         } else {
-            // disable `blocks`, `grid`, and `biomes` for non-custom colormaps
+            // disable `blocks`, `grid`, and `biomes` for non-custom colormaps, warn if they are present
+            if(settings.biomes != null || settings.grid != null || settings.blocks != null) {
+                log.warn("{}: found `biomes`, `grid`, or `blocks` properties in a provided colormap; these will be ignored", id);
+            }
             settings.biomes = null;
             settings.grid = null;
             settings.blocks = Collections.emptyList();
