@@ -21,6 +21,7 @@
     "model.JsonUnbakedModelMixin",
     "model.ModelLoaderMixin",
     "network.ClientPlayNetworkHandlerMixin",
+    "network.DimensionTypeMixin",
     "network.GameJoinS2CPacketMixin",
     "network.MinecraftClientMixin",
     "particle.DrippingLavaParticleMixin",

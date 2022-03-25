@@ -110,7 +110,7 @@ public class ColormaticConfigScreen extends Screen {
                 new TranslatableText("colormatic.config.option.flickerBlockLight"),
                 (button, value) -> config.flickerBlockLight = value
             ));
-        this.addDrawableChild(new BlockLightIntensitySLider(
+        this.addDrawableChild(new BlockLightIntensitySlider(
             blendSkyLightBtn.x,
             blendSkyLightBtn.y + blendSkyLightBtn.getHeight() + 2 * ColormaticConfigScreen.STANDARD_MARGIN
         ));
@@ -121,7 +121,7 @@ public class ColormaticConfigScreen extends Screen {
             STANDARD_WIDTH,
             STANDARD_HEIGHT,
             ScreenTexts.DONE,
-            button -> this.onClose()
+            button -> this.close()
         ));
     }
 
@@ -158,7 +158,7 @@ public class ColormaticConfigScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void close() {
         ColormaticConfigController.persist(config);
         this.client.setScreen(parent);
     }
@@ -166,9 +166,9 @@ public class ColormaticConfigScreen extends Screen {
     /**
      * Slider widget for relative block light intensity.
      */
-    private class BlockLightIntensitySLider extends SliderWidget implements OrderableTooltip {
+    private class BlockLightIntensitySlider extends SliderWidget implements OrderableTooltip {
 
-        public BlockLightIntensitySLider(int x, int y) {
+        public BlockLightIntensitySlider(int x, int y) {
             super(
                 x,
                 y,

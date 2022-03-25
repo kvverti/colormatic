@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,6 +37,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.github.kvverti.colormatic.properties.adapter.ApplicableBlockStatesAdapter;
 import io.github.kvverti.colormatic.properties.adapter.ChatFormatAdapter;
+import io.github.kvverti.colormatic.properties.adapter.GridEntryAdapter;
 import io.github.kvverti.colormatic.properties.adapter.HexColorAdapter;
 import io.github.kvverti.colormatic.properties.adapter.IdentifierAdapter;
 import io.github.kvverti.colormatic.properties.adapter.MaterialColorAdapter;
@@ -61,6 +62,7 @@ public class PropertyUtil {
         .registerTypeAdapter(HexColor.class, new HexColorAdapter())
         .registerTypeAdapter(MapColor.class, new MaterialColorAdapter())
         .registerTypeAdapter(Formatting.class, new ChatFormatAdapter())
+        .registerTypeAdapter(GridEntry.class, new GridEntryAdapter())
         .create();
 
     /**
@@ -121,6 +123,7 @@ public class PropertyUtil {
                 // similar to mergeCompound() below, but the existing key is
                 // the non-map object rather than the map object.
                 if(tmp instanceof Map<?, ?>) {
+                    // noinspection unchecked
                     nest = (Map<String, Object>)tmp;
                 } else {
                     Map<String, Object> newNest = new HashMap<>();
@@ -174,11 +177,11 @@ public class PropertyUtil {
         }
         try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
             NativeImage image = NativeImage.read(in);
-            for(int x = 0; x < image.getWidth(); x++) {
-                for(int y = 0; y < image.getHeight(); y++) {
-                    if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
-                        // swap the red and blue channels of every pixel, because the biome
-                        // colormap expects ARGB, but NativeImage is ABGR
+            if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
+                // swap the red and blue channels of every pixel, because the biome
+                // colormap expects ARGB, but NativeImage is ABGR
+                for(int x = 0; x < image.getWidth(); x++) {
+                    for(int y = 0; y < image.getHeight(); y++) {
                         int pix = image.getColor(x, y);
                         int tmp = (pix & 0xff0000) >> 16;
                         tmp |= (pix & 0x0000ff) << 16;

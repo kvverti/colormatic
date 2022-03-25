@@ -31,6 +31,7 @@ import java.util.Map;
 import com.google.gson.JsonParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
@@ -70,7 +71,7 @@ public class GlobalColorProperties {
     private final TextColorSettings text;
     private final int xpOrbTime;
     private final ColormapProperties.Format defaultFormat;
-    private final ColormapProperties.ColumnLayout defaultLayout;
+    private final @Nullable ColormapProperties.ColumnLayout defaultLayout;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -274,7 +275,7 @@ public class GlobalColorProperties {
         return defaultFormat;
     }
 
-    public ColormapProperties.ColumnLayout getDefaultLayout() {
+    public @Nullable ColormapProperties.ColumnLayout getDefaultLayout() {
         return defaultLayout;
     }
 
@@ -398,6 +399,6 @@ public class GlobalColorProperties {
         static Palette DEFAULT = new Palette();
 
         ColormapProperties.Format format = ColormapProperties.Format.VANILLA;
-        ColormapProperties.ColumnLayout layout = ColormapProperties.ColumnLayout.DEFAULT;
+        @Nullable ColormapProperties.ColumnLayout layout = null;
     }
 }

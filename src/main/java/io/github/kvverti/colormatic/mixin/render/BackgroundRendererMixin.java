@@ -232,12 +232,12 @@ public abstract class BackgroundRendererMixin {
      */
     @ModifyVariable(
         method = "render",
-        at = @At(value = "STORE", ordinal = 0),
-        ordinal = 0
+        at = @At(value = "STORE", ordinal = 2),
+        index = 7
     )
-    private static double modifyVoidColor(double scale) {
+    private static float modifyVoidColor(float scale) {
         if(Colormatic.config().clearVoid) {
-            scale = 1.0;
+            scale = 1.0f;
         }
         return scale;
     }

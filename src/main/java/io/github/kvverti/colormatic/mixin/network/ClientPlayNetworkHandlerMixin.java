@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,8 @@
  */
 package io.github.kvverti.colormatic.mixin.network;
 
+import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.iface.DimensionTypeEquals;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,13 +31,14 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.dimension.DimensionType;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin {
 
     @Shadow
-    private DynamicRegistryManager registryManager;
+    private DynamicRegistryManager.Immutable registryManager;
 
     /**
      * We loop through and make the instances identical since we want to be able to get the ID for a given dimension
@@ -49,13 +52,15 @@ public abstract class ClientPlayNetworkHandlerMixin {
             ordinal = 0
         )
     )
-    private DimensionType fixDimensionTypeOnPlayerRespawn(DimensionType target) {
-        Registry<DimensionType> registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
+    private RegistryEntry<DimensionType> fixDimensionTypeOnPlayerRespawn(RegistryEntry<DimensionType> targetEntry) {
+        var registry = this.registryManager.get(Registry.DIMENSION_TYPE_KEY);
+        var target = (DimensionTypeEquals)Colormatic.getRegistryValue(registry, targetEntry);
         for(DimensionType dimType : registry) {
-            if(dimType.equals(target)) {
-                return dimType;
+            if(target.colormatic_equals(dimType)) {
+                // packet deserializer expects a direct entry
+                return RegistryEntry.of(dimType);
             }
         }
-        return target;
+        return targetEntry;
     }
 }

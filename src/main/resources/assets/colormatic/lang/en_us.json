@@ -1,5 +1,6 @@
 {
     "colormatic.config.title": "Colormatic Options",
+    "colormatic.config.title.subtitle": "Colormatic Options",
     "colormatic.config.category.fog": "Fog & Sky",
     "colormatic.config.category.light": "Lighting",
     "colormatic.config.option.clearSky": "Clear Skies",

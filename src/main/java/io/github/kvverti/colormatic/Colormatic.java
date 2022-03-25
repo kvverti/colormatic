@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,11 +32,11 @@ import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
@@ -110,6 +110,17 @@ public class Colormatic implements ClientModInitializer {
 
     public static RegistryKey<Biome> getBiomeKey(DynamicRegistryManager manager, Biome biome) {
         return manager.get(Registry.BIOME_KEY).getKey(biome).orElse(BiomeKeys.PLAINS);
+    }
+
+    /**
+     * Retrieves the value of a registry entry, given its registry.
+     */
+    public static <T> T getRegistryValue(Registry<T> registry, RegistryEntry<T> entry) {
+        var maybeKey = entry.getKey();
+        if(maybeKey.isPresent()) {
+            return registry.get(maybeKey.get());
+        }
+        return entry.value();
     }
 
     @Override
