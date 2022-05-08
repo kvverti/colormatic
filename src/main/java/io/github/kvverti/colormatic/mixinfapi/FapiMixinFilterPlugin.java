@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixinsodium;
+package io.github.kvverti.colormatic.mixinfapi;
 
 import java.util.List;
 import java.util.Set;
@@ -31,11 +31,11 @@ import org.spongepowered.asm.mixin.extensibility.IMixinInfo;
 import net.fabricmc.loader.api.FabricLoader;
 
 /**
- * Apply Sodium mixins only when Sodium is present.
+ * Apply Fabric API mixins only when Fabric API is present.
  */
-public class SodiumMixinFilterPlugin implements IMixinConfigPlugin {
+public class FapiMixinFilterPlugin implements IMixinConfigPlugin {
 
-    private final boolean shouldLoadMixins = FabricLoader.getInstance().isModLoaded("sodium");
+    private final boolean shouldLoadMixins = FabricLoader.getInstance().isModLoaded("fabric-rendering-fluids-v1");
 
     @Override
     public void onLoad(String mixinPackage) {

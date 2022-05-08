@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "io.github.kvverti.colormatic.mixinfapi",
+  "compatibilityLevel": "JAVA_16",
+  "plugin": "io.github.kvverti.colormatic.mixinfapi.FapiMixinFilterPlugin",
+  "client": [
+    "fluid.FluidRendererHandlerRegistryImplMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

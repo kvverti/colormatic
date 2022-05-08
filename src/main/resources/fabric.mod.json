@@ -30,12 +30,13 @@
   },
   "mixins": [
     "colormatic.mixins.json",
-    "colormatic.sodium.mixins.json"
+    "colormatic.sodium.mixins.json",
+    "colormatic.fapi.mixins.json"
   ],
 
   "depends": {
     "fabricloader": ">=0.11.0",
-    "fabric": ">=0.42.2"
+    "fabric-resource-loader-v0": ">=0.4"
   },
   "recommends": {
     "quilt-loader": "*",
