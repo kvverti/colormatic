@@ -79,7 +79,6 @@ public class ColormapProperties {
     private final Collection<ApplicableBlockStates> blocks;
 
     /**
-     * s
      * The colormap image. If not specified, it is taken from the file name
      * of the properties file.
      */
@@ -134,7 +133,12 @@ public class ColormapProperties {
         this.optifine = this.id.getPath().endsWith(".properties");
         this.format = settings.format;
         this.blocks = settings.blocks;
-        this.source = new Identifier(settings.source);
+        Identifier source = Identifier.tryParse(settings.source);
+        if(source == null) {
+            log.error("{}: Invalid source location '{}', using file name as fallback", id, settings.source);
+            source = new Identifier(makeSourceFromFileName(id));
+        }
+        this.source = source;
         this.color = settings.color;
         this.layout = Objects.requireNonNullElse(settings.layout, this.optifine ? ColumnLayout.OPTIFINE : ColumnLayout.DEFAULT);
         this.yVariance = settings.yVariance;
@@ -371,12 +375,16 @@ public class ColormapProperties {
             settings.blocks = Collections.emptyList();
         }
         if(settings.source == null) {
-            String path = id.toString();
-            path = path.substring(0, path.lastIndexOf('.')) + ".png";
-            settings.source = path;
+            settings.source = makeSourceFromFileName(id);
         }
         settings.source = PropertyUtil.resolve(settings.source, id);
         return new ColormapProperties(id, settings);
+    }
+
+    private static String makeSourceFromFileName(Identifier id) {
+        String path = id.toString();
+        path = path.substring(0, path.lastIndexOf('.')) + ".png";
+        return path;
     }
 
     private static class Settings {

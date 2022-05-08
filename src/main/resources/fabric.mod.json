@@ -39,7 +39,7 @@
     "fabric-resource-loader-v0": ">=0.4"
   },
   "recommends": {
-    "quilt-loader": "*",
+    "quilt_loader": "*",
     "modmenu": "^3.0.0"
   },
   "suggests": {

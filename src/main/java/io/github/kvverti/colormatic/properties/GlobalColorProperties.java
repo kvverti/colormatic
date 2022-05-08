@@ -136,7 +136,7 @@ public class GlobalColorProperties {
     private static <T> Map<T, HexColor> convertMap(Map<String, HexColor> initial, Registry<T> registry) {
         Map<T, HexColor> res = new HashMap<>();
         for(Map.Entry<String, HexColor> entry : initial.entrySet()) {
-            T key = registry.get(new Identifier(entry.getKey()));
+            T key = registry.get(Identifier.tryParse(entry.getKey()));
             if(key != null) {
                 res.put(key, entry.getValue());
             }
@@ -164,18 +164,18 @@ public class GlobalColorProperties {
         if(settings.egg != null) {
             LegacyEggColor legacy = settings.egg;
             for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
-                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
                 res.put(type, new int[]{ entry.getValue().rgb(), 0 });
             }
             for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
-                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
                 int[] colors = res.computeIfAbsent(type, t -> new int[2]);
                 colors[1] = entry.getValue().rgb();
             }
         }
         // handle colormatic egg colors
         for(Map.Entry<String, HexColor[]> entry : settings.spawnegg.entrySet()) {
-            EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+            EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
             int[] colors = res.computeIfAbsent(type, t -> new int[2]);
             HexColor[] hexColors = entry.getValue();
             for(int i = 0; i < Math.min(2, hexColors.length); i++) {
