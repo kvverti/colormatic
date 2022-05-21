@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -37,15 +37,18 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.model.ModelLoader;
 import net.minecraft.client.util.ModelIdentifier;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.DynamicRegistryManager;
 import net.minecraft.util.registry.Registry;
 
 @Mixin(ModelLoader.class)
 public abstract class ModelLoaderMixin {
 
+    // using the built in DRM is fine because blocks aren't dynamic.
     @Unique
-    private static final BlockStateArgumentType BLOCK_STATE_PARSER = BlockStateArgumentType.blockState();
+    private static final BlockStateArgumentType BLOCK_STATE_PARSER = BlockStateArgumentType.blockState(new CommandRegistryAccess(DynamicRegistryManager.BUILTIN.get()));
 
     /**
      * Partially determines whether Colormatic should replace the tint on a model.

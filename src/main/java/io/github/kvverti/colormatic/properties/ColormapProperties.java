@@ -327,7 +327,7 @@ public class ColormapProperties {
      * from the identifier name.
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id, boolean custom) {
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+        try(InputStream in = manager.getResourceOrThrow(id).getInputStream()) {
             try(Reader r = PropertyUtil.getJsonReader(in, id, k -> k, "blocks"::equals)) {
                 return loadFromJson(r, id, custom);
             }

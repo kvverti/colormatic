@@ -33,8 +33,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 
 /**
  * This class holds functions that control loading, opening, and persisting
@@ -52,7 +51,7 @@ public final class ColormaticConfigController {
     }
 
     public static Screen getConfigScreen(ColormaticConfig config, Screen parent) {
-        return new ColormaticConfigScreen(new TranslatableText("colormatic.config.title.subtitle"), parent, config);
+        return new ColormaticConfigScreen(Text.translatable("colormatic.config.title.subtitle"), parent, config);
     }
 
     private static final String CLEAR_SKY = "fog.clearSky";

@@ -26,16 +26,14 @@ import java.util.List;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.util.OrderableTooltip;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
+import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class ColormaticConfigScreen extends Screen {
 
@@ -65,49 +63,49 @@ public class ColormaticConfigScreen extends Screen {
         var clearSkyBtn = this.addDrawableChild(CyclingButtonWidget
             .onOffBuilder()
             .initially(config.clearSky)
-            .tooltip(value -> this.textRenderer.wrapLines(new TranslatableText("colormatic.config.option.clearSky.desc"), STANDARD_WIDTH))
+            .tooltip(value -> this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.clearSky.desc"), STANDARD_WIDTH))
             .build(
                 centerX - STANDARD_MARGIN - STANDARD_WIDTH,
                 TOP_MARGIN + 2 * STANDARD_HEIGHT,
                 STANDARD_WIDTH,
                 STANDARD_HEIGHT,
-                new TranslatableText("colormatic.config.option.clearSky"),
+                Text.translatable("colormatic.config.option.clearSky"),
                 (button, value) -> config.clearSky = value));
         var clearVoidBtn = this.addDrawableChild(CyclingButtonWidget
             .onOffBuilder()
             .initially(config.clearVoid)
-            .tooltip(value -> this.textRenderer.wrapLines(new TranslatableText("colormatic.config.option.clearVoid.desc"), STANDARD_WIDTH))
+            .tooltip(value -> this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.clearVoid.desc"), STANDARD_WIDTH))
             .build(
                 centerX + STANDARD_MARGIN,
                 TOP_MARGIN + 2 * STANDARD_HEIGHT,
                 STANDARD_WIDTH,
                 STANDARD_HEIGHT,
-                new TranslatableText("colormatic.config.option.clearVoid"),
+                Text.translatable("colormatic.config.option.clearVoid"),
                 (button, value) -> config.clearVoid = value));
         this.fogSectionBottom = clearVoidBtn.y + clearVoidBtn.getHeight() + STANDARD_MARGIN;
         // lighting settings
         var blendSkyLightBtn = this.addDrawableChild(CyclingButtonWidget
             .onOffBuilder()
             .initially(config.blendSkyLight)
-            .tooltip(value -> this.textRenderer.wrapLines(new TranslatableText("colormatic.config.option.blendSkyLight.desc"), STANDARD_WIDTH))
+            .tooltip(value -> this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.blendSkyLight.desc"), STANDARD_WIDTH))
             .build(
                 clearSkyBtn.x,
                 this.fogSectionBottom + 2 * STANDARD_HEIGHT,
                 STANDARD_WIDTH,
                 STANDARD_HEIGHT,
-                new TranslatableText("colormatic.config.option.blendSkyLight"),
+                Text.translatable("colormatic.config.option.blendSkyLight"),
                 (button, value) -> config.blendSkyLight = value
             ));
         this.addDrawableChild(CyclingButtonWidget
             .onOffBuilder()
             .initially(config.flickerBlockLight)
-            .tooltip(value -> this.textRenderer.wrapLines(new TranslatableText("colormatic.config.option.flickerBlockLight.desc"), STANDARD_WIDTH))
+            .tooltip(value -> this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.flickerBlockLight.desc"), STANDARD_WIDTH))
             .build(
                 clearVoidBtn.x,
                 this.fogSectionBottom + 2 * STANDARD_HEIGHT,
                 STANDARD_WIDTH,
                 STANDARD_HEIGHT,
-                new TranslatableText("colormatic.config.option.flickerBlockLight"),
+                Text.translatable("colormatic.config.option.flickerBlockLight"),
                 (button, value) -> config.flickerBlockLight = value
             ));
         this.addDrawableChild(new BlockLightIntensitySlider(
@@ -129,13 +127,13 @@ public class ColormaticConfigScreen extends Screen {
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         // draw category labels
         this.renderBackground(matrices);
-        var title = new TranslatableText("colormatic.config.title");
+        var title = Text.translatable("colormatic.config.title");
         var width = this.textRenderer.getWidth(title);
         this.textRenderer.drawWithShadow(matrices, title, (this.width - width) / 2.0f, TOP_MARGIN, -1);
-        var fogSettingsTitle = new TranslatableText("colormatic.config.category.fog");
+        var fogSettingsTitle = Text.translatable("colormatic.config.category.fog");
         width = this.textRenderer.getWidth(fogSettingsTitle);
         this.textRenderer.drawWithShadow(matrices, fogSettingsTitle, (this.width - width) / 2.0f, TOP_MARGIN + STANDARD_HEIGHT, -1);
-        var lightSettingsTitle = new TranslatableText("colormatic.config.category.light");
+        var lightSettingsTitle = Text.translatable("colormatic.config.category.light");
         width = this.textRenderer.getWidth(lightSettingsTitle);
         this.textRenderer.drawWithShadow(matrices, lightSettingsTitle, (this.width - width) / 2.0f, this.fogSectionBottom + STANDARD_HEIGHT, -1);
         var tooltip = this.getTooltip(mouseX, mouseY);
@@ -174,16 +172,16 @@ public class ColormaticConfigScreen extends Screen {
                 y,
                 ColormaticConfigScreen.STANDARD_WIDTH,
                 ColormaticConfigScreen.STANDARD_HEIGHT,
-                LiteralText.EMPTY,
+                Text.empty(),
                 1.0 - ColormaticConfigScreen.this.config.relativeBlockLightIntensityExponent / -16.0);
             this.updateMessage();
         }
 
         @Override
         protected void updateMessage() {
-            this.setMessage(new TranslatableText("colormatic.config.option.relativeBlockLightIntensity")
+            this.setMessage(Text.translatable("colormatic.config.option.relativeBlockLightIntensity")
                 .append(": ")
-                .append(new LiteralText(String.valueOf((int)(100 * Math.exp(ColormaticConfig.scaled(this.configValue()))))).append("%")));
+                .append(Text.literal(String.valueOf((int)(100 * Math.exp(ColormaticConfig.scaled(this.configValue()))))).append("%")));
         }
 
         @Override
@@ -197,7 +195,7 @@ public class ColormaticConfigScreen extends Screen {
 
         @Override
         public List<OrderedText> getOrderedTooltip() {
-            return ColormaticConfigScreen.this.textRenderer.wrapLines(new TranslatableText("colormatic.config.option.relativeBlockLightIntensity.desc"), TOOLTIP_WIDTH);
+            return ColormaticConfigScreen.this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.relativeBlockLightIntensity.desc"), TOOLTIP_WIDTH);
         }
     }
 }

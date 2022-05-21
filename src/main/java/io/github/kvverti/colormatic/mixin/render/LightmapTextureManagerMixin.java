@@ -203,7 +203,7 @@ public abstract class LightmapTextureManagerMixin {
                     rbright = 1.0f - rbright;
                     gbright = 1.0f - gbright;
                     bbright = 1.0f - bbright;
-                    float brightness = (float)this.client.options.gamma;
+                    float brightness = this.client.options.getGamma().getValue().floatValue();
                     r = r * (1.0f - brightness) + rbright * brightness;
                     g = g * (1.0f - brightness) + gbright * brightness;
                     b = b * (1.0f - brightness) + bbright * brightness;
@@ -246,7 +246,7 @@ public abstract class LightmapTextureManagerMixin {
             value = "STORE",
             ordinal = 0
         ),
-        index = 13
+        index = 16
     )
     private float modifyFlickerIntensity(float blockLight) {
         int sky = lightIndex >>> 4;

@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -50,7 +50,7 @@ public record LightmapProperties() {
      */
     public static LightmapProperties load(ResourceManager manager, Identifier id) {
         Settings settings;
-        try(Resource rsc = manager.getResource(id); Reader in = new InputStreamReader(rsc.getInputStream())) {
+        try(Reader in = new InputStreamReader(manager.getResourceOrThrow(id).getInputStream())) {
             settings = PropertyUtil.PROPERTY_GSON.fromJson(in, Settings.class);
         } catch(JsonParseException e) {
             log.error("Error parsing {}: {}", id, e.getMessage());

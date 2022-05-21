@@ -45,7 +45,6 @@ import io.github.kvverti.colormatic.properties.adapter.StringIdentifiableTypeAda
 
 import net.minecraft.block.MapColor;
 import net.minecraft.client.texture.NativeImage;
-import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -175,7 +174,7 @@ public class PropertyUtil {
             // fixed format does not have a corresponding image
             return new PropertyImage(props, null);
         }
-        try(Resource rsc = manager.getResource(props.getSource()); InputStream in = rsc.getInputStream()) {
+        try(InputStream in = manager.getResourceOrThrow(props.getSource()).getInputStream()) {
             NativeImage image = NativeImage.read(in);
             if(ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN) {
                 // swap the red and blue channels of every pixel, because the biome

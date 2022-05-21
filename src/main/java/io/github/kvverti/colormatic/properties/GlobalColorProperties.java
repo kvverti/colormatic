@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -322,7 +322,7 @@ public class GlobalColorProperties {
     }
 
     public static GlobalColorProperties load(ResourceManager manager, Identifier id, boolean fall) {
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+        try(InputStream in = manager.getResourceOrThrow(id).getInputStream()) {
             try(Reader r = PropertyUtil.getJsonReader(in, id, k -> keyRemap.getOrDefault(k, k), k -> false)) {
                 return loadFromJson(r, id);
             }

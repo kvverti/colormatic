@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -62,7 +62,7 @@ public abstract class ClientWorldMixin extends World {
     public abstract DynamicRegistryManager getRegistryManager();
 
     private ClientWorldMixin() {
-        super(null, null, null, null, false, false, 0L);
+        super(null, null, null, null, false, false, 0L, 0);
     }
 
     @ModifyArg(

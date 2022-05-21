@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,8 +21,6 @@
  */
 package io.github.kvverti.colormatic.mixin.block;
 
-import java.util.Random;
-
 import io.github.kvverti.colormatic.Colormatic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,6 +35,7 @@ import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
 /**

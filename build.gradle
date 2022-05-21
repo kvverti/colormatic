@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.12-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -16,7 +16,7 @@ archivesBaseName = project.archives_base_name
 version = "${project.mod_version}+mc.${project.minecraft_version}"
 group = project.maven_group
 
-minecraft {
+loom {
 }
 
 dependencies {
@@ -39,12 +39,12 @@ dependencies {
 	// runtime only setups
 	// modRuntimeOnly "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	// modRuntimeOnly("com.terraformersmc:modmenu:${project.mod_menu_version}") { transitive = false }
-	modRuntimeOnly fabricApi.module("fabric-rendering-data-attachment-v1", project.fabric_version)
-	modRuntimeOnly fabricApi.module("fabric-rendering-fluids-v1", project.fabric_version)
-	modRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
+	// modRuntimeOnly fabricApi.module("fabric-rendering-data-attachment-v1", project.fabric_version)
+	// modRuntimeOnly fabricApi.module("fabric-rendering-fluids-v1", project.fabric_version)
+	// modRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
 
 	// because Loom doesn't load Sodium's included non-mod dependency
-	runtimeOnly "org.joml:joml:1.10.2"
+	// runtimeOnly "org.joml:joml:1.10.2"
 }
 
 processResources {

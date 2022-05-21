@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,7 +72,7 @@ final class DefaultColormaticResolverProviders {
     private static ColormaticResolver bySky(Identifier key) {
         return (manager, biome, posX, posY, posZ) -> {
             int color;
-            if(Colormatic.SKY_COLORS.hasCustomColormap() && key.equals(DimensionType.OVERWORLD_ID)) {
+            if(Colormatic.SKY_COLORS.hasCustomColormap() && key.equals(Colormatic.OVERWORLD_ID)) {
                 color = Colormatic.SKY_COLORS.getColormap().getColor(manager, biome, posX, posY, posZ);
             } else {
                 color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(key);
@@ -87,7 +87,7 @@ final class DefaultColormaticResolverProviders {
     private static ColormaticResolver byFog(Identifier key) {
         return (manager, biome, posX, posY, posZ) -> {
             int color;
-            if(Colormatic.FOG_COLORS.hasCustomColormap() && key.equals(DimensionType.OVERWORLD_ID)) {
+            if(Colormatic.FOG_COLORS.hasCustomColormap() && key.equals(Colormatic.OVERWORLD_ID)) {
                 color = 0xff000000 | Colormatic.FOG_COLORS.getColormap().getColor(manager, biome, posX, posY, posZ);
             } else {
                 color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(key);

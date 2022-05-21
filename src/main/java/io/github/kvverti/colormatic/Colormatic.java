@@ -49,6 +49,8 @@ public class Colormatic implements ClientModInitializer {
 
     public static final String MODID = "colormatic";
 
+    public static final Identifier OVERWORLD_ID = new Identifier("minecraft:overworld");
+
     public static final BiomeColormapResource WATER_COLORS =
         new BiomeColormapResource(new Identifier(MODID, "colormap/water"));
     public static final BiomeColormapResource UNDERWATER_COLORS =
@@ -95,7 +97,7 @@ public class Colormatic implements ClientModInitializer {
         DimensionType type = world.getDimension();
         Identifier id = world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY).getId(type);
         if(id == null) {
-            id = DimensionType.OVERWORLD_ID;
+            id = OVERWORLD_ID;
         }
         return id;
     }

@@ -59,8 +59,8 @@ public class ColormaticFluidRenderHandler implements FluidRenderHandler {
     }
 
     @Override
-    public boolean renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
-        return this.delegate.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+    public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
+        this.delegate.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
     }
 
     @Override
