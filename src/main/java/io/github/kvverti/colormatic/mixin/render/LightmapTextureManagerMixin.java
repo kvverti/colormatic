@@ -40,6 +40,7 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -64,6 +65,12 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow
     @Final
     private MinecraftClient client;
+
+    @Shadow
+    protected abstract float getDarknessFactor(float delta);
+
+    @Shadow
+    protected abstract float getDarkness(LivingEntity entity, float factor, float delta);
 
     // Vanilla block light flicker calculation is no longer compatible
     // with Colormatic (as of 1.15)
@@ -177,6 +184,10 @@ public abstract class LightmapTextureManagerMixin {
             } else {
                 nightVision = 0.0f;
             }
+            float brightness = this.client.options.getGamma().getValue().floatValue();
+            float darknessScale = this.client.options.getDarknessEffectScale().getValue().floatValue();
+            float darknessFactor = darknessScale * this.getDarknessFactor(partialTicks);
+            darknessFactor = darknessScale * this.getDarkness(player, darknessFactor, partialTicks);
             for(int i = 0; i < 16; i++) {
                 SKY_LIGHT_COLORS[i] = map.getSkyLight(i, ambience, nightVision);
                 BLOCK_LIGHT_COLORS[i] = map.getBlockLight(i, flickerPos, nightVision);
@@ -191,6 +202,9 @@ public abstract class LightmapTextureManagerMixin {
                     float r = Math.min(255.0f, ((skyColor & 0xff0000) >> 16) + scale * ((blockColor & 0xff0000) >> 16)) / 255.0f;
                     float g = Math.min(255.0f, ((skyColor & 0xff00) >> 8) + scale * ((blockColor & 0xff00) >> 8)) / 255.0f;
                     float b = Math.min(255.0f, (skyColor & 0xff) + scale * (blockColor & 0xff)) / 255.0f;
+                    r = Math.max(0.0f, r - darknessFactor);
+                    g = Math.max(0.0f, g - darknessFactor);
+                    b = Math.max(0.0f, b - darknessFactor);
                     float rbright = 1.0f - r;
                     float gbright = 1.0f - g;
                     float bbright = 1.0f - b;
@@ -203,7 +217,6 @@ public abstract class LightmapTextureManagerMixin {
                     rbright = 1.0f - rbright;
                     gbright = 1.0f - gbright;
                     bbright = 1.0f - bbright;
-                    float brightness = this.client.options.getGamma().getValue().floatValue();
                     r = r * (1.0f - brightness) + rbright * brightness;
                     g = g * (1.0f - brightness) + gbright * brightness;
                     b = b * (1.0f - brightness) + bbright * brightness;

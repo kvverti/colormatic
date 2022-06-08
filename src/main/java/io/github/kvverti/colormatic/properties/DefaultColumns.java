@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.C;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -295,6 +296,11 @@ public final class DefaultColumns {
         // non-snow peaks -> windswept hills
         map.put(BiomeKeys.JAGGED_PEAKS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
         map.put(BiomeKeys.STONY_PEAKS.getValue(), new ColormapProperties.ColumnBounds(3, 1));
+        // 1.19 wild biomes
+        // mangrove swamp -> swamp
+        map.put(BiomeKeys.MANGROVE_SWAMP.getValue(), new ColormapProperties.ColumnBounds(6, 1));
+        // deep dark -> ocean ¯\_(ツ)_/¯
+        map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(0, 1));
         return map;
     }
 
@@ -364,6 +370,9 @@ public final class DefaultColumns {
         map.put(BiomeKeys.END_MIDLANDS.getValue(), new ColormapProperties.ColumnBounds(58, 1));
         map.put(BiomeKeys.SMALL_END_ISLANDS.getValue(), new ColormapProperties.ColumnBounds(59, 1));
         map.put(BiomeKeys.END_BARRENS.getValue(), new ColormapProperties.ColumnBounds(60, 1));
+        // 1.19
+        map.put(BiomeKeys.MANGROVE_SWAMP.getValue(), new ColormapProperties.ColumnBounds(61, 1));
+        map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(62, 1));
         return map;
     }
 }
