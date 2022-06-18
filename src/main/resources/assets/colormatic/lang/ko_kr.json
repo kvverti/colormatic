@@ -1,0 +1,16 @@
+{
+    "colormatic.config.title": "Colormatic 설정",
+    "colormatic.config.title.subtitle": "Colormatic 설정",
+    "colormatic.config.category.fog": "안개 & 하늘",
+    "colormatic.config.category.light": "조명",
+    "colormatic.config.option.clearSky": "맑은 하늘",
+    "colormatic.config.option.clearSky.desc": "안개와 하늘 색을 같게 합니다.",
+    "colormatic.config.option.clearVoid": "맑은 공허",
+    "colormatic.config.option.clearVoid.desc": "공허를 렌더링하지 않습니다.",
+    "colormatic.config.option.blendSkyLight": "부드러운 전환",
+    "colormatic.config.option.blendSkyLight.desc": "일출 또는 일몰 동안에 하늘을 부드럽게 블렌딩 합니다.",
+    "colormatic.config.option.flickerBlockLight": "블록 빛 번쩍임",
+    "colormatic.config.option.flickerBlockLight.desc": "블록의 빛 번쩍임을 허용합니다.",
+    "colormatic.config.option.relativeBlockLightIntensity": "조명 강도",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "하늘 빛에 대한 블록 빛의 강도를 설정합니다. 값이 낮을 수록 주변 조명의 블록 빛이 어두워집니다."
+}
