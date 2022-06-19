@@ -1,11 +1,16 @@
 {
     "colormatic.config.title": "Colormaticu valikud",
+    "colormatic.config.title.subtitle": "Colormaticu valikud",
     "colormatic.config.category.fog": "Udu ja taevas",
     "colormatic.config.category.light": "Valgustus",
     "colormatic.config.option.clearSky": "Selge taevas",
+    "colormatic.config.option.clearSky.desc": "Kasuta udu jaoks taeva värvi.",
     "colormatic.config.option.clearVoid": "Selge tühjus",
+    "colormatic.config.option.clearVoid.desc": "Ära tühjust renderda, isegi alla merepinna taseme.",
     "colormatic.config.option.blendSkyLight": "Sujuvad üleminekud",
+    "colormatic.config.option.blendSkyLight.desc": "Ühita taeva valgus päikesetõusul ja -loojangul sujuvalt.",
     "colormatic.config.option.flickerBlockLight": "Ploki valgusvärelus",
-    "colormatic.sodium_dependency_warning": "Indium on vajalik Sodiumiga täielikuks toimimiseks, kuid see ei ole paigaldatud. Mõned funktsioonid ei pruugi töötada.",
-    "colormatic.sodium_dependency_warning.hover": "Mine Indiumi Modrinthi lehele"
+    "colormatic.config.option.flickerBlockLight.desc": "Luba ploki valgusel väreleda.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Ploki valguse tugevus",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "Ploki valguse tugevus, suhtelises seoses taeva valgusega. Madalamad väärtused muudavad ploki valguse ümbritsevas valguses tumedamaks."
 }
