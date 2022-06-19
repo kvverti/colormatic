@@ -6,7 +6,9 @@
   "name": "Colormatic",
   "description": "Adds the ability to customize colors hardcoded in vanilla.",
   "authors": [
-    "kwerti",
+    "kwerti"
+  ],
+  "contributors": [
     "Hambaka (Chinese Simplified localization)",
     "Madis0 (Estonian localization)"
   ],
