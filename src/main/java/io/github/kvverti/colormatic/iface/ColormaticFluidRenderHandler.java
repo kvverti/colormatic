@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022 Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -25,7 +25,10 @@ import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import org.jetbrains.annotations.Nullable;
 
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockRenderView;
@@ -53,5 +56,15 @@ public class ColormaticFluidRenderHandler implements FluidRenderHandler {
             return BiomeColormaps.getBiomeColor(blockState, view, pos);
         }
         return this.delegate.getFluidColor(view, pos, state);
+    }
+
+    @Override
+    public void renderFluid(BlockPos pos, BlockRenderView world, VertexConsumer vertexConsumer, BlockState blockState, FluidState fluidState) {
+        this.delegate.renderFluid(pos, world, vertexConsumer, blockState, fluidState);
+    }
+
+    @Override
+    public void reloadTextures(SpriteAtlasTexture textureAtlas) {
+        this.delegate.reloadTextures(textureAtlas);
     }
 }

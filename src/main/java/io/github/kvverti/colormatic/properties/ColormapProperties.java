@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.google.gson.JsonSyntaxException;
@@ -78,7 +79,6 @@ public class ColormapProperties {
     private final Collection<ApplicableBlockStates> blocks;
 
     /**
-     * s
      * The colormap image. If not specified, it is taken from the file name
      * of the properties file.
      */
@@ -133,15 +133,25 @@ public class ColormapProperties {
         this.optifine = this.id.getPath().endsWith(".properties");
         this.format = settings.format;
         this.blocks = settings.blocks;
-        this.source = new Identifier(settings.source);
+        Identifier source = Identifier.tryParse(settings.source);
+        if(source == null) {
+            log.error("{}: Invalid source location '{}', using file name as fallback", id, settings.source);
+            source = new Identifier(makeSourceFromFileName(id));
+        }
+        this.source = source;
         this.color = settings.color;
-        this.layout = settings.layout;
+        this.layout = Objects.requireNonNullElse(settings.layout, this.optifine ? ColumnLayout.OPTIFINE : ColumnLayout.DEFAULT);
         this.yVariance = settings.yVariance;
         this.yOffset = settings.yOffset;
         if(settings.grid != null) {
             this.columnsByBiome = new HashMap<>();
+            int nextColumn = 0;
             for(GridEntry entry : settings.grid) {
-                ColumnBounds bounds = new ColumnBounds(entry.column, entry.width);
+                if(entry.column >= 0) {
+                    nextColumn = entry.column;
+                }
+                ColumnBounds bounds = new ColumnBounds(nextColumn, entry.width);
+                nextColumn += entry.width;
                 for(Identifier biomeId : entry.biomes) {
                     Identifier updated = BiomeRenaming.updateName(biomeId, this.id);
                     if(updated != null) {
@@ -209,7 +219,8 @@ public class ColormapProperties {
                     return cb;
                 } else {
                     return switch(layout) {
-                        case DEFAULT -> DefaultColumns.getDefaultBounds(biomeKey, biomeRegistry, this.optifine);
+                        case DEFAULT -> DefaultColumns.getDefaultBounds(biomeKey);
+                        case OPTIFINE -> DefaultColumns.getOptifineBounds(biomeKey, biomeRegistry);
                         case LEGACY -> DefaultColumns.getLegacyBounds(biomeKey, biomeRegistry, this.optifine);
                         case STABLE -> DefaultColumns.getStableBounds(biomeKey);
                     };
@@ -294,6 +305,7 @@ public class ColormapProperties {
 
     public enum ColumnLayout implements StringIdentifiable {
         DEFAULT("default"),
+        OPTIFINE("optifine"),
         LEGACY("legacy"),
         STABLE("stable");
 
@@ -315,7 +327,7 @@ public class ColormapProperties {
      * from the identifier name.
      */
     public static ColormapProperties load(ResourceManager manager, Identifier id, boolean custom) {
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+        try(InputStream in = manager.getResourceOrThrow(id).getInputStream()) {
             try(Reader r = PropertyUtil.getJsonReader(in, id, k -> k, "blocks"::equals)) {
                 return loadFromJson(r, id, custom);
             }
@@ -331,8 +343,9 @@ public class ColormapProperties {
             if(settings == null) {
                 settings = new Settings();
             }
-        } catch(JsonSyntaxException e) {
-            log.error("Error parsing {}: {}", id, e.getMessage());
+        } catch(Exception e) {
+            // any one of a number of exceptions could have been thrown during deserialization
+            log.error("Error loading {}: {}", id, e.getMessage());
             settings = new Settings();
         }
         if(settings.format == null) {
@@ -353,18 +366,25 @@ public class ColormapProperties {
                 }
             }
         } else {
-            // disable `blocks`, `grid`, and `biomes` for non-custom colormaps
+            // disable `blocks`, `grid`, and `biomes` for non-custom colormaps, warn if they are present
+            if(settings.biomes != null || settings.grid != null || settings.blocks != null) {
+                log.warn("{}: found `biomes`, `grid`, or `blocks` properties in a provided colormap; these will be ignored", id);
+            }
             settings.biomes = null;
             settings.grid = null;
             settings.blocks = Collections.emptyList();
         }
         if(settings.source == null) {
-            String path = id.toString();
-            path = path.substring(0, path.lastIndexOf('.')) + ".png";
-            settings.source = path;
+            settings.source = makeSourceFromFileName(id);
         }
         settings.source = PropertyUtil.resolve(settings.source, id);
         return new ColormapProperties(id, settings);
+    }
+
+    private static String makeSourceFromFileName(Identifier id) {
+        String path = id.toString();
+        path = path.substring(0, path.lastIndexOf('.')) + ".png";
+        return path;
     }
 
     private static class Settings {
@@ -378,11 +398,5 @@ public class ColormapProperties {
         int yOffset = 0;
         Map<Identifier, Integer> biomes = null;
         List<GridEntry> grid = null;
-    }
-
-    private static class GridEntry {
-        List<Identifier> biomes = Collections.emptyList();
-        int column = 0;
-        int width = 1;
     }
 }

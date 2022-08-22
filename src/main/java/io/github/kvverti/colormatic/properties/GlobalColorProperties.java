@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,6 +31,7 @@ import java.util.Map;
 import com.google.gson.JsonParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
@@ -70,7 +71,7 @@ public class GlobalColorProperties {
     private final TextColorSettings text;
     private final int xpOrbTime;
     private final ColormapProperties.Format defaultFormat;
-    private final ColormapProperties.ColumnLayout defaultLayout;
+    private final @Nullable ColormapProperties.ColumnLayout defaultLayout;
 
     private GlobalColorProperties(Settings settings) {
         this.particle = settings.particle;
@@ -135,7 +136,7 @@ public class GlobalColorProperties {
     private static <T> Map<T, HexColor> convertMap(Map<String, HexColor> initial, Registry<T> registry) {
         Map<T, HexColor> res = new HashMap<>();
         for(Map.Entry<String, HexColor> entry : initial.entrySet()) {
-            T key = registry.get(new Identifier(entry.getKey()));
+            T key = registry.get(Identifier.tryParse(entry.getKey()));
             if(key != null) {
                 res.put(key, entry.getValue());
             }
@@ -163,18 +164,18 @@ public class GlobalColorProperties {
         if(settings.egg != null) {
             LegacyEggColor legacy = settings.egg;
             for(Map.Entry<String, HexColor> entry : legacy.shell.entrySet()) {
-                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
                 res.put(type, new int[]{ entry.getValue().rgb(), 0 });
             }
             for(Map.Entry<String, HexColor> entry : legacy.spots.entrySet()) {
-                EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+                EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
                 int[] colors = res.computeIfAbsent(type, t -> new int[2]);
                 colors[1] = entry.getValue().rgb();
             }
         }
         // handle colormatic egg colors
         for(Map.Entry<String, HexColor[]> entry : settings.spawnegg.entrySet()) {
-            EntityType<?> type = registry.get(new Identifier(entry.getKey()));
+            EntityType<?> type = registry.get(Identifier.tryParse(entry.getKey()));
             int[] colors = res.computeIfAbsent(type, t -> new int[2]);
             HexColor[] hexColors = entry.getValue();
             for(int i = 0; i < Math.min(2, hexColors.length); i++) {
@@ -274,7 +275,7 @@ public class GlobalColorProperties {
         return defaultFormat;
     }
 
-    public ColormapProperties.ColumnLayout getDefaultLayout() {
+    public @Nullable ColormapProperties.ColumnLayout getDefaultLayout() {
         return defaultLayout;
     }
 
@@ -321,7 +322,7 @@ public class GlobalColorProperties {
     }
 
     public static GlobalColorProperties load(ResourceManager manager, Identifier id, boolean fall) {
-        try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+        try(InputStream in = manager.getResourceOrThrow(id).getInputStream()) {
             try(Reader r = PropertyUtil.getJsonReader(in, id, k -> keyRemap.getOrDefault(k, k), k -> false)) {
                 return loadFromJson(r, id);
             }
@@ -398,6 +399,6 @@ public class GlobalColorProperties {
         static Palette DEFAULT = new Palette();
 
         ColormapProperties.Format format = ColormapProperties.Format.VANILLA;
-        ColormapProperties.ColumnLayout layout = ColormapProperties.ColumnLayout.DEFAULT;
+        @Nullable ColormapProperties.ColumnLayout layout = null;
     }
 }

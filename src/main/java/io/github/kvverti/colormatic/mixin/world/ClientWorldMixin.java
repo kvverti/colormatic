@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -40,6 +40,7 @@ import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.level.ColorResolver;
@@ -61,7 +62,7 @@ public abstract class ClientWorldMixin extends World {
     public abstract DynamicRegistryManager getRegistryManager();
 
     private ClientWorldMixin() {
-        super(null, null, null, null, false, false, 0L);
+        super(null, null, null, null, false, false, 0L, 0);
     }
 
     @ModifyArg(
@@ -78,7 +79,8 @@ public abstract class ClientWorldMixin extends World {
         var biomeAccess = this.getBiomeAccess();
         var manager = this.getRegistryManager();
         return (x, y, z) -> {
-            var biome = biomeAccess.getBiomeForNoiseGen(x, y, z);
+            var biomeRegistry = manager.get(Registry.BIOME_KEY);
+            var biome = Colormatic.getRegistryValue(biomeRegistry, biomeAccess.getBiomeForNoiseGen(x, y, z));
             return Vec3d.unpackRgb(resolver.getColor(manager, biome, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z)));
         };
     }

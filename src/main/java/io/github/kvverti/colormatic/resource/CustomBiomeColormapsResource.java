@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -72,9 +72,10 @@ public class CustomBiomeColormapsResource implements SimpleSynchronousResourceRe
 
     private static void addColormaps(ResourceManager manager, Identifier dir, boolean json) {
         String ext = json ? ".json" : ".properties";
-        Collection<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(ext) || s.endsWith(".png"))
+        Collection<Identifier> files = manager.findResources(dir.getPath(),
+            id -> id.getNamespace().equals(dir.getNamespace()) && (id.getPath().endsWith(ext) || id.getPath().endsWith(".png")))
+            .keySet()
             .stream()
-            .filter(id -> id.getNamespace().equals(dir.getNamespace()))
             .map(id -> {
                 // count plain source images as properties so they're found
                 var path = id.getPath();

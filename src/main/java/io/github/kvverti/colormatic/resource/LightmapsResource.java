@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,12 +21,9 @@
  */
 package io.github.kvverti.colormatic.resource;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -36,13 +33,12 @@ import io.github.kvverti.colormatic.colormap.Lightmap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.profiler.Profiler;
-
-import net.fabricmc.fabric.api.resource.SimpleResourceReloadListener;
 
 public class LightmapsResource implements SimpleResourceReloadListener<Map<Identifier, NativeImage>> {
 
@@ -72,14 +68,12 @@ public class LightmapsResource implements SimpleResourceReloadListener<Map<Ident
 
     // Key = dimension ID, Value = lightmap image
     private static Map<Identifier, NativeImage> getLightmaps(ResourceManager manager, Identifier dir) {
-        List<Identifier> files = manager.findResources(dir.getPath(), s -> s.endsWith(".png"))
-            .stream()
-            .filter(id -> id.getNamespace().equals(dir.getNamespace()))
-            .distinct()
-            .collect(toList());
+        Map<Identifier, Resource> files = manager
+            .findResources(dir.getPath(), s -> s.getPath().endsWith(".png") && s.getNamespace().equals(dir.getNamespace()));
         Map<Identifier, NativeImage> res = new HashMap<>(files.size());
-        for(Identifier id : files) {
-            try(Resource rsc = manager.getResource(id); InputStream in = rsc.getInputStream()) {
+        for(Map.Entry<Identifier, Resource> entry : files.entrySet()) {
+            Identifier id = entry.getKey();
+            try(InputStream in = entry.getValue().getInputStream()) {
                 // colormatic:lightmap/minecraft/overworld.png -> minecraft:overworld
                 // colormatic:lightmap/the_nether.png -> minecraft:the_nether
                 // minecraft:optifine/lightmap/world1.png -> minecraft:the_end
@@ -102,16 +96,12 @@ public class LightmapsResource implements SimpleResourceReloadListener<Map<Ident
 
     private static String fixOptifineDimId(String dimIdStr) {
         // fix Optifine dimension IDs
-        switch(dimIdStr) {
-        case "world0":
-            return "minecraft:overworld";
-        case "world1":
-            return "minecraft:the_end";
-        case "world-1":
-            return "minecraft:the_nether";
-        default:
-            return dimIdStr;
-        }
+        return switch(dimIdStr) {
+            case "world0" -> "minecraft:overworld";
+            case "world1" -> "minecraft:the_end";
+            case "world-1" -> "minecraft:the_nether";
+            default -> dimIdStr;
+        };
     }
 
     @Override

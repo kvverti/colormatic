@@ -19,7 +19,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixin.render;
+package io.github.kvverti.colormatic.mixinfapi.fluid;
 
 import io.github.kvverti.colormatic.iface.ColormaticFluidRenderHandler;
 import org.spongepowered.asm.mixin.Mixin;

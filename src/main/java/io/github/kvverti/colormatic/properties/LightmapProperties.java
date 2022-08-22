@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2022  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -34,16 +34,14 @@ import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 
 /**
- * @param blockWane Specifies at what sky light level block light should start waning. If the sky
- *                  light level is greater than this value, block light is taken from
- *                  `blocklight - (skylight - wane)`, floored at 0.
+ * Properties that modify the behavior of all lightmaps. Currently nothing.
  */
-public record LightmapProperties(int blockWane) {
+public record LightmapProperties() {
 
     private static final Logger log = LogManager.getLogger();
 
     private LightmapProperties(Settings settings) {
-        this(settings.blockWane);
+        this();
     }
 
     /**
@@ -52,7 +50,7 @@ public record LightmapProperties(int blockWane) {
      */
     public static LightmapProperties load(ResourceManager manager, Identifier id) {
         Settings settings;
-        try(Resource rsc = manager.getResource(id); Reader in = new InputStreamReader(rsc.getInputStream())) {
+        try(Reader in = new InputStreamReader(manager.getResourceOrThrow(id).getInputStream())) {
             settings = PropertyUtil.PROPERTY_GSON.fromJson(in, Settings.class);
         } catch(JsonParseException e) {
             log.error("Error parsing {}: {}", id, e.getMessage());
@@ -64,6 +62,5 @@ public record LightmapProperties(int blockWane) {
     }
 
     private static class Settings {
-        int blockWane = 15;
     }
 }
