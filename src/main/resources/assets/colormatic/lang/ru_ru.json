@@ -9,7 +9,7 @@
     "colormatic.config.option.clearSky.desc": "Придать туману цвет неба.",
     "colormatic.config.option.clearVoid": "Скрытие пустоты",
     "colormatic.config.option.clearVoid.desc": "Не накладывать слой пустоты на нижнюю часть неба, даже при погружении в неё.",
-    "colormatic.config.option.blendSkyLight": "Мягкая заря",
+    "colormatic.config.option.blendSkyLight": "Плавная заря",
     "colormatic.config.option.blendSkyLight.desc": "Плавное смешивание света неба на закате и восходе.",
     "colormatic.config.option.flickerBlockLight": "Мерцание света блоков",
     "colormatic.config.option.flickerBlockLight.desc": "Разрешить еле заметное мерцание света от блоков, таких как факел или костёр.",
