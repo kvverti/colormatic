@@ -9,8 +9,8 @@
     "colormatic.config.option.clearVoid.desc": "Не создавать пустоту, даже находясь ниже уровня моря.",
     "colormatic.config.option.blendSkyLight": "Плавные переходы",
     "colormatic.config.option.blendSkyLight.desc": "Смешать плавно небесный свет во время восхода и захода солнца.",
-    "colormatic.config.option.flickerBlockLight": "Блокировать мерцание света",
+    "colormatic.config.option.flickerBlockLight": "Мерцание света",
     "colormatic.config.option.flickerBlockLight.desc": "Разрешить светящемуся блоку мерцать.",
-    "colormatic.config.option.relativeBlockLightIntensity": "Блокировать интенсивность света",
+    "colormatic.config.option.relativeBlockLightIntensity": "Интенсивность света",
     "colormatic.config.option.relativeBlockLightIntensity.desc": "Интенсивность светящегося блока по отношению к свету неба. Более низкие значения делают светящийся блок более тусклым при окружающем освещении."
 }
