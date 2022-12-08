@@ -1,0 +1,9 @@
+{
+    "colormatic.config.title": "Colormatic選項",
+    "colormatic.config.category.fog": "迷霧與天空",
+    "colormatic.config.category.light": "光照",
+    "colormatic.config.option.clearSky": "晴朗天空（地平線深處的迷霧顏色與天空一致）",
+    "colormatic.config.option.clearVoid": "明朗虛空（虛空的迷霧顏色與天空一致）",
+    "colormatic.config.option.blendSkyLight": "天空的光照亮度發生變化時進行平滑過渡",
+    "colormatic.config.option.flickerBlockLight": "方塊發出的光會持續閃爍"
+}
