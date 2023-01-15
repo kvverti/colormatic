@@ -43,7 +43,8 @@ import net.minecraft.predicate.block.BlockStatePredicate;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.InvalidIdentifierException;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 
 public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockStates> {
 
@@ -82,12 +83,12 @@ public class ApplicableBlockStatesAdapter extends TypeAdapter<ApplicableBlockSta
                     initSpecialBlockStates(res, id, parts);
                     return res;
                 } else {
-                    b = Registry.BLOCK.get(id);
+                    b = Registries.BLOCK.get(id);
                 }
                 bgnIdx = 2;
             } else {
                 // an unqualified name like `grass_block:snowy=false`
-                b = Registry.BLOCK.get(new Identifier(parts[0]));
+                b = Registries.BLOCK.get(new Identifier(parts[0]));
                 bgnIdx = 1;
             }
         } catch(InvalidIdentifierException e) {

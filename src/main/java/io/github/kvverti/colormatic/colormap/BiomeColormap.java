@@ -31,9 +31,10 @@ import io.github.kvverti.colormatic.properties.HexColor;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.BuiltinRegistries;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.BuiltinRegistries;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
@@ -107,7 +108,7 @@ public class BiomeColormap implements ColormaticResolver {
                 double rain = MathHelper.clamp(biome.getDownfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
-                ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome), manager.get(Registry.BIOME_KEY));
+                ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome), manager.get(Registries.BIOME_KEY));
                 // mojang uses this still so I don't know why they marked it for removal
                 @SuppressWarnings("removal")
                 double frac = Biome.FOLIAGE_NOISE.sample(posX * 0.0225, posZ * 0.0225, false);

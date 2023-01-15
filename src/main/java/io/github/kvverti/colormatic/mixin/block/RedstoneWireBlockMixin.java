@@ -34,7 +34,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneWireBlock;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
@@ -91,7 +91,7 @@ public abstract class RedstoneWireBlockMixin extends Block {
             float r = ((color >> 16) & 0xff) / 255.0f;
             float g = ((color >> 8) & 0xff) / 255.0f;
             float b = (color & 0xff) / 255.0f;
-            world.addParticle(new DustParticleEffect(new Vec3f(r, g, b), 1.0f), x, y, z, 0.0, 0.0, 0.0);
+            world.addParticle(new DustParticleEffect(new Vector3f(r, g, b), 1.0f), x, y, z, 0.0, 0.0, 0.0);
             info.cancel();
         }
     }

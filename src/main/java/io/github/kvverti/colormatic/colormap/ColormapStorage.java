@@ -32,7 +32,7 @@ import io.github.kvverti.colormatic.Colormatic;
 import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.world.biome.Biome;
 
 /**
