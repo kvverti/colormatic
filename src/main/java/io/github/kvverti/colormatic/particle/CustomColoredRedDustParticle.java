@@ -24,7 +24,7 @@ package io.github.kvverti.colormatic.particle;
 import io.github.kvverti.colormatic.Colormatic;
 
 import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 
 /**
  * A redstone dust particle that takes its color from the custom colors
@@ -32,18 +32,18 @@ import net.minecraft.util.math.Vec3f;
  */
 public class CustomColoredRedDustParticle extends DustParticleEffect {
 
-    public CustomColoredRedDustParticle(Vec3f color, float a) {
+    public CustomColoredRedDustParticle(Vector3f color, float a) {
         super(color, a);
     }
 
     @Override
-    public Vec3f getColor() {
+    public Vector3f getColor() {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
             var rgb = getFullColor();
             var r = ((rgb >> 16) & 0xff) / 255.0f;
             var g = ((rgb >> 8) & 0xff) / 255.0f;
             var b = (rgb & 0xff) / 255.0f;
-            return new Vec3f(r, g, b);
+            return new Vector3f(r, g, b);
         }
         return super.getColor();
     }

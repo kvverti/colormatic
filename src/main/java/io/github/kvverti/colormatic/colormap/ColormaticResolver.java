@@ -21,7 +21,7 @@
  */
 package io.github.kvverti.colormatic.colormap;
 
-import net.minecraft.util.registry.DynamicRegistryManager;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.world.biome.Biome;
 
 @FunctionalInterface

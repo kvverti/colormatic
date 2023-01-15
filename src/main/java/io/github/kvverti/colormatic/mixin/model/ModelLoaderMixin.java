@@ -40,8 +40,9 @@ import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.BlockStateArgumentType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
 
 @Mixin(ModelLoader.class)
 public abstract class ModelLoaderMixin {
@@ -70,7 +71,7 @@ public abstract class ModelLoaderMixin {
             if(modelId.getVariant().equals("inventory")) {
                 // we're using the block color providers for detecting non-custom item tinting for now
                 var blockId = new Identifier(modelId.getNamespace(), modelId.getPath());
-                blockState = Registry.BLOCK.get(blockId).getDefaultState();
+                blockState = Registries.BLOCK.get(blockId).getDefaultState();
             } else {
                 var blockStateDesc = modelId.getNamespace() + ":" + modelId.getPath() + "[" + modelId.getVariant() + "]";
                 try {
@@ -87,7 +88,7 @@ public abstract class ModelLoaderMixin {
             // with provided biome colors.
             if(BiomeColormaps.isCustomColored(blockState)) {
                 var colorProviders = ((BlockColorsAccessor)MinecraftClient.getInstance().getBlockColors()).getProviders();
-                if(!colorProviders.containsKey(Registry.BLOCK.getRawId(blockState.getBlock()))) {
+                if(!colorProviders.containsKey(Registries.BLOCK.getRawId(blockState.getBlock()))) {
                     // tentatively set to true - further checking in JsonUnbakedModelMixin
                     ModelIdContext.customTintCurrentModel = true;
                 }

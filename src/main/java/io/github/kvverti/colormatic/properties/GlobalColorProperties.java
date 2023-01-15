@@ -43,7 +43,7 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.registry.Registry;
 
 /**
  * The global color.json file. It's a monster.

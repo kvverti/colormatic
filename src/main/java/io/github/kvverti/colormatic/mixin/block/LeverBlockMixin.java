@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import net.minecraft.block.Block;
 import net.minecraft.block.LeverBlock;
 import net.minecraft.particle.DustParticleEffect;
-import net.minecraft.util.math.Vec3f;
+import org.joml.Vector3f;
 
 /**
  * For some reason, levers don't use DustParticleEffect.RED, so we have to
@@ -50,7 +50,7 @@ public abstract class LeverBlockMixin extends Block {
             ordinal = 0
         )
     )
-    private static DustParticleEffect proxyRedDust(Vec3f color, float a) {
+    private static DustParticleEffect proxyRedDust(Vector3f color, float a) {
         return new CustomColoredRedDustParticle(color, a);
     }
 }

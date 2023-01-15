@@ -34,10 +34,11 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.DynamicRegistryManager;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
@@ -95,7 +96,7 @@ public class Colormatic implements ClientModInitializer {
 
     public static Identifier getDimId(World world) {
         DimensionType type = world.getDimension();
-        Identifier id = world.getRegistryManager().get(Registry.DIMENSION_TYPE_KEY).getId(type);
+        Identifier id = world.getRegistryManager().get(Registries.DIMENSION_TYPE_KEY).getId(type);
         if(id == null) {
             id = OVERWORLD_ID;
         }
@@ -103,7 +104,7 @@ public class Colormatic implements ClientModInitializer {
     }
 
     public static Identifier getBiomeId(DynamicRegistryManager manager, Biome biome) {
-        Identifier id = manager.get(Registry.BIOME_KEY).getId(biome);
+        Identifier id = manager.get(Registries.BIOME_KEY).getId(biome);
         if(id == null) {
             id = BiomeKeys.PLAINS.getValue();
         }
@@ -111,7 +112,7 @@ public class Colormatic implements ClientModInitializer {
     }
 
     public static RegistryKey<Biome> getBiomeKey(DynamicRegistryManager manager, Biome biome) {
-        return manager.get(Registry.BIOME_KEY).getKey(biome).orElse(BiomeKeys.PLAINS);
+        return manager.get(Registries.BIOME_KEY).getKey(biome).orElse(BiomeKeys.PLAINS);
     }
 
     /**
