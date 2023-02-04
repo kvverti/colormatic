@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.DyeColor;

@@ -40,7 +40,7 @@
   },
   "recommends": {
     "quilt_loader": "*",
-    "modmenu": "^3.0.0"
+    "modmenu": "^4.0.0"
   },
   "suggests": {
     "flamingo": "*"

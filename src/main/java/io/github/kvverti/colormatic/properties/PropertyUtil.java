@@ -75,6 +75,10 @@ public class PropertyUtil {
         } else if(path.startsWith("~/")) {
             // ~ is the optifine directory
             path = "optifine" + path.substring(1);
+        } else if(!path.contains("/") && !path.contains(":")) {
+            // relative path - not a file path or a namespaced path
+            String thisPath = id.toString();
+            path = thisPath.substring(0, thisPath.lastIndexOf('/') + 1) + path;
         }
         return path;
     }

@@ -26,7 +26,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.checkerframework.checker.units.qual.C;
 
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -299,8 +298,8 @@ public final class DefaultColumns {
         // 1.19 wild biomes
         // mangrove swamp -> swamp
         map.put(BiomeKeys.MANGROVE_SWAMP.getValue(), new ColormapProperties.ColumnBounds(6, 1));
-        // deep dark -> ocean ¯\_(ツ)_/¯
-        map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(0, 1));
+        // deep dark -> lush caves
+        map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(175, 1));
         return map;
     }
 
