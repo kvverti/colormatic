@@ -1,0 +1,16 @@
+{
+		"colormatic.config.title": "Optioni di Colormatic",
+		"colormatic.config.title.subtitle": "Opzioni di Colormatic",
+		"colormatic.config.category.fog": "Nebbia & Cielo",
+		"colormatic.config.category.light": "Luce",
+		"colormatic.config.option.clearSky": "Cieli Chiari",
+		"colormatic.config.option.clearSky.desc": "Usa il colore del cielo per la nebbia.",
+		"colormatic.config.option.clearVoid": "Void chiaro",
+		"colormatic.config.option.clearVoid.desc": "Non renderizzare il void, nemmeno sotto il livello del mare.",
+		"colormatic.config.option.blendSkyLight": "Transizioni Smooth",
+		"colormatic.config.option.blendSkyLight.desc": "Unisci bene la luce del cielo durant il tramonto e l'alba.",
+		"colormatic.config.option.flickerBlockLight": "Blocca il Light Flicker",
+		"colormatic.config.option.flickerBlockLight.desc": "Permetti ai blocchi di luce di Flickerare.",
+		"colormatic.config.option.relativeBlockLightIntensity": "Intensità della luce dai blocchi",
+		"colormatic.config.option.relativeBlockLightIntensity.desc": "L'intensità di un blocco di luce relativo alla luce del sole. Minori valori bloccano la luce in ambienti di luce."
+}
