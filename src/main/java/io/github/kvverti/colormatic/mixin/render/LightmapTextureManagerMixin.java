@@ -21,10 +21,7 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
-import io.github.kvverti.colormatic.Colormatic;
-import io.github.kvverti.colormatic.ColormaticConfig;
-import io.github.kvverti.colormatic.Lightmaps;
-import io.github.kvverti.colormatic.colormap.Lightmap;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,8 +29,13 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.ColormaticConfig;
+import io.github.kvverti.colormatic.Lightmaps;
+import io.github.kvverti.colormatic.colormap.Lightmap;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
@@ -58,6 +60,9 @@ public abstract class LightmapTextureManagerMixin {
     @Shadow
     @Final
     private NativeImage image;
+
+    @Shadow
+    private boolean dirty;
 
     @Shadow
     private float flickerIntensity;
@@ -158,7 +163,7 @@ public abstract class LightmapTextureManagerMixin {
     )
     private void onUpdate(float partialTicks, CallbackInfo info) {
         ClientWorld world = this.client.world;
-        if(world == null) {
+        if(world == null || Lightmaps.isWorldRenderFinished()) {
             return;
         }
         // ambience is a value between 0.2 and 1.0, inclusive.
@@ -269,5 +274,20 @@ public abstract class LightmapTextureManagerMixin {
             return blockLight * (float)Math.exp(relativeIntensityExpScale * sky);
         }
         return blockLight;
+    }
+
+    /***
+     * Force enable LightmapTextureManager.update()
+     */
+    @Redirect(
+        method = "update",
+        at = @At(
+            value = "FIELD",
+            target = "Lnet/minecraft/client/render/LightmapTextureManager;dirty:Z",
+            opcode = Opcodes.GETFIELD
+        )
+    )
+    private boolean redirectGetDirty(final LightmapTextureManager ltm) {
+        return Lightmaps.isWorldRenderFinished() ? true : dirty;
     }
 }
