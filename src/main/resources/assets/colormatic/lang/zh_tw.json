@@ -1,7 +1,7 @@
 {
     "colormatic.config.title": "Colormatic 選項",
     "colormatic.config.title.subtitle": "Colormatic 選項",
-    "colormatic.config.category.fog": "迷霧 & 天空",
+    "colormatic.config.category.fog": "迷霧與天空",
     "colormatic.config.category.light": "光照",
     "colormatic.config.option.clearSky": "晴朗天空",
     "colormatic.config.option.clearSky.desc": "天空使用迷霧的顏色。",
