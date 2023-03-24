@@ -1,0 +1,16 @@
+{
+    "colormatic.config.title": "Επιλογές του Colormatic",
+    "colormatic.config.title.subtitle": "Επιλογές του Colormatic",
+    "colormatic.config.category.fog": "Ουρανός & Ομίχλη",
+    "colormatic.config.category.light": "Φωτισμός",
+    "colormatic.config.option.clearSky": "Καθαροί Ουρανοί",
+    "colormatic.config.option.clearSky.desc": "Χρήση χρώματος ουρανού για την ομίχλη.",
+    "colormatic.config.option.clearVoid": "Καθαρό Κενό",
+    "colormatic.config.option.clearVoid.desc": "Απόκρυψη του Κενού, ακόμα και κάτω απ' το επίπεδο της θάλασσας.",
+    "colormatic.config.option.blendSkyLight": "Ομαλές Εναλαγές",
+    "colormatic.config.option.blendSkyLight.desc": "Ομαλή ανάμηξη του φωτός του ουρανού στο δειλινό και την αυγή.",
+    "colormatic.config.option.flickerBlockLight": "Τρεμοπαίξιμο φωτ. κυβού",
+    "colormatic.config.option.flickerBlockLight.desc": "Επιτρέπει στο φως ενός κύβου να τρεμοπαίζει.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Ένταση φωτός κύβου",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "Η ένταση του φωτός ενός κύβου ανάλογα με το φως του ουρανού. Χαμηλότερες τιμές θα κάνουν το φως ενός κύβου χαμηλότερο στο περιβάλλων φως."
+}
