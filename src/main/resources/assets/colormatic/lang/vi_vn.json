@@ -1,0 +1,16 @@
+{
+    "colormatic.config.title": "Tuỳ chỉnh Colormatic",
+    "colormatic.config.title.subtitle": "Tuỳ chỉnh Colormatic",
+    "colormatic.config.category.fog": "Sương mù & Bầu trời",
+    "colormatic.config.category.light": "Ánh sáng",
+    "colormatic.config.option.clearSky": "Bầu trời quang đãng",
+    "colormatic.config.option.clearSky.desc": "Sử dụng màu bầu trời cho sương mù.",
+    "colormatic.config.option.clearVoid": "Khoảng trống quang đãng",
+    "colormatic.config.option.clearVoid.desc": "Đừng hiển thị khoảng trống, ngay cả khi ở dưới mực nước biển.",
+    "colormatic.config.option.blendSkyLight": "Chuyển đổi mượt mà",
+    "colormatic.config.option.blendSkyLight.desc": "Pha trộn ánh sáng bầu trời một cách mượt mà trong lúc bình minh và hoàng hôn.",
+    "colormatic.config.option.flickerBlockLight": "Khối ánh sáng nhấp nháy",
+    "colormatic.config.option.flickerBlockLight.desc": "Cho phép khối ánh sáng nhấp nháy.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Cường độ ánh sáng khối",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "Cường độ của ánh sáng khối so với ánh sáng bầu trời. Giá trị thấp hơn làm cho ánh sáng khối mờ hơn trong ánh sáng xung quanh."
+}
