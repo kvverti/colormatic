@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "colormatic",
+  "version": "${version}",
+
+  "name": "Colormatic",
+  "description": "Adds the ability to customize colors hardcoded in vanilla.",
+  "authors": [
+    "kwerti",
+    "Hambaka (Chinese Simplified localization)",
+    "Madis0 (Estonian localization)"
+  ],
+  "contact": {
+    "homepage": "https://github.com/kvverti/colormatic",
+    "issues": "https://github.com/kvverti/colormatic/issues",
+    "sources": "https://github.com/kvverti/colormatic"
+  },
+
+  "license": "LGPL-3",
+  "icon": "assets/colormatic/icon.png",
+
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "io.github.kvverti.colormatic.Colormatic"
+    ],
+    "modmenu": [
+      "io.github.kvverti.colormatic.ColormaticModMenu"
+    ]
+  },
+  "mixins": [
+    "colormatic.mixins.json",
+    "colormatic.sodium.mixins.json",
+    "colormatic.fapi.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.0",
+    "fabric-resource-loader-v0": ">=0.4"
+  },
+  "recommends": {
+    "quilt_loader": "*",
+    "modmenu": "^4.0.0"
+  },
+  "suggests": {
+    "flamingo": "*"
+  },
+  "breaks": {
+    "optifabric": "*"
+  },
+  "custom": {
+    "sodium:options": {
+      "mixin.features.fast_biome_colors": false
+    }
+  }
+}
