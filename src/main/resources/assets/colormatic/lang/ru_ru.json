@@ -1,0 +1,18 @@
+{
+    "modmenu.summaryTranslation.colormatic":"Персонализация жёстко прописанных в игре цветов.",
+    "modmenu.descriptionTranslation.colormatic": "Colormatic - это мод, который позволяет наборам ресурсов изменять жёстко закодированные в Minecraft цвета. С использованием Colormatic наборы ресурсов смогут менять:\n • Цветовые карты биомов для воды, лавы, растительности, неба и тумана\n • Цветовые карты для каждого отдельного блока\n • Карты освещения для любых измерений (поддерживаются измерения из наборов данных)\n • Цвета окраски красителями\n • Цвета чата\nColormatic содержит функционал мода Custom Colors и совместим с наборами ресурсов, использующими функции пользовательских цветов формата Optifine.",
+    "colormatic.config.title": "Настройки Colormatic",
+    "colormatic.config.title.subtitle": "Настройки Colormatic",
+    "colormatic.config.category.fog": "Небо и туман",
+    "colormatic.config.category.light": "Освещение",
+    "colormatic.config.option.clearSky": "Чистое небо",
+    "colormatic.config.option.clearSky.desc": "Придать туману цвет неба.",
+    "colormatic.config.option.clearVoid": "Скрытие пустоты",
+    "colormatic.config.option.clearVoid.desc": "Не накладывать слой пустоты на нижнюю часть неба, даже при погружении в неё.",
+    "colormatic.config.option.blendSkyLight": "Плавная заря",
+    "colormatic.config.option.blendSkyLight.desc": "Плавное смешивание света неба на закате и восходе.",
+    "colormatic.config.option.flickerBlockLight": "Мерцание света блоков",
+    "colormatic.config.option.flickerBlockLight.desc": "Разрешить еле заметное мерцание света от блоков, таких как факел или костёр.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Яркость света блоков",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "Интенсивность освещения от блоков по отношению к освещению неба. Более низкие значения делают свет от блоков тусклее в общей картине."
+}
