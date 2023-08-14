@@ -1,0 +1,16 @@
+{
+    "colormatic.config.title": "Налады Colormatic",
+    "colormatic.config.title.subtitle": "Налады Colormatic",
+    "colormatic.config.category.fog": "Туман і Неба",
+    "colormatic.config.category.light": "Асвятленне",
+    "colormatic.config.option.clearSky": "Чыстыя нябёсы",
+    "colormatic.config.option.clearSky.desc": "Выкарыстоўваць колер неба для туману.",
+    "colormatic.config.option.clearVoid": "Чыстая пустата",
+    "colormatic.config.option.clearVoid.desc": "Не загружаць пустату, нават калі яна ніжэй за ўзровень мора.",
+    "colormatic.config.option.blendSkyLight": "Плаўнае змешванне",
+    "colormatic.config.option.blendSkyLight.desc": "Плаўна змешвае нябеснае святло падчас усходу і заходу сонца.",
+    "colormatic.config.option.flickerBlockLight": "Міганне блокаў святла",
+    "colormatic.config.option.flickerBlockLight.desc": "Дазволіць блоку святла міргаць.",
+    "colormatic.config.option.relativeBlockLightIntensity": "Інтэнсіўнасць блоку святла",
+    "colormatic.config.option.relativeBlockLightIntensity.desc": "Інтэнсіўнасць блоку святла адносна нябеснага святла. Ніжэйшыя значэнні робяць святло блока больш цьмяным пры навакольным асвятленні."
+}
