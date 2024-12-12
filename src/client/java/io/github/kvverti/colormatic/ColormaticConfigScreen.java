@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2022  Thalia Nero
+ * Copyright (C) 2022-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,21 +21,13 @@
  */
 package io.github.kvverti.colormatic;
 
-import java.util.List;
-
-import org.jetbrains.annotations.Nullable;
-
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
-import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
-import net.minecraft.client.option.SimpleOption;
 import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 public class ColormaticConfigScreen extends Screen {
@@ -124,36 +116,20 @@ public class ColormaticConfigScreen extends Screen {
     }
 
     @Override
-    public void render(DrawContext matrices, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         // draw category labels
-        /*this.renderBackground(matrices);
+        this.renderBackground(context);
         var title = Text.translatable("colormatic.config.title");
         var width = this.textRenderer.getWidth(title);
-        this.textRenderer.drawWithShadow(matrices, title, (this.width - width) / 2.0f, TOP_MARGIN, -1);
+        context.drawText(this.textRenderer, title, (this.width - width) / 2, TOP_MARGIN, -1, true);
         var fogSettingsTitle = Text.translatable("colormatic.config.category.fog");
         width = this.textRenderer.getWidth(fogSettingsTitle);
-        this.textRenderer.drawWithShadow(matrices, fogSettingsTitle, (this.width - width) / 2.0f, TOP_MARGIN + STANDARD_HEIGHT, -1);
+        context.drawText(this.textRenderer, fogSettingsTitle, (this.width - width) / 2, TOP_MARGIN + STANDARD_HEIGHT, -1, true);
         var lightSettingsTitle = Text.translatable("colormatic.config.category.light");
         width = this.textRenderer.getWidth(lightSettingsTitle);
-        this.textRenderer.drawWithShadow(matrices, lightSettingsTitle, (this.width - width) / 2.0f, this.fogSectionBottom + STANDARD_HEIGHT, -1);
-        var tooltip = this.getTooltip(mouseX, mouseY);
-        if(tooltip != null) {
-            this.renderOrderedTooltip(matrices, tooltip, mouseX, mouseY);
-        }*/
-        super.render(matrices, mouseX, mouseY, delta);
+        context.drawText(this.textRenderer, lightSettingsTitle, (this.width - width) / 2, this.fogSectionBottom + STANDARD_HEIGHT, -1, true);
+        super.render(context, mouseX, mouseY, delta);
     }
-
-    /*private @Nullable List<OrderedText> getTooltip(int mouseX, int mouseY) {
-        for(var element : this.children()) {
-            if(element.isMouseOver(mouseX, mouseY)) {
-                if(element instanceof OrderableTooltip tooltipElement) {
-                    return tooltipElement.getOrderedTooltip();
-                }
-                break;
-            }
-        }
-        return null;
-    }*/
 
     @Override
     public void close() {
@@ -174,6 +150,7 @@ public class ColormaticConfigScreen extends Screen {
                 ColormaticConfigScreen.STANDARD_HEIGHT,
                 Text.empty(),
                 1.0 - ColormaticConfigScreen.this.config.relativeBlockLightIntensityExponent / -16.0);
+            this.setTooltip(Tooltip.of(Text.translatable("colormatic.config.option.relativeBlockLightIntensity.desc")));
             this.updateMessage();
         }
 
@@ -191,11 +168,6 @@ public class ColormaticConfigScreen extends Screen {
 
         private double configValue() {
             return (1.0 - this.value) * -16.0;
-        }
-
-        //@Override
-        public List<OrderedText> getOrderedTooltip() {
-            return ColormaticConfigScreen.this.textRenderer.wrapLines(Text.translatable("colormatic.config.option.relativeBlockLightIntensity.desc"), TOOLTIP_WIDTH);
         }
     }
 }
