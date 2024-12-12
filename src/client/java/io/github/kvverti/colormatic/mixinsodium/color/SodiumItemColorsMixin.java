@@ -46,12 +46,12 @@ public abstract class SodiumItemColorsMixin implements ItemColorsExtended {
      * Displace Sodium's implementation to first check Colormatic's custom item colors.
      */
     @Intrinsic(displace = true)
-    public ItemColorProvider i$getColorProvider(ItemStack stack) {
+    public ItemColorProvider i$sodium$getColorProvider(ItemStack stack) {
         if(stack.getItem() instanceof BlockItem blockItem) {
             if(BiomeColormaps.isItemCustomColored(blockItem.getBlock().getDefaultState())) {
                 return COLORMATIC_PROVIDER;
             }
         }
-        return this.getColorProvider(stack);
+        return this.sodium$getColorProvider(stack);
     }
 }

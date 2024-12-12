@@ -41,7 +41,7 @@ public abstract class JsonUnbakedModelMixin {
     public abstract List<ModelElement> getElements();
 
     @Inject(
-        method = "bake(Lnet/minecraft/client/render/model/ModelLoader;Lnet/minecraft/client/render/model/json/JsonUnbakedModel;Ljava/util/function/Function;Lnet/minecraft/client/render/model/ModelBakeSettings;Lnet/minecraft/util/Identifier;Z)Lnet/minecraft/client/render/model/BakedModel;",
+        method = "bake(Lnet/minecraft/client/render/model/Baker;Lnet/minecraft/client/render/model/json/JsonUnbakedModel;Ljava/util/function/Function;Lnet/minecraft/client/render/model/ModelBakeSettings;Lnet/minecraft/util/Identifier;Z)Lnet/minecraft/client/render/model/BakedModel;",
         at = @At("HEAD")
     )
     private void setColormaticCustomTinted(CallbackInfoReturnable<BakedModel> info) {

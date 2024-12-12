@@ -10,7 +10,6 @@
     "color.BlockColorsAccessor",
     "color.BlockColorsMixin",
     "color.ItemColorsMixin",
-    "compat.IdentifierMixin",
     "dye.BannerBlockEntityRendererMixin",
     "dye.SheepEntityMixin",
     "dye.TextureManagerMixin",

@@ -2,11 +2,12 @@
   "schemaVersion": 1,
   "id": "colormatic",
   "version": "${version}",
-
   "name": "Colormatic",
   "description": "Adds the ability to customize colors hardcoded in vanilla.",
   "authors": [
-    "kwerti",
+    "kwerti"
+  ],
+  "contributors": [
     "Hambaka (Chinese Simplified localization)",
     "Madis0 (Estonian localization)"
   ],
@@ -30,9 +31,9 @@
   },
   "mixins": [
     "colormatic.mixins.json",
-    "colormatic.sodium.mixins.json",
     "colormatic.fapi.mixins.json"
   ],
+  "accessWidener": "colormatic.accesswidener",
 
   "depends": {
     "fabricloader": ">=0.11.0",

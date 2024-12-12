@@ -1,0 +1,4 @@
+accessWidener v2 named
+
+accessible field net/minecraft/world/biome/Biome weather Lnet/minecraft/world/biome/Biome$Weather;
+accessible method net/minecraft/world/biome/Biome$Weather downfall ()F

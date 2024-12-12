@@ -31,10 +31,10 @@ import io.github.kvverti.colormatic.properties.ColormapProperties;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.fluid.Fluid;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
 
@@ -84,7 +84,7 @@ public final class BiomeColormaps {
                 case "colormatic:sky" -> skyColormaps.addColormap(colormap, entry.getValue(), biomes);
                 case "colormatic:sky_fog" -> skyFogColormaps.addColormap(colormap, entry.getValue(), biomes);
                 case "colormatic:fluid_fog" -> {
-                    Collection<Fluid> fluids = entry.getValue().stream().map(Registry.FLUID::get).collect(Collectors.toList());
+                    Collection<Fluid> fluids = entry.getValue().stream().map(Registries.FLUID::get).collect(Collectors.toList());
                     fluidFogColormaps.addColormap(colormap, fluids, biomes);
                 }
             }

@@ -22,23 +22,26 @@
 package io.github.kvverti.colormatic.properties;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.BiomeKeys;
 
 public final class DefaultColumns {
 
     private static final Logger log = LogManager.getLogger();
+
+    /**
+     * Registry lookup for the built-in biomes.
+     */
+    private static final RegistryWrapper<Biome> BUILTIN_BIOME_LOOKUP = BuiltinRegistries.createWrapperLookup().getWrapperOrThrow(RegistryKeys.BIOME);
 
     /**
      * Mapping of dynamic biomes to nearest vanilla columns.
@@ -61,7 +64,7 @@ public final class DefaultColumns {
      */
     private static final Map<Identifier, ColormapProperties.ColumnBounds> stableColumns = createStableColumnBounds();
 
-    private static final int VANILLA_BIOME_COUNT = BuiltinRegistries.BIOME.size();
+    private static final int VANILLA_BIOME_COUNT = (int)BUILTIN_BIOME_LOOKUP.streamKeys().count();
     private static final int LEGACY_1_17_BIOME_COUNT = 176;
 
     private DefaultColumns() {
@@ -93,7 +96,7 @@ public final class DefaultColumns {
         var bounds = currentColumns.get(biomeKey.getValue());
         if(bounds == null) {
             // Optifine computes grid colors using the raw ID
-            int rawID = biomeRegistry.getRawId(biomeRegistry.get(biomeKey));
+            int rawID = biomeRegistry.getRawId(biomeRegistry.getOrThrow(biomeKey));
             return new ColormapProperties.ColumnBounds(rawID, 1);
         }
         return bounds;
@@ -167,7 +170,7 @@ public final class DefaultColumns {
     public static void reloadDefaultColumnBounds(DynamicRegistryManager manager) {
         dynamicColumns.clear();
         if(manager != null) {
-            var biomeRegistry = manager.get(Registry.BIOME_KEY);
+            var biomeRegistry = manager.get(RegistryKeys.BIOME);
             for(var entry : biomeRegistry.getEntrySet()) {
                 var key = entry.getKey();
                 if(!currentColumns.containsKey(key.getValue())) {
@@ -191,7 +194,7 @@ public final class DefaultColumns {
             throw new IllegalStateException("Biome is not registered: " + biomeKey.getValue());
         }
         double temperature = customBiome.getTemperature();
-        double humidity = MathHelper.clamp(customBiome.getDownfall(), 0.0, 1.0);
+        double humidity = MathHelper.clamp(customBiome.weather.downfall(), 0.0, 1.0);
         double minDistanceSq = Double.POSITIVE_INFINITY;
         Identifier minBiomeId = null;
         for(var entry : currentColumns.entrySet()) {
@@ -201,7 +204,7 @@ public final class DefaultColumns {
                 continue;
             }
             var dTemperature = temperature - vanillaBiome.getTemperature();
-            var dHumidity = humidity - MathHelper.clamp(vanillaBiome.getDownfall(), 0.0, 1.0);
+            var dHumidity = humidity - MathHelper.clamp(vanillaBiome.weather.downfall(), 0.0, 1.0);
             var thisDistanceSq = dTemperature * dTemperature + dHumidity * dHumidity;
             if(thisDistanceSq < minDistanceSq) {
                 minDistanceSq = thisDistanceSq;
@@ -213,10 +216,12 @@ public final class DefaultColumns {
 
     private static Map<Identifier, ColormapProperties.ColumnBounds> createCurrentColumnBounds() {
         // based on the raw IDs in current Minecraft code
+        // we assume the raw IDs correspond to the iteration order of the built-in registry
         var map = new HashMap<Identifier, ColormapProperties.ColumnBounds>();
-        for(var biome : BuiltinRegistries.BIOME) {
-            var id = BuiltinRegistries.BIOME.getId(biome);
-            var rawId = BuiltinRegistries.BIOME.getRawId(biome);
+        var rawId = 0;
+        for(Iterator<RegistryKey<Biome>> it = BUILTIN_BIOME_LOOKUP.streamKeys().iterator(); it.hasNext(); rawId++) {
+            var biomeKey = it.next();
+            var id = biomeKey.getValue();
             map.put(id, new ColormapProperties.ColumnBounds(rawId, 1));
         }
         return map;

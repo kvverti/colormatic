@@ -32,22 +32,22 @@ import org.spongepowered.asm.mixin.Unique;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.color.block.BlockColors;
 
-@Mixin(value = BlockColors.class, priority = 2000)
-@Implements(@Interface(iface = BlockColorsExtended.class, prefix = "i$", remap = Interface.Remap.NONE))
-public abstract class SodiumBlockColorsMixin implements BlockColorsExtended {
-
-    @Unique
-    private static final ColorSampler<BlockState> COLORMATIC_PROVIDER =
-        (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
-
-    /**
-     * Displace Sodium's implementation to first check Colormatic's custom block colors.
-     */
-    @Intrinsic(displace = true)
-    public ColorSampler<BlockState> i$getColorProvider(BlockState state) {
-        if(BiomeColormaps.isCustomColored(state)) {
-            return COLORMATIC_PROVIDER;
-        }
-        return this.getColorProvider(state);
-    }
-}
+//@Mixin(value = BlockColors.class, priority = 2000)
+//@Implements(@Interface(iface = BlockColorsExtended.class, prefix = "i$", remap = Interface.Remap.NONE))
+//public abstract class SodiumBlockColorsMixin implements BlockColorsExtended {
+//
+//    @Unique
+//    private static final ColorSampler<BlockState> COLORMATIC_PROVIDER =
+//        (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
+//
+//    /**
+//     * Displace Sodium's implementation to first check Colormatic's custom block colors.
+//     */
+//    @Intrinsic(displace = true)
+//    public ColorSampler<BlockState> i$getColorProvider(BlockState state) {
+//        if(BiomeColormaps.isCustomColored(state)) {
+//            return COLORMATIC_PROVIDER;
+//        }
+//        return this.getColorProvider(state);
+//    }
+//}

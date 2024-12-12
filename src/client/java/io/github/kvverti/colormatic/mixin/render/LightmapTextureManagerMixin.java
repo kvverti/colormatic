@@ -166,7 +166,7 @@ public abstract class LightmapTextureManagerMixin {
         // Note: the overworld ambience ranges between 0.2 and 1.0
         // depending on the time of day. The nether ambience is always
         // 0.2, and the end ambience is always 1.0.
-        float ambience = (world.getStarBrightness(partialTicks) - 0.2f) * 1.25f;
+        float ambience = (world.getSkyBrightness(partialTicks) - 0.2f) * 1.25f;
         // relative intensity curve = exp2(ax)
         relativeIntensityExpScale = ambience * ColormaticConfig.scaled(Colormatic.config().relativeBlockLightIntensityExponent) / 16.0;
         // set this to -1.0 to signal a lightning strike. Relative intensity still follows the normal ambience.

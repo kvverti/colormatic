@@ -36,11 +36,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.biome.ColorResolver;
@@ -58,11 +57,8 @@ public abstract class ClientWorldMixin extends World {
     @Shadow
     public abstract int calculateColor(BlockPos pos, ColorResolver colorResolver);
 
-    @Shadow
-    public abstract DynamicRegistryManager getRegistryManager();
-
     private ClientWorldMixin() {
-        super(null, null, null, null, false, false, 0L, 0);
+        super(null, null, null, null, null, false, false, 0L, 0);
     }
 
     @ModifyArg(
@@ -79,7 +75,7 @@ public abstract class ClientWorldMixin extends World {
         var biomeAccess = this.getBiomeAccess();
         var manager = this.getRegistryManager();
         return (x, y, z) -> {
-            var biomeRegistry = manager.get(Registry.BIOME_KEY);
+            var biomeRegistry = manager.get(RegistryKeys.BIOME);
             var biome = Colormatic.getRegistryValue(biomeRegistry, biomeAccess.getBiomeForNoiseGen(x, y, z));
             return Vec3d.unpackRgb(resolver.getColor(manager, biome, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z)));
         };

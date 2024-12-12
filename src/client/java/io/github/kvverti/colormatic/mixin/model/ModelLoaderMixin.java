@@ -21,64 +21,80 @@
  */
 package io.github.kvverti.colormatic.mixin.model;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.iface.ModelIdContext;
 import io.github.kvverti.colormatic.mixin.color.BlockColorsAccessor;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.model.ModelLoader;
+import net.minecraft.client.render.model.BakedModel;
+import net.minecraft.client.render.model.ModelBakeSettings;
 import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.BlockStateArgumentType;
+import net.minecraft.registry.Registries;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.Identifier;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
 
-@Mixin(ModelLoader.class)
+@Mixin(targets = "net.minecraft.client.render.model.ModelLoader$BakerImpl")
 public abstract class ModelLoaderMixin {
 
-    // using the built in DRM is fine because blocks aren't dynamic.
+    /**
+     * Manually parse a block state given its variant representation. This mixin is too early to rely on
+     * the dynamic registry manager.
+     * @param blockId Block ID
+     * @param variant String of the form prop1=value1,prop2=value2
+     * @return The block state represented by the ID and variant, or a default block state if anything is invalid.
+     */
     @Unique
-    private static final BlockStateArgumentType BLOCK_STATE_PARSER = BlockStateArgumentType.blockState(new CommandRegistryAccess(DynamicRegistryManager.BUILTIN.get()));
+    private static BlockState getBlockState(Identifier blockId, String variant) {
+        var block = Registries.BLOCK.get(blockId);
+        var stateManager = block.getStateManager();
+        var blockState = block.getDefaultState();
+        var propValues = variant.split(",");
+        for(var propValue : propValues) {
+            var propAndValue = propValue.split("=");
+            var prop = stateManager.getProperty(propAndValue[0]);
+            if(prop == null) {
+                continue;
+            }
+            blockState = withPropertyValue(blockState, prop, propAndValue[1]);
+        }
+        return blockState;
+    }
+
+    @Unique
+    private static <T extends Comparable<T>> BlockState withPropertyValue(BlockState state, Property<T> property, String valueStr) {
+        var value = property.parse(valueStr).orElse(null);
+        return value == null ? state : state.with(property, value);
+    }
 
     /**
      * Partially determines whether Colormatic should replace the tint on a model.
      * We parse the block state from the model ID. It is important that custom biome colormaps are
      * reloaded <em>before</em> this callback is run.
      */
-    @Dynamic("Model baking lambda in upload()")
     @Inject(
-        method = "method_4733",
+        method = "bake(Lnet/minecraft/util/Identifier;Lnet/minecraft/client/render/model/ModelBakeSettings;)Lnet/minecraft/client/render/model/BakedModel;",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/client/render/model/ModelLoader;bake(Lnet/minecraft/util/Identifier;Lnet/minecraft/client/render/model/ModelBakeSettings;)Lnet/minecraft/client/render/model/BakedModel;"
+            target = "Lnet/minecraft/client/render/model/UnbakedModel;bake(Lnet/minecraft/client/render/model/Baker;Ljava/util/function/Function;Lnet/minecraft/client/render/model/ModelBakeSettings;Lnet/minecraft/util/Identifier;)Lnet/minecraft/client/render/model/BakedModel;"
         )
     )
-    private void setModelIdContext(Identifier id, CallbackInfo info) {
-        ModelIdContext.customTintCurrentModel = false;
+    private void setModelIdContext(Identifier id, ModelBakeSettings settings, CallbackInfoReturnable<BakedModel> info) {
         if(id instanceof ModelIdentifier modelId) {
+            ModelIdContext.customTintCurrentModel = false;
+
             BlockState blockState;
+            var blockId = new Identifier(modelId.getNamespace(), modelId.getPath());
             if(modelId.getVariant().equals("inventory")) {
                 // we're using the block color providers for detecting non-custom item tinting for now
-                var blockId = new Identifier(modelId.getNamespace(), modelId.getPath());
-                blockState = Registry.BLOCK.get(blockId).getDefaultState();
+                blockState = Registries.BLOCK.get(blockId).getDefaultState();
             } else {
-                var blockStateDesc = modelId.getNamespace() + ":" + modelId.getPath() + "[" + modelId.getVariant() + "]";
-                try {
-                    blockState = BLOCK_STATE_PARSER.parse(new StringReader(blockStateDesc)).getBlockState();
-                } catch(CommandSyntaxException e) {
-                    // don't custom tint block state models that aren't real blocks
-                    return;
-                }
+                blockState = getBlockState(blockId, modelId.getVariant());
             }
             // test first two criteria
             //  - Colormatic has custom colors for the block state
@@ -87,7 +103,7 @@ public abstract class ModelLoaderMixin {
             // with provided biome colors.
             if(BiomeColormaps.isCustomColored(blockState)) {
                 var colorProviders = ((BlockColorsAccessor)MinecraftClient.getInstance().getBlockColors()).getProviders();
-                if(!colorProviders.containsKey(Registry.BLOCK.getRawId(blockState.getBlock()))) {
+                if(!colorProviders.containsKey(Registries.BLOCK.getRawId(blockState.getBlock()))) {
                     // tentatively set to true - further checking in JsonUnbakedModelMixin
                     ModelIdContext.customTintCurrentModel = true;
                 }

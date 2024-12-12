@@ -34,18 +34,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /**
  * Provides (falling) lava drop particle color customization capability.
  */
-@Mixin(BlockLeakParticle.FallingLavaFactory.class)
+@Mixin(BlockLeakParticle.class)
 public abstract class FallingLavaParticleFactoryMixin {
 
-    @Inject(method = "createParticle", at = @At("RETURN"))
-    private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
-        if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
-            Particle particle = info.getReturnValue();
-            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(Integer.MAX_VALUE);
-            float r = ((color >> 16) & 0xff) / 255.0f;
-            float g = ((color >>  8) & 0xff) / 255.0f;
-            float b = ((color >>  0) & 0xff) / 255.0f;
-            particle.setColor(r, g, b);
-        }
-    }
+//    @Inject(method = "createParticle", at = @At("RETURN"))
+//    private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
+//        if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
+//            Particle particle = info.getReturnValue();
+//            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(Integer.MAX_VALUE);
+//            float r = ((color >> 16) & 0xff) / 255.0f;
+//            float g = ((color >>  8) & 0xff) / 255.0f;
+//            float b = ((color >>  0) & 0xff) / 255.0f;
+//            particle.setColor(r, g, b);
+//        }
+//    }
 }

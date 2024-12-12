@@ -35,11 +35,11 @@ import net.minecraft.world.World;
 public abstract class SodiumClientWorldMixin extends World implements BiomeSeedProvider {
 
     private SodiumClientWorldMixin() {
-        super(null, null, null, null, false, false, 0L, 0);
+        super(null, null, null, null, null, false, false, 0, 0);
     }
 
     @Override
-    public long getBiomeSeed() {
+    public long sodium$getBiomeSeed() {
         return ((SodiumBiomeAccessAccessor)this.getBiomeAccess()).getSeed();
     }
 }

@@ -41,7 +41,7 @@ public abstract class WolfCollarFeatureRendererMixin extends FeatureRenderer<Wol
     }
 
     @Redirect(
-        method = "render",
+        method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/passive/WolfEntity;FFFFFF)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/util/DyeColor;getColorComponents()[F"
