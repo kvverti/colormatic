@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021-2022  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -31,7 +31,6 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.registry.Registry;
 
 /**
  * These must be kept in sync with the mixins for provided colors and vanilla defaults.

@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021-2022  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,19 +22,17 @@
 package io.github.kvverti.colormatic.mixin.block;
 
 import io.github.kvverti.colormatic.Colormatic;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.RedstoneWireBlock;
-import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
@@ -48,6 +46,11 @@ public abstract class RedstoneWireBlockMixin extends Block {
         super(null);
     }
 
+    /**
+     * Modifies any call to the public interface.
+     * @param power redstone power level
+     * @param info callback info
+     */
     @Inject(method = "getWireColor", at = @At("HEAD"), cancellable = true)
     private static void onWireColor(int power, CallbackInfoReturnable<Integer> info) {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
@@ -55,44 +58,25 @@ public abstract class RedstoneWireBlockMixin extends Block {
         }
     }
 
-    /*
-     * Relevant bytecode:
-     * L1
-     *  LINENUMBER 447 L1
-     *  ILOAD 5
-     *  IFNE L2                  // if(i != 0)
-     * L3
-     *  LINENUMBER 448 L3
-     *  RETURN
-     * L2
-     *  LINENUMBER 450 L2
-     *  FRAME APPEND [I]
-     *  <injection point>
-     *  GETSTATIC net/minecraft/util/math/Direction$Type.HORIZONTAL : Lnet/minecraft/util/math/Direction$Type;
-     *  INVOKEVIRTUAL net/minecraft/util/math/Direction$Type.iterator ()Ljava/util/Iterator;
-     *  ASTORE 6
+    /**
+     * Modify every call to change the color of redstone particles.
      */
-    @Inject(
+    @ModifyArg(
         method = "randomDisplayTick",
         at = @At(
-            value = "FIELD",
-            target = "Lnet/minecraft/util/math/Direction$Type;HORIZONTAL:Lnet/minecraft/util/math/Direction$Type;",
-            ordinal = 0
-        ),
-        locals = LocalCapture.CAPTURE_FAILHARD,
-        cancellable = true
+            value = "INVOKE",
+            target = "Lnet/minecraft/block/RedstoneWireBlock;addPoweredParticles(Lnet/minecraft/world/World;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/Direction;FF)V"
+        )
     )
-    private void onRandomDisplayTick(BlockState state, World world, BlockPos pos, Random rand, CallbackInfo info, int power) {
+    private Vec3d onRandomDisplayTick(World world, Random rand, BlockPos pos, Vec3d originalColor, Direction direction, Direction direction2, float f1, float f2) {
         if(Colormatic.REDSTONE_COLORS.hasCustomColormap()) {
-            double x = pos.getX() + 0.5 + (rand.nextFloat() - 0.5) * 0.2;
-            double y = ((float)pos.getY() + 0.0625F);
-            double z = pos.getZ() + 0.5 + (rand.nextFloat() - 0.5) * 0.2;
+            int power = world.getBlockState(pos).get(RedstoneWireBlock.POWER);
             int color = Colormatic.REDSTONE_COLORS.getColorBounded(power);
             float r = ((color >> 16) & 0xff) / 255.0f;
             float g = ((color >> 8) & 0xff) / 255.0f;
             float b = (color & 0xff) / 255.0f;
-            world.addParticle(new DustParticleEffect(new Vector3f(r, g, b), 1.0f), x, y, z, 0.0, 0.0, 0.0);
-            info.cancel();
+            return new Vec3d(r, g, b);
         }
+        return originalColor;
     }
 }

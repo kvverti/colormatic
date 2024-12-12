@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -22,17 +22,17 @@
 package io.github.kvverti.colormatic.mixin.block;
 
 import io.github.kvverti.colormatic.particle.CustomColoredRedDustParticle;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.LeverBlock;
-import net.minecraft.particle.DustParticleEffect;
+import net.minecraft.particle.AbstractDustParticleEffect;
+import net.minecraft.particle.ParticleEffect;
 
 /**
- * For some reason, levers don't use DustParticleEffect.RED, so we have to
+ * For some reason, levers don't use the default dust particle, so we have to
  * redirect the constructor call here as well.
  */
 @Mixin(LeverBlock.class)
@@ -42,15 +42,17 @@ public abstract class LeverBlockMixin extends Block {
         super(null);
     }
 
-    @Redirect(
+    @ModifyArg(
         method = "spawnParticles",
         at = @At(
-            value = "NEW",
-            target = "net/minecraft/particle/DustParticleEffect",
-            ordinal = 0
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/WorldAccess;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V"
         )
     )
-    private static DustParticleEffect proxyRedDust(Vector3f color, float a) {
-        return new CustomColoredRedDustParticle(color, a);
+    private static ParticleEffect proxyRedDust(ParticleEffect parameters, double x, double y, double z, double velocityX, double velocityY, double velocityZ) {
+        if(parameters instanceof AbstractDustParticleEffect dustParticleEffect) {
+            return new CustomColoredRedDustParticle(dustParticleEffect.getColor(), dustParticleEffect.getScale());
+        }
+        return parameters;
     }
 }

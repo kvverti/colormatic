@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,11 +21,11 @@
  */
 package io.github.kvverti.colormatic.mixin.particle;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.github.kvverti.colormatic.particle.CustomColoredRedDustParticle;
-import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
 
 import net.minecraft.particle.DustParticleEffect;
 
@@ -36,8 +36,7 @@ import net.minecraft.particle.DustParticleEffect;
 @Mixin(DustParticleEffect.class)
 public abstract class DustParticleEffectMixin {
 
-    @SuppressWarnings("UnresolvedMixinReference")
-    @Redirect(
+    @ModifyExpressionValue(
         method = "<clinit>",
         at = @At(
             value = "NEW",
@@ -45,7 +44,7 @@ public abstract class DustParticleEffectMixin {
             ordinal = 0
         )
     )
-    private static DustParticleEffect proxyRedDust(Vector3f color, float a) {
-        return new CustomColoredRedDustParticle(color, a);
+    private static DustParticleEffect proxyRedDust(DustParticleEffect value) {
+        return new CustomColoredRedDustParticle(value.getColor(), value.getScale());
     }
 }

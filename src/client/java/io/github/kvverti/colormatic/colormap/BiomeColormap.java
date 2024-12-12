@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -29,15 +29,12 @@ import io.github.kvverti.colormatic.properties.ColormapProperties.ColumnBounds;
 import io.github.kvverti.colormatic.properties.HexColor;
 
 import net.minecraft.client.texture.NativeImage;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.registry.BuiltinRegistries;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registry;
 import net.minecraft.world.BlockRenderView;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
 
 public class BiomeColormap implements ColormaticResolver {
 
@@ -105,7 +102,7 @@ public class BiomeColormap implements ColormaticResolver {
             case VANILLA:
                 double temp = biome.getTemperature();
                 temp = MathHelper.clamp(temp, 0.0f, 1.0f);
-                double rain = MathHelper.clamp(0.5, 0.0F, 1.0F); // todo figure out downfall
+                double rain = MathHelper.clamp(biome.weather.downfall(), 0.0F, 1.0F);
                 return getColor(temp, rain);
             case GRID:
                 ColumnBounds cb = properties.getColumn(Colormatic.getBiomeKey(manager, biome), manager.get(RegistryKeys.BIOME));
