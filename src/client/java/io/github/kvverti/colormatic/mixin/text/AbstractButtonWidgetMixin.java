@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,30 +21,31 @@
  */
 package io.github.kvverti.colormatic.mixin.text;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.github.kvverti.colormatic.Colormatic;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.PressableWidget;
+import net.minecraft.text.Text;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
+@Mixin(PressableWidget.class)
+public abstract class AbstractButtonWidgetMixin extends ClickableWidget {
 
-@Mixin(ClickableWidget.class)
-public abstract class AbstractButtonWidgetMixin {
-// todo: where are the hard-coded colors? Are there any?
+    public AbstractButtonWidgetMixin(int x, int y, int width, int height, Text message) {
+        super(x, y, width, height, message);
+    }
 
-//    @Shadow public abstract boolean isHovered();
-//
-//    @ModifyConstant(method = "renderButton", constant = @Constant(intValue = 16777215))
-//    private int proxyButtonHoverColor(int original) {
-//        int col = Colormatic.COLOR_PROPS.getProperties().getButtonTextHovered();
-//        return col != 0 && this.isHovered() ? col : original;
-//    }
-//
-//    @ModifyConstant(method = "renderButton", constant = @Constant(intValue = 10526880))
-//    private int proxyButtonDisabledColor(int original) {
-//        int col = Colormatic.COLOR_PROPS.getProperties().getButtonTextDisabled();
-//        return col != 0 ? col : original;
-//    }
+    @ModifyExpressionValue(method = "renderButton", at = @At(value = "CONSTANT", args = "intValue=16777215"))
+    private int proxyButtonHoverColor(int original) {
+        int col = Colormatic.COLOR_PROPS.getProperties().getButtonTextHovered();
+        return col != 0 && this.isHovered() ? col : original;
+    }
+
+    @ModifyExpressionValue(method = "renderButton", at = @At(value = "CONSTANT", args = "intValue=10526880"))
+    private int proxyButtonDisabledColor(int original) {
+        int col = Colormatic.COLOR_PROPS.getProperties().getButtonTextDisabled();
+        return col != 0 ? col : original;
+    }
 }
