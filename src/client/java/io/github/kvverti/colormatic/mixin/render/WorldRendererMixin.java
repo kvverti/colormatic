@@ -21,6 +21,7 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.github.kvverti.colormatic.Colormatic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,23 +34,23 @@ import net.minecraft.client.render.WorldRenderer;
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin {
 
-//    /**
-//     * When clear void is enabled, prevent the void from rendering.
-//     */
-//    @ModifyConstant(
-//        method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/math/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V",
-//        constant = @Constant(doubleValue = 0.0, ordinal = 0),
-//        slice = @Slice(
-//            from = @At(
-//                value = "INVOKE",
-//                target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight(Lnet/minecraft/world/HeightLimitView;)D"
-//            )
-//        )
-//    )
-//    private double modifyVoidBackgroundCondition(double zero) {
-//        if(Colormatic.config().clearVoid) {
-//            zero = Double.NEGATIVE_INFINITY;
-//        }
-//        return zero;
-//    }
+    /**
+     * When clear void is enabled, prevent the void from rendering.
+     */
+    @ModifyExpressionValue(
+        method = "renderSky(Lnet/minecraft/client/util/math/MatrixStack;Lorg/joml/Matrix4f;FLnet/minecraft/client/render/Camera;ZLjava/lang/Runnable;)V",
+        at = @At(value = "CONSTANT", args = "doubleValue=0", ordinal = 0),
+        slice = @Slice(
+            from = @At(
+                value = "INVOKE",
+                target = "Lnet/minecraft/client/world/ClientWorld$Properties;getSkyDarknessHeight(Lnet/minecraft/world/HeightLimitView;)D"
+            )
+        )
+    )
+    private double modifyVoidBackgroundCondition(double zero) {
+        if(Colormatic.config().clearVoid) {
+            zero = Double.NEGATIVE_INFINITY;
+        }
+        return zero;
+    }
 }

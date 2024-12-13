@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,14 +21,12 @@
  */
 package io.github.kvverti.colormatic.mixin.potion;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.entity.effect.StatusEffect;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.entity.effect.StatusEffect;
 
 /**
  * Provides custom potion and effect coloring.
@@ -36,12 +34,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(StatusEffect.class)
 public abstract class StatusEffectMixin {
 
-    @Inject(method = "getColor", at = @At("HEAD"), cancellable = true)
-    private void onColor(CallbackInfoReturnable<Integer> info) {
+    @ModifyReturnValue(method = "getColor", at = @At("RETURN"))
+    private int modifyColor(int originalColor) {
         StatusEffect self = (StatusEffect)(Object)this;
         int color = Colormatic.COLOR_PROPS.getProperties().getPotion(self);
         if(color != 0) {
-            info.setReturnValue(color);
+            return color;
         }
+        return originalColor;
     }
 }

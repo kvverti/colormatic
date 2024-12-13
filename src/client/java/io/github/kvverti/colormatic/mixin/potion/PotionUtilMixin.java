@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,13 +21,12 @@
  */
 package io.github.kvverti.colormatic.mixin.potion;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import io.github.kvverti.colormatic.Colormatic;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
 
 import net.minecraft.potion.PotionUtil;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.Constant;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 /**
  * Provides custom water bottle coloring.
@@ -35,9 +34,9 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 @Mixin(PotionUtil.class)
 public abstract class PotionUtilMixin {
 
-    @ModifyConstant(
+    @ModifyExpressionValue(
         method = "getColor(Ljava/util/Collection;)I",
-        constant = @Constant(intValue = 0x385dc6)
+        at = @At(value = "CONSTANT", args = "intValue=3694022")
     )
     private static int modifyWaterColor(int waterColor) {
         int color = Colormatic.COLOR_PROPS.getProperties().getPotion(null);
