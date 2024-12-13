@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021-2022  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,7 @@
  */
 package io.github.kvverti.colormatic.mixin.world;
 
+import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
 import io.github.kvverti.colormatic.colormap.ExtendedColorResolver;
@@ -32,7 +33,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.client.world.ClientWorld;
@@ -41,8 +41,8 @@ import net.minecraft.util.CubicSampler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.source.BiomeCoords;
 import net.minecraft.world.biome.ColorResolver;
+import net.minecraft.world.biome.source.BiomeCoords;
 
 /**
  * Provides global sky color customization capability.
@@ -83,12 +83,25 @@ public abstract class ClientWorldMixin extends World {
 
     /**
      * Vanilla doesn't check if the color cache exists before retrieving it. We fix this here.
+     * This method can race with {@link #reloadColormaticColor(CallbackInfo)} so it modifies the receiver
+     * directly before the method invocation.
      */
-    @Inject(method = "getColor", at = @At("HEAD"))
-    private void fixVanillaColorCache(BlockPos pos, ColorResolver resolver, CallbackInfoReturnable<Integer> info) {
-        if(this.colorCache.get(resolver) == null) {
-            this.colorCache.put(resolver, new BiomeColorCache(pos1 -> this.calculateColor(pos1, resolver)));
+    @ModifyReceiver(
+        method = "getColor",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/client/world/BiomeColorCache;getBiomeColor(Lnet/minecraft/util/math/BlockPos;)I"
+        )
+    )
+    private BiomeColorCache fixVanillaColorCache(BiomeColorCache cache, BlockPos pos, BlockPos samePos, ColorResolver resolver) {
+        if(cache == null) {
+            cache = new BiomeColorCache(pos1 -> this.calculateColor(pos1, resolver));
+            // prevent races with removing in reloadColormaticColor
+            synchronized(this) {
+                this.colorCache.put(resolver, cache);
+            }
         }
+        return cache;
     }
 
     /**
@@ -97,6 +110,9 @@ public abstract class ClientWorldMixin extends World {
      */
     @Inject(method = "reloadColor", at = @At("RETURN"))
     private void reloadColormaticColor(CallbackInfo info) {
-        this.colorCache.entrySet().removeIf(entry -> entry.getKey() instanceof ExtendedColorResolver);
+        // prevent races with adding in fixVanillaColorCache
+        synchronized(this) {
+            this.colorCache.entrySet().removeIf(entry -> entry.getKey() instanceof ExtendedColorResolver);
+        }
     }
 }
