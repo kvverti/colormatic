@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,15 +21,13 @@
  */
 package io.github.kvverti.colormatic.mixin.particle;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.github.kvverti.colormatic.Colormatic;
-
-import net.minecraft.client.particle.BlockLeakParticle;
-import net.minecraft.client.particle.Particle;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import net.minecraft.client.particle.BlockLeakParticle;
+import net.minecraft.client.particle.SpriteBillboardParticle;
 
 /**
  * Provides (falling) lava drop particle color customization capability.
@@ -37,15 +35,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BlockLeakParticle.class)
 public abstract class FallingLavaParticleFactoryMixin {
 
-//    @Inject(method = "createParticle", at = @At("RETURN"))
-//    private void onCreateParticle(CallbackInfoReturnable<Particle> info) {
-//        if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
-//            Particle particle = info.getReturnValue();
-//            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(Integer.MAX_VALUE);
-//            float r = ((color >> 16) & 0xff) / 255.0f;
-//            float g = ((color >>  8) & 0xff) / 255.0f;
-//            float b = ((color >>  0) & 0xff) / 255.0f;
-//            particle.setColor(r, g, b);
-//        }
-//    }
+    @ModifyReturnValue(method = "createFallingLava", at = @At("RETURN"))
+    private static SpriteBillboardParticle onCreateParticle(SpriteBillboardParticle original) {
+        if(Colormatic.LAVA_DROP_COLORS.hasCustomColormap()) {
+            int color = Colormatic.LAVA_DROP_COLORS.getColorBounded(Integer.MAX_VALUE);
+            float r = ((color >> 16) & 0xff) / 255.0f;
+            float g = ((color >>  8) & 0xff) / 255.0f;
+            float b = ((color >>  0) & 0xff) / 255.0f;
+            original.setColor(r, g, b);
+        }
+        return original;
+    }
 }
