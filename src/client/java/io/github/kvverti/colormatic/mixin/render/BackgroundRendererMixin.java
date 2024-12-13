@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,6 +21,10 @@
  */
 package io.github.kvverti.colormatic.mixin.render;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
@@ -30,12 +34,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.render.BackgroundRenderer;
@@ -86,14 +85,14 @@ public abstract class BackgroundRendererMixin {
         return submersionType;
     }
 
-    @Redirect(
+    @WrapOperation(
         method = "render",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/biome/Biome;getWaterFogColor()I"
         )
     )
-    private static int proxyWaterLavaFogColor(Biome biome, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
+    private static int proxyWaterLavaFogColor(Biome biome, Operation<Integer> original, Camera camera, float tickDelta, ClientWorld world, int i, float f) {
         Fluid fluid;
         BiomeColormapResource colormapResource;
         var submersionType = camera.getSubmersionType();
@@ -122,7 +121,7 @@ public abstract class BackgroundRendererMixin {
                 if(submersionType == CameraSubmersionType.LAVA) {
                     color = 0x991900;
                 } else {
-                    color = biome.getWaterFogColor();
+                    color = original.call();
                 }
             }
         }
@@ -174,15 +173,6 @@ public abstract class BackgroundRendererMixin {
         }
     }
 
-    @Unique
-    private static float redStore;
-
-    @Unique
-    private static float greenStore;
-
-    @Unique
-    private static float blueStore;
-
     /**
      * Save old colors before rain and thunder is applied when clear skies
      * are enabled. World#getSkyColor does this for us.
@@ -194,11 +184,14 @@ public abstract class BackgroundRendererMixin {
             target = "Lnet/minecraft/client/world/ClientWorld;getRainGradient(F)F"
         )
     )
-    private static void saveColorsToRestRainAndThunder(CallbackInfo info) {
+    private static void saveColorsToResetRainAndThunder(CallbackInfo info,
+                                                       @Share("red") LocalFloatRef red,
+                                                       @Share("green") LocalFloatRef green,
+                                                       @Share("blue") LocalFloatRef blue) {
         if(Colormatic.config().clearSky) {
-            redStore = BackgroundRendererMixin.red;
-            greenStore = BackgroundRendererMixin.green;
-            blueStore = BackgroundRendererMixin.blue;
+            red.set(BackgroundRendererMixin.red);
+            green.set(BackgroundRendererMixin.green);
+            blue.set(BackgroundRendererMixin.blue);
         }
     }
 
@@ -219,11 +212,14 @@ public abstract class BackgroundRendererMixin {
             )
         )
     )
-    private static void resetRainAndThunderColors(CallbackInfo info) {
+    private static void resetRainAndThunderColors(CallbackInfo info,
+                                                  @Share("red") LocalFloatRef red,
+                                                  @Share("green") LocalFloatRef green,
+                                                  @Share("blue") LocalFloatRef blue) {
         if(Colormatic.config().clearSky) {
-            BackgroundRendererMixin.red = redStore;
-            BackgroundRendererMixin.green = greenStore;
-            BackgroundRendererMixin.blue = blueStore;
+            BackgroundRendererMixin.red = red.get();
+            BackgroundRendererMixin.green = green.get();
+            BackgroundRendererMixin.blue = blue.get();
         }
     }
 
