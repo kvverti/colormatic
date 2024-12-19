@@ -6,8 +6,8 @@
   "client": [
     "color.SodiumBlockColorsMixin",
     "color.SodiumItemColorsMixin",
-    "world.SodiumClientWorldMixin",
-    "world.SodiumBiomeAccessAccessor"
+    "world.SodiumBiomeAccessAccessor",
+    "world.SodiumClientWorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1

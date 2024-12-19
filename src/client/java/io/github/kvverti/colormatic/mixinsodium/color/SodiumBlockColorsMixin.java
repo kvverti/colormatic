@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2021  Thalia Nero
+ * Copyright (C) 2021-2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -21,33 +21,56 @@
  */
 package io.github.kvverti.colormatic.mixinsodium.color;
 
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import me.jellysquid.mods.sodium.client.model.color.interop.BlockColorsExtended;
-import org.spongepowered.asm.mixin.Implements;
-import org.spongepowered.asm.mixin.Interface;
-import org.spongepowered.asm.mixin.Intrinsic;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceMap;
+import it.unimi.dsi.fastutil.objects.Reference2ReferenceOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceSet;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 
-import net.minecraft.block.BlockState;
+import net.minecraft.block.Block;
+import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.client.color.block.BlockColors;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.collection.IdList;
 
-//@Mixin(value = BlockColors.class, priority = 2000)
-//@Implements(@Interface(iface = BlockColorsExtended.class, prefix = "i$", remap = Interface.Remap.NONE))
-//public abstract class SodiumBlockColorsMixin implements BlockColorsExtended {
-//
-//    @Unique
-//    private static final ColorSampler<BlockState> COLORMATIC_PROVIDER =
-//        (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
-//
-//    /**
-//     * Displace Sodium's implementation to first check Colormatic's custom block colors.
-//     */
-//    @Intrinsic(displace = true)
-//    public ColorSampler<BlockState> i$getColorProvider(BlockState state) {
-//        if(BiomeColormaps.isCustomColored(state)) {
-//            return COLORMATIC_PROVIDER;
-//        }
-//        return this.getColorProvider(state);
-//    }
-//}
+@Mixin(value = BlockColors.class, priority = 2000)
+public abstract class SodiumBlockColorsMixin {
+
+    @Shadow @Final private IdList<BlockColorProvider> providers;
+
+    @Unique
+    private static final BlockColorProvider COLORMATIC_PROVIDER =
+        (state, world, pos, tintIndex) -> BiomeColormaps.getBiomeColor(state, world, pos);
+
+    /**
+     * Displace Sodium's implementation to first check Colormatic's custom block colors.
+     */
+    @ModifyReturnValue(method = "sodium$getProviders", at = @At("RETURN"))
+    private Reference2ReferenceMap<Block, BlockColorProvider> addColormaticProviders(Reference2ReferenceMap<Block, BlockColorProvider> original) {
+        System.out.println("Look");
+        var map = new Reference2ReferenceOpenHashMap<>(original);
+        for(var block : Registries.BLOCK) {
+            if(BiomeColormaps.isBlockCustomColored(block)) {
+                map.put(block, COLORMATIC_PROVIDER);
+            }
+        }
+        return map;
+    }
+
+    @ModifyReturnValue(method = "sodium$getOverridenVanillaBlocks", at = @At("RETURN"))
+    private ReferenceSet<Block> addColormaticOverriddenBlocks(ReferenceSet<Block> original) {
+        var set = new ReferenceOpenHashSet<>(original);
+        for(var block : Registries.BLOCK) {
+            if(this.providers.containsKey(Registries.BLOCK.getRawId(block)) && BiomeColormaps.isBlockCustomColored(block)) {
+                set.add(block);
+            }
+        }
+        return set;
+    }
+}

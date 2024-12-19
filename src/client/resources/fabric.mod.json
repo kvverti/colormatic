@@ -31,7 +31,8 @@
   },
   "mixins": [
     "colormatic.mixins.json",
-    "colormatic.fapi.mixins.json"
+    "colormatic.fapi.mixins.json",
+    "colormatic.sodium.mixins.json"
   ],
   "accessWidener": "colormatic.accesswidener",
 

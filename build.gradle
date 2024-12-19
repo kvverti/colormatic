@@ -52,7 +52,7 @@ dependencies {
 	 modRuntimeOnly("com.terraformersmc:modmenu:${project.mod_menu_version}") { transitive = false }
 	// modRuntimeOnly fabricApi.module("fabric-rendering-data-attachment-v1", project.fabric_version)
 	// modRuntimeOnly fabricApi.module("fabric-rendering-fluids-v1", project.fabric_version)
-	 //modRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
+	// modRuntimeOnly "maven.modrinth:sodium:${project.sodium_version}"
 
 	// because Loom doesn't load Sodium's included non-mod dependency
 	 runtimeOnly "org.joml:joml:1.10.2"

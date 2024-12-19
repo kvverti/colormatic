@@ -107,6 +107,16 @@ public final class BiomeColormaps {
     }
 
     /**
+     * Returns whether any state of the given block has custom colormaps.
+     */
+    public static boolean isBlockCustomColored(Block block) {
+        if(colormapsByBlock.contains(block)) {
+            return true;
+        }
+        return block.getStateManager().getStates().stream().anyMatch(colormapsByState::contains);
+    }
+
+    /**
      * Items don't have a world position, so the corresponding block state takes default values,
      * which may not be present even if the block state has custom coloring.
      */
