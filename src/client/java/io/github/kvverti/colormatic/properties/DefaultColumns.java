@@ -305,6 +305,9 @@ public final class DefaultColumns {
         map.put(BiomeKeys.MANGROVE_SWAMP.getValue(), new ColormapProperties.ColumnBounds(6, 1));
         // deep dark -> lush caves
         map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(175, 1));
+        // 1.20
+        // cherry grove -> plains
+        map.put(BiomeKeys.CHERRY_GROVE.getValue(), new ColormapProperties.ColumnBounds(1, 1));
         return map;
     }
 
@@ -377,6 +380,8 @@ public final class DefaultColumns {
         // 1.19
         map.put(BiomeKeys.MANGROVE_SWAMP.getValue(), new ColormapProperties.ColumnBounds(61, 1));
         map.put(BiomeKeys.DEEP_DARK.getValue(), new ColormapProperties.ColumnBounds(62, 1));
+        // 1.20
+        map.put(BiomeKeys.CHERRY_GROVE.getValue(), new ColormapProperties.ColumnBounds(63, 1));
         return map;
     }
 }
