@@ -128,23 +128,6 @@ public abstract class BackgroundRendererMixin {
         return color;
     }
 
-//    @Dynamic("RgbFetcher lambda method in #render")
-//    @Redirect(
-//        method = "method_24873",
-//        at = @At(
-//            value = "INVOKE",
-//            target = "Lnet/minecraft/world/biome/Biome;getFogColor()I"
-//        )
-//    )
-//    private static int proxyCustomFogColor(Biome self, ClientWorld world, BiomeAccess access, float angleDelta, int x, int y, int z) {
-//        if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-//            return self.getFogColor();
-//        }
-//        var dimId = Colormatic.getDimId(world);
-//        ColormaticResolver resolver = BiomeColormaps.getTotalSkyFog(dimId);
-//        return resolver.getColor(world.getRegistryManager(), self, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z));
-//    }
-
     /**
      * Store this object for necessary context when computing the biome fog color.
      * Why are we doing this? Because Sodium redirects exactly the place we would have redirected,
