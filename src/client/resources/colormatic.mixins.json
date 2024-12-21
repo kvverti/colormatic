@@ -6,6 +6,7 @@
     "block.LeverBlockMixin",
     "block.MaterialColorMixin",
     "block.RedstoneWireBlockMixin",
+    "block.SculkSensorBlockMixin",
     "color.BiomeColorsMixin",
     "color.BlockColorsAccessor",
     "color.BlockColorsMixin",

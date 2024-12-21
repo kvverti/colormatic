@@ -32,6 +32,7 @@ import com.google.gson.JsonParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import net.minecraft.block.MapColor;
 import net.minecraft.entity.EntityType;
@@ -44,6 +45,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.registry.Registry;
+import net.minecraft.util.math.Vec3d;
 
 /**
  * The global color.json file. It's a monster.
@@ -70,6 +72,8 @@ public class GlobalColorProperties {
     private final Map<Formatting, TextColor> textColor;
     private final TextColorSettings text;
     private final int xpOrbTime;
+    private final Vector3f sculkStart;
+    private final Vector3f sculkEnd;
     private final ColormapProperties.Format defaultFormat;
     private final @Nullable ColormapProperties.ColumnLayout defaultLayout;
 
@@ -109,6 +113,8 @@ public class GlobalColorProperties {
             this.textColor = Collections.emptyMap();
             this.text = new TextColorSettings();
         }
+        this.sculkStart = toVector3f(settings.sculk.start);
+        this.sculkEnd = toVector3f(settings.sculk.end);
         this.defaultFormat = settings.palette.format;
         this.defaultLayout = settings.palette.layout;
         // water potions' color does not correspond to a status effect
@@ -155,6 +161,13 @@ public class GlobalColorProperties {
             res.put(entry.getKey(), rgb);
         }
         return res;
+    }
+
+    private static Vector3f toVector3f(HexColor color) {
+        if(color == null) {
+            return null;
+        }
+        return Vec3d.unpackRgb(color.rgb()).toVector3f();
     }
 
     private static Map<EntityType<?>, int[]> collateSpawnEggColors(Settings settings) {
@@ -271,6 +284,14 @@ public class GlobalColorProperties {
         return xpOrbTime;
     }
 
+    public Vector3f getSculkStart() {
+        return sculkStart;
+    }
+
+    public Vector3f getSculkEnd() {
+        return sculkEnd;
+    }
+
     public ColormapProperties.Format getDefaultFormat() {
         return defaultFormat;
     }
@@ -364,6 +385,7 @@ public class GlobalColorProperties {
         LegacyEggColor egg;
         TextColorSettings text;
         XpOrb xporb = XpOrb.DEFAULT;
+        Sculk sculk = Sculk.DEFAULT;
         Palette palette = Palette.DEFAULT;
     }
 
@@ -400,5 +422,12 @@ public class GlobalColorProperties {
 
         ColormapProperties.Format format = ColormapProperties.Format.VANILLA;
         @Nullable ColormapProperties.ColumnLayout layout = null;
+    }
+
+    private static class Sculk {
+        static Sculk DEFAULT = new Sculk();
+
+        HexColor start;
+        HexColor end;
     }
 }
