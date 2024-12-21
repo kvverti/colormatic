@@ -28,13 +28,15 @@ import com.llamalad7.mixinextras.sugar.ref.LocalFloatRef;
 import io.github.kvverti.colormatic.Colormatic;
 import io.github.kvverti.colormatic.colormap.BiomeColormap;
 import io.github.kvverti.colormatic.colormap.BiomeColormaps;
-import io.github.kvverti.colormatic.colormap.ColormaticResolver;
+import io.github.kvverti.colormatic.iface.StaticRenderContext;
 import io.github.kvverti.colormatic.resource.BiomeColormapResource;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Dynamic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.render.BackgroundRenderer;
@@ -46,8 +48,6 @@ import net.minecraft.fluid.Fluids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.source.BiomeAccess;
-import net.minecraft.world.biome.source.BiomeCoords;
 
 /**
  * Provides air and underlava fog color and customization capability.
@@ -121,28 +121,58 @@ public abstract class BackgroundRendererMixin {
                 if(submersionType == CameraSubmersionType.LAVA) {
                     color = 0x991900;
                 } else {
-                    color = original.call();
+                    color = original.call(biome);
                 }
             }
         }
         return color;
     }
 
-    @Dynamic("RgbFetcher lambda method in #render")
-    @Redirect(
-        method = "method_24873",
+//    @Dynamic("RgbFetcher lambda method in #render")
+//    @Redirect(
+//        method = "method_24873",
+//        at = @At(
+//            value = "INVOKE",
+//            target = "Lnet/minecraft/world/biome/Biome;getFogColor()I"
+//        )
+//    )
+//    private static int proxyCustomFogColor(Biome self, ClientWorld world, BiomeAccess access, float angleDelta, int x, int y, int z) {
+//        if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
+//            return self.getFogColor();
+//        }
+//        var dimId = Colormatic.getDimId(world);
+//        ColormaticResolver resolver = BiomeColormaps.getTotalSkyFog(dimId);
+//        return resolver.getColor(world.getRegistryManager(), self, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z));
+//    }
+
+    /**
+     * Store this object for necessary context when computing the biome fog color.
+     * Why are we doing this? Because Sodium redirects exactly the place we would have redirected,
+     * and also ignores the vanilla RgbFetcher, we do this roundabout change instead. The world
+     * and all positions are stored in static state so that the logic for calculating the fog color
+     * can reside in {@link Biome#getFogColor()}.
+     */
+    @Inject(
+        method = "render",
         at = @At(
             value = "INVOKE",
-            target = "Lnet/minecraft/world/biome/Biome;getFogColor()I"
+            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
         )
     )
-    private static int proxyCustomFogColor(Biome self, ClientWorld world, BiomeAccess access, float angleDelta, int x, int y, int z) {
-        if(Colormatic.config().clearSky && world.getDimension().hasSkyLight()) {
-            return self.getFogColor();
-        }
-        var dimId = Colormatic.getDimId(world);
-        ColormaticResolver resolver = BiomeColormaps.getTotalSkyFog(dimId);
-        return resolver.getColor(world.getRegistryManager(), self, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z));
+    private static void setWorldForFog(Camera camera, float tickDelta, ClientWorld world, int viewDistance, float skyDarkness, CallbackInfo info) {
+        StaticRenderContext.FOG_CONTEXT.get().world = world;
+    }
+
+    @Inject(
+        method = "render",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;",
+            shift = At.Shift.AFTER
+        )
+    )
+    private static void clearWorldForFog(CallbackInfo info) {
+        StaticRenderContext.FOG_CONTEXT.get().world = null;
     }
 
     /**

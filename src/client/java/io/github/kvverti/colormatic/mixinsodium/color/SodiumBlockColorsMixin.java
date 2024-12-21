@@ -39,7 +39,7 @@ import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.collection.IdList;
 
-@Mixin(value = BlockColors.class, priority = 2000)
+@Mixin(BlockColors.class)
 public abstract class SodiumBlockColorsMixin {
 
     @Shadow @Final private IdList<BlockColorProvider> providers;
@@ -53,7 +53,6 @@ public abstract class SodiumBlockColorsMixin {
      */
     @ModifyReturnValue(method = "sodium$getProviders", at = @At("RETURN"))
     private Reference2ReferenceMap<Block, BlockColorProvider> addColormaticProviders(Reference2ReferenceMap<Block, BlockColorProvider> original) {
-        System.out.println("Look");
         var map = new Reference2ReferenceOpenHashMap<>(original);
         for(var block : Registries.BLOCK) {
             if(BiomeColormaps.isBlockCustomColored(block)) {

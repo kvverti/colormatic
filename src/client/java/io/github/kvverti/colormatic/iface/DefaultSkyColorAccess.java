@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2022
+ * Copyright (C) 2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,14 +19,21 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixinsodium.world;
+package io.github.kvverti.colormatic.iface;
 
-import net.minecraft.world.biome.source.BiomeAccess;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.gen.Accessor;
+/**
+ * Exposes what the sky color of a Biome would be without Colormatic customization.
+ */
+public interface DefaultSkyColorAccess {
+    /**
+     * Get the vanilla sky color for this biome. Colormatic fallback
+     * code should call this instead of getSkyColor to avoid recursion.
+     */
+    int colormatic$getDefaultSkyColor();
 
-@Mixin(BiomeAccess.class)
-public interface SodiumBiomeAccessAccessor {
-    @Accessor
-    long getSeed();
+    /**
+     * Get the vanilla fog color for this biome. Colormatic fallback
+     * code should call this instead of getFogColor to avoid recursion.
+     */
+    int colormatic$getDefaultFogColor();
 }

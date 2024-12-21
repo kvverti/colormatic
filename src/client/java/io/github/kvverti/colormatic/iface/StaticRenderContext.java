@@ -1,6 +1,6 @@
 /*
  * Colormatic
- * Copyright (C) 2022
+ * Copyright (C) 2024  Thalia Nero
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -19,27 +19,36 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.kvverti.colormatic.mixinsodium.world;
+package io.github.kvverti.colormatic.iface;
 
-import me.jellysquid.mods.sodium.client.world.BiomeSeedProvider;
-import org.spongepowered.asm.mixin.Mixin;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.world.World;
 
 /**
- * Sodium expects {@link BiomeSeedProvider} to be implemented on the target class, but the mixin that
- * adds it is disabled by Colormatic.
+ * Static state for global rendering (such as the background and world renderer).
  */
-@Mixin(value = ClientWorld.class)
-public abstract class SodiumClientWorldMixin extends World implements BiomeSeedProvider {
+public final class StaticRenderContext {
 
-    private SodiumClientWorldMixin() {
-        super(null, null, null, null, null, false, false, 0, 0);
-    }
+    /**
+     * Context for static sky tinting.
+     */
+    public static final ThreadLocal<SkyData> SKY_CONTEXT = ThreadLocal.withInitial(SkyData::new);
 
-    @Override
-    public long sodium$getBiomeSeed() {
-        return ((SodiumBiomeAccessAccessor)this.getBiomeAccess()).getSeed();
+    /**
+     * Context for static fog tinting.
+     */
+    public static final ThreadLocal<SkyData> FOG_CONTEXT = ThreadLocal.withInitial(SkyData::new);
+
+    /**
+     * Temporary data class for sky and fog context.
+     */
+    public static final class SkyData {
+
+        @Nullable
+        public ClientWorld world;
+        public int posX;
+        public int posY;
+        public int posZ;
     }
 }

@@ -22,25 +22,27 @@
 package io.github.kvverti.colormatic.mixin.world;
 
 import com.llamalad7.mixinextras.injector.ModifyReceiver;
-import io.github.kvverti.colormatic.Colormatic;
-import io.github.kvverti.colormatic.colormap.BiomeColormaps;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import io.github.kvverti.colormatic.colormap.ExtendedColorResolver;
+import io.github.kvverti.colormatic.iface.StaticRenderContext;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.world.BiomeColorCache;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.CubicSampler;
+import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.stat.Stat;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.biome.Biome;
 import net.minecraft.world.biome.ColorResolver;
 import net.minecraft.world.biome.source.BiomeCoords;
 
@@ -61,24 +63,43 @@ public abstract class ClientWorldMixin extends World {
         super(null, null, null, null, null, false, false, 0L, 0);
     }
 
-    @ModifyArg(
-        method = "getSkyColor",
-        at = @At(
-            value = "INVOKE",
-            target = "Lnet/minecraft/util/CubicSampler;sampleColor(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/CubicSampler$RgbFetcher;)Lnet/minecraft/util/math/Vec3d;"
-        ),
-        index = 1
-    )
-    private CubicSampler.RgbFetcher proxySkyColor(CubicSampler.RgbFetcher fetcher) {
-        var dimId = Colormatic.getDimId(this);
-        var resolver = BiomeColormaps.getTotalSky(dimId);
-        var biomeAccess = this.getBiomeAccess();
-        var manager = this.getRegistryManager();
-        return (x, y, z) -> {
-            var biomeRegistry = manager.get(RegistryKeys.BIOME);
-            var biome = Colormatic.getRegistryValue(biomeRegistry, biomeAccess.getBiomeForNoiseGen(x, y, z));
-            return Vec3d.unpackRgb(resolver.getColor(manager, biome, BiomeCoords.toBlock(x), BiomeCoords.toBlock(y), BiomeCoords.toBlock(z)));
-        };
+    /**
+     * Store this object for necessary context when computing the biome sky color.
+     * Why are we doing this? Because Sodium redirects exactly the place we would have redirected,
+     * and also ignores the vanilla RgbFetcher, we do this roundabout change instead. The world
+     * and all positions are stored in static state so that the logic for calculating the sky color
+     * can reside in {@link Biome#getSkyColor()}.
+     */
+    @WrapMethod(method = "getSkyColor")
+    private Vec3d setWorldForSkyColor(Vec3d cameraPos, float tickDelta, Operation<Vec3d> original) {
+        var ctx = StaticRenderContext.SKY_CONTEXT.get();
+        ctx.world = (ClientWorld)(Object)this;
+        var result = original.call(cameraPos, tickDelta);
+        ctx.world = null;
+        return result;
+    }
+
+    /**
+     * Store the biome coordinates for use in getting the biome sky color.
+     * ClientWorld normally inherits the implementation from {@link WorldView}.
+     * Sodium calls this method directly instead of using the BiomeAccess for sky color.
+     * todo: this is called concurrently so we need to make sure to only do stuff when we're calling fog/sky :))))))))
+     */
+    @Override
+    public RegistryEntry<Biome> getBiomeForNoiseGen(int biomeX, int biomeY, int biomeZ) {
+        var skyCtx = StaticRenderContext.SKY_CONTEXT.get();
+        if(skyCtx.world != null) {
+            skyCtx.posX = BiomeCoords.toBlock(biomeX);
+            skyCtx.posY = BiomeCoords.toBlock(biomeY);
+            skyCtx.posZ = BiomeCoords.toBlock(biomeZ);
+        }
+        var fogCtx = StaticRenderContext.FOG_CONTEXT.get();
+        if(fogCtx.world != null) {
+            fogCtx.posX = BiomeCoords.toBlock(biomeX);
+            fogCtx.posY = BiomeCoords.toBlock(biomeY);
+            fogCtx.posZ = BiomeCoords.toBlock(biomeZ);
+        }
+        return super.getBiomeForNoiseGen(biomeX, biomeY, biomeZ);
     }
 
     /**

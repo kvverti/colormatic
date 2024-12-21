@@ -38,6 +38,7 @@
     "text.ChatFormatMixin",
     "text.DyeColorMixin",
     "text.InGameHudMixin",
+    "world.BiomeMixin",
     "world.ClientWorldMixin",
     "xp.ExperienceOrbEntityRendererMixin"
   ],

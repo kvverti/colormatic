@@ -22,6 +22,7 @@
 package io.github.kvverti.colormatic.colormap;
 
 import io.github.kvverti.colormatic.Colormatic;
+import io.github.kvverti.colormatic.iface.DefaultSkyColorAccess;
 import io.github.kvverti.colormatic.mixin.color.BlockColorsAccessor;
 
 import net.minecraft.block.Block;
@@ -76,7 +77,7 @@ final class DefaultColormaticResolverProviders {
             } else {
                 color = Colormatic.COLOR_PROPS.getProperties().getDimensionSky(key);
                 if(color == 0) {
-                    color = biome.getSkyColor();
+                    color = ((DefaultSkyColorAccess)(Object)biome).colormatic$getDefaultSkyColor();
                 }
             }
             return color;
@@ -91,7 +92,7 @@ final class DefaultColormaticResolverProviders {
             } else {
                 color = Colormatic.COLOR_PROPS.getProperties().getDimensionFog(key);
                 if(color == 0) {
-                    color = biome.getFogColor();
+                    color = ((DefaultSkyColorAccess)(Object)biome).colormatic$getDefaultFogColor();
                 }
             }
             return color;
